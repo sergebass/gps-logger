@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ -h $0 ]; then # Is this a link?
+    scriptName=`readlink $0`
+    cd `dirname $scriptName`
+else # this is a script file itself... 
+    cd `dirname $0`
+fi
+
+echo "Packing the complete GPSLogger source archive:"
+
+date >pack.log
+
+#jar cvfM serge-works-GPSLogger-`date +%y%m%d-%H%M`.zip *
+#zip -rv9 serge-works-GPSLogger-`date +%y%m%d-%H%M`.zip *
+#tar cvfj serge-works-GPSLogger-`date +%y%m%d-%H%M`.tar.bz2 *
+7z a serge-works-GPSLogger-`date +%y%m%d-%H%M`.7z * .svn
+
+echo "Done."

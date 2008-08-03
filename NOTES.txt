@@ -1,0 +1,1 @@
+suiteName = getAppProperty("MIDlet-Name"); // e.g. in .jad to pass generated key code
