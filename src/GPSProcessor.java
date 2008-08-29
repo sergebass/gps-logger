@@ -149,15 +149,7 @@ public class GPSProcessor
                 // ignore?
             } finally {
                 try {
-/// MAKE A FLAG HERE... ??
-        
-                    // only display data when necessary
-                    // (save battery on extra CPU usage)
-//??                    if (!(midlet.getMainForm().isShown())) {
-if (true) {
-                        processSentence(sentence);
-                    }
-  ///^^^^^
+                    processSentence(sentence);
                 } catch (Throwable e) {
                     e.printStackTrace();
                     midlet.handleException(e, midlet.getMainForm());
@@ -332,12 +324,13 @@ if (true) {
             double fractionalDegrees = latitudeMinutes / 60.0;
             String fractionalDegreesString = "." + (long)(fractionalDegrees * 1000000.0);
             midlet.getLatitudeStringItem().setLabel(latitudeHemisphere + " "); // 'N' or 'S'
-            midlet.getLatitudeStringItem().setText(String.valueOf((int)latitudeDegrees) // degrees
-                                        + "\u00B0"
-                                        + latitudeMinutesString // minutes, fractional
-                                        + "\' ("
-                                        + fractionalDegreesString
-                                        + ")");
+            midlet.setText(midlet.getLatitudeStringItem(),
+                           String.valueOf((int)latitudeDegrees) // degrees
+                                    + "\u00B0"
+                                    + latitudeMinutesString // minutes, fractional
+                                    + "\' ("
+                                    + fractionalDegreesString
+                                    + ")");
         }
         
         double longitudeDegrees = 0.0;
@@ -373,12 +366,13 @@ if (true) {
             double fractionalDegrees = longitudeMinutes / 60.0;
             String fractionalDegreesString = "." + (long)(fractionalDegrees * 1000000.0);
             midlet.getLongitudeStringItem().setLabel(longitudeHemisphere + " "); // 'W' or 'E'
-            midlet.getLongitudeStringItem().setText(String.valueOf((int)longitudeDegrees) // degrees
-                                        + "\u00B0"
-                                        + longitudeMinutesString // minutes, fractional
-                                        + "\' ("
-                                        + fractionalDegreesString
-                                        + ")");
+            midlet.setText(midlet.getLongitudeStringItem(),
+                           String.valueOf((int)longitudeDegrees) // degrees
+                                    + "\u00B0"
+                                    + longitudeMinutesString // minutes, fractional
+                                    + "\' ("
+                                    + fractionalDegreesString
+                                    + ")");
         }
         
         if (values.length > 7) { // heading
@@ -419,10 +413,12 @@ if (true) {
             }
         }
 
-        midlet.getDateTimeStringItem().setText(timeString + ", " + dateString);
+        midlet.setText(midlet.getDateTimeStringItem(),
+                       timeString + ", " + dateString);
         
-        // compute motion data out of our current and last position:
+        double speedMS = 0.0;
         
+        // compute motion data out of our current and previous position:
         if (isValidGPSData && isOldDataSet) {
             double stepDistanceDelta = GPSMath.computeDistance
                     (latitude, longitude, oldLatitude, oldLongitude);
@@ -433,12 +429,14 @@ if (true) {
             }
             
             if (stepTimeDeltaSeconds > 0) { // avoid division by zero
-                speed = stepDistanceDelta * 3.6 / stepTimeDeltaSeconds;
+                speedMS = stepDistanceDelta / stepTimeDeltaSeconds;
+                speed = speedMS * 3.6;
                 if (speed > maxSpeed) {
                     maxSpeed = speed;
                 }
             }
             
+            // only execute this when moving faster than a certain speed
             if (stepDistanceDelta >= MIN_DISTANCE_DELTA) {
                 distance += stepDistanceDelta;
                 tripTimeMillis += stepTimeDeltaSeconds * 1000;
@@ -451,7 +449,6 @@ if (true) {
             } else { // there is something already, we can start calculation
                 long thisTimeMillis = System.currentTimeMillis();
                 double timeDeltaSeconds = ((double)thisTimeMillis - (double)slopeStartTimeMillis) / 1000.0;
-                double speedMS = speed / 3.6; // also convert km/h to m/sec
                 double groundDistanceDelta = timeDeltaSeconds * speedMS;
                 double altitudeDelta = altitude - slopeStartAltitude;
                 if (groundDistanceDelta >= MIN_GROUND_DISTANCE_DELTA) {
@@ -471,10 +468,16 @@ if (true) {
         
         String speedString = String.valueOf(((int)(speed * 10)) / 10.0);
         String maxSpeedString = String.valueOf(((int)(maxSpeed * 10)) / 10.0);
-        midlet.getSpeedStringItem().setText("" + speedString + " < " + maxSpeedString + " km/h");
+//        midlet.getSpeedStringItem().setText("" + speedString + " < " + maxSpeedString + " km/h");
+//        String groundSpeedKPHString = String.valueOf(((int)(groundSpeedKPH * 10)) / 10.0);
+        String speedMSString = String.valueOf(((int)(speedMS * 10)) / 10.0);
+        midlet.setText(midlet.getSpeedStringItem(),
+                       "" + speedString + " km/h ("
+                       + speedMSString + " m/s)");
         
         String distanceString = String.valueOf(((long)(distance)) / 1000.0);
-        midlet.getOdometerStringItem().setText(distanceString + " km");
+        midlet.setText(midlet.getOdometerStringItem(),
+                       distanceString + " km");
         
         // trip time & average speed
         String tripTimeString = convertMillisToString(tripTimeMillis);
@@ -483,7 +486,8 @@ if (true) {
             double tripAverageSpeed = distance * 3600 / tripTimeMillis;
             String tripAverageSpeedString = String.valueOf(((int)(tripAverageSpeed * 10)) / 10.0);
 
-            midlet.getTripTimeAndSpeedStringItem().setText("" + tripTimeString
+            midlet.setText(midlet.getTripTimeAndSpeedStringItem(),
+                    "" + tripTimeString
                     + " (" + tripAverageSpeedString + " km/h)");
         }
         
@@ -495,7 +499,8 @@ if (true) {
             double totalAverageSpeed = distance * 3600 / totalTimeMillis;
             String totalAverageSpeedString = String.valueOf(((int)(totalAverageSpeed * 10)) / 10.0);
 
-            midlet.getTotalTimeAndSpeedStringItem().setText("" + totalTimeString
+            midlet.setText(midlet.getTotalTimeAndSpeedStringItem(),
+                    "" + totalTimeString
                     + " (" + totalAverageSpeedString + " km/h)");
         }
 
@@ -540,18 +545,7 @@ if (true) {
      */
     void parseGPGGA(String[] values) {
         
-       /* these values are currently set by the GPRMC sentence:
-         * 
-        if (values.length > 0) {
-            dateTimeStringItem.setText(values[0]);
-        }
-        if (values.length > 2) {
-            latitudeStringItem.setText(values[2] + " " + values[1]);
-        }
-        if (values.length > 4) {
-            longitudeStringItem.setText(values[4] + " " + values[3]);
-        }
-         */
+        // (the date/time and latitude/longitude values are currently set by the GPRMC sentence)
         
         if (values.length > 7) { // satellite information
             try {
@@ -578,7 +572,8 @@ if (true) {
             
             String altitudeUnits = values[9].equals("M")? " m" : " ?";
             
-            midlet.getAltitudeStringItem().setText(values[8] + altitudeUnits
+            midlet.setText(midlet.getAltitudeStringItem(),
+                    values[8] + altitudeUnits
                     + ", ^" +  headingAngleString + "\u00B0" + headingSymbol);
         }
     }

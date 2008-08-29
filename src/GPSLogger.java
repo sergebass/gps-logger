@@ -1207,6 +1207,12 @@ return resetCommand;
         mustBeTerminated = true;
     }
     
+    public void setText(StringItem stringItem, String text) {
+        if (getMainForm().isShown()) { // no need to update GUI when invisible
+            stringItem.setText(text);
+        }
+    }
+    
     void loadSettings() {
         if (settings == null) {
             settings = new GPSLoggerSettings(this);
