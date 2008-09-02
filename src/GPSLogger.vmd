@@ -438,13 +438,8 @@
                         <Property name="maxSize" typeID="Pint" value="V4096"/>
                         <Property name="constraints" typeID="Pint" value="V0"/>
                         <Component componentID="181" typeID="C#ItemCommandEventSource">
-                            <Property name="eventHandler" typeID="C#EventHandler" value="R182"/>
                             <Property name="item" typeID="Cjavax.microedition.lcdui.Item" value="R160"/>
                             <Property name="command" typeID="Cjavax.microedition.lcdui.Command" value="R178"/>
-                            <Component componentID="182" typeID="C#SwitchDisplayableEventHandler">
-                                <Property name="eventSource" typeID="C#EventSource" value="R181"/>
-                                <Property name="displayable" typeID="Cjavax.microedition.lcdui.Displayable" value="R167"/>
-                            </Component>
                         </Component>
                     </Component>
                     <Component componentID="202" typeID="C#CommandEventSource">
@@ -544,29 +539,6 @@
                         </Component>
                     </Component>
                 </Component>
-                <Component componentID="167" typeID="Corg.netbeans.microedition.lcdui.pda.FileBrowser">
-                    <Property name="instanceName" typeID="Pjava.lang.String" value="VfileBrowser"/>
-                    <Property name="commands" typeID="1C#CommandEventSource" value="A2:4_R1684_R192"/>
-                    <Property name="title" typeID="Pjava.lang.String" value="VGPS log folder"/>
-                    <Property name="commandListener" typeID="C#CommandListener" value="R7"/>
-                    <Component componentID="168" typeID="C#FileBrowserOpenCommandEventSource">
-                        <Property name="eventHandler" typeID="C#EventHandler" value="R185"/>
-                        <Property name="displayable" typeID="Cjavax.microedition.lcdui.Displayable" value="R167"/>
-                        <Property name="command" typeID="Cjavax.microedition.lcdui.Command" value="R50"/>
-                        <Component componentID="185" typeID="C#MethodPointEventHandler">
-                            <Property name="eventSource" typeID="C#EventSource" value="R168"/>
-                            <Property name="methodPoint" typeID="C#MethodPoint" value="R183"/>
-                        </Component>
-                    </Component>
-                    <Component componentID="192" typeID="C#CommandEventSource">
-                        <Property name="eventHandler" typeID="C#EventHandler" value="R193"/>
-                        <Property name="displayable" typeID="Cjavax.microedition.lcdui.Displayable" value="R167"/>
-                        <Property name="command" typeID="Cjavax.microedition.lcdui.Command" value="R149"/>
-                        <Component componentID="193" typeID="C#PreviousScreenEventHandler">
-                            <Property name="eventSource" typeID="C#EventSource" value="R192"/>
-                        </Component>
-                    </Component>
-                </Component>
                 <Component componentID="233" typeID="Cjavax.microedition.lcdui.Alert">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VerrorAlert"/>
                     <Property name="title" typeID="Pjava.lang.String" value="VError"/>
@@ -576,24 +548,24 @@
                 </Component>
             </Component>
             <Component componentID="13" typeID="C#ResourcesCategory"/>
+            <Component componentID="259" typeID="C#DatabindingCategory"/>
         </Component>
     </Document>
     <FlowScene version="1">
-        <Node componentID="227" descriptorID="componentNode227" x="266" y="24"/>
-        <Node componentID="256" descriptorID="componentNode256" x="1159" y="648"/>
-        <Node componentID="141" descriptorID="componentNode141" x="505" y="343"/>
-        <Node componentID="85" descriptorID="componentNode85" x="272" y="154"/>
-        <Node componentID="147" descriptorID="componentNode147" x="955" y="712"/>
-        <Node componentID="183" descriptorID="componentNode183" x="34" y="712"/>
-        <Node componentID="211" descriptorID="componentNode211" x="514" y="104"/>
-        <Node componentID="188" descriptorID="componentNode188" x="34" y="313"/>
-        <Node componentID="2" descriptorID="componentNode2" x="955" y="313"/>
-        <Node componentID="82" descriptorID="componentNode82" x="504" y="14"/>
-        <Node componentID="14" descriptorID="componentNode14" x="1189" y="500"/>
         <Node componentID="233" descriptorID="componentNode233" x="159" y="100"/>
-        <Node componentID="167" descriptorID="componentNode167" x="264" y="500"/>
-        <Node componentID="125" descriptorID="componentNode125" x="744" y="500"/>
-        <Node componentID="197" descriptorID="componentNode197" x="772" y="66"/>
+        <Node componentID="188" descriptorID="componentNode188" x="34" y="313"/>
+        <Node componentID="14" descriptorID="componentNode14" x="1189" y="500"/>
+        <Node componentID="227" descriptorID="componentNode227" x="266" y="24"/>
+        <Node componentID="85" descriptorID="componentNode85" x="272" y="154"/>
+        <Node componentID="2" descriptorID="componentNode2" x="955" y="313"/>
         <Node componentID="108" descriptorID="componentNode108" x="34" y="32"/>
+        <Node componentID="211" descriptorID="componentNode211" x="514" y="104"/>
+        <Node componentID="197" descriptorID="componentNode197" x="772" y="66"/>
+        <Node componentID="82" descriptorID="componentNode82" x="504" y="14"/>
+        <Node componentID="125" descriptorID="componentNode125" x="744" y="500"/>
+        <Node componentID="183" descriptorID="componentNode183" x="34" y="712"/>
+        <Node componentID="147" descriptorID="componentNode147" x="955" y="712"/>
+        <Node componentID="141" descriptorID="componentNode141" x="505" y="343"/>
+        <Node componentID="256" descriptorID="componentNode256" x="1159" y="648"/>
     </FlowScene>
 </VisualDesign>
