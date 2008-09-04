@@ -23,7 +23,18 @@ public class GPSReceiver {
         System.out.print("Creating GPS receiver connection to "
                          + connectionURLString + "...");
         
-        streamConnection = (StreamConnection)Connector.open(connectionURLString);
+        try {
+            streamConnection = (StreamConnection)Connector.open(connectionURLString);
+        } catch (Exception e) {
+            // strip the device URL string of parameters,
+            // some devices have problems with this...
+            int parameterStart = connectionURLString.indexOf(";");
+            if (parameterStart > 0) {
+                connectionURLString = connectionURLString.substring(0, parameterStart);
+            }
+            streamConnection = (StreamConnection)Connector.open(connectionURLString);
+        }
+        
         stream = streamConnection.openInputStream();
         reader = new InputStreamReader(stream);
         

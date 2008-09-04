@@ -73,7 +73,7 @@ public class GPSProcessor
     GPSLogger midlet = null;
     
     boolean isStarted = false;
-    Object sentenceLock = new Object();
+    final Object sentenceLock = new Object();
     String sentence;
     
     public GPSProcessor(GPSLogger midlet) {
