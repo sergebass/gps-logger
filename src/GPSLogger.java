@@ -82,6 +82,8 @@ public class GPSLogger
     private StringItem stringItem1;
     private StringItem emailItem;
     private Alert errorAlert;
+    private Font font;
+    private Font boldFont;
     //</editor-fold>//GEN-END:|fields|0|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Methods ">//GEN-BEGIN:|methods|0|
@@ -241,81 +243,83 @@ public class GPSLogger
                 switchToPreviousDisplayable ();
             }
          }
-}//GEN-BEGIN:|7-commandAction|30|
-        //</editor-fold>//GEN-END:|7-commandAction|30|
+    }//GEN-BEGIN:|7-commandAction|30|
+    //</editor-fold>//GEN-END:|7-commandAction|30|
 
 
-        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: exitCommand ">//GEN-BEGIN:|18-getter|0|18-preInit
-        /**
-         * Returns an initiliazed instance of exitCommand component.
-         * @return the initialized component instance
-         */
-        public Command getExitCommand() {
-            if (exitCommand == null) {//GEN-END:|18-getter|0|18-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: exitCommand ">//GEN-BEGIN:|18-getter|0|18-preInit
+    /**
+     * Returns an initiliazed instance of exitCommand component.
+     * @return the initialized component instance
+     */
+    public Command getExitCommand() {
+        if (exitCommand == null) {//GEN-END:|18-getter|0|18-preInit
             // write pre-init user code here
-                exitCommand = new Command("Exit", Command.EXIT, 2);//GEN-LINE:|18-getter|1|18-postInit
+            exitCommand = new Command("Exit", Command.EXIT, 2);//GEN-LINE:|18-getter|1|18-postInit
             // write post-init user code here
-            }//GEN-BEGIN:|18-getter|2|
-            return exitCommand;
-        }
-        //</editor-fold>//GEN-END:|18-getter|2|
+        }//GEN-BEGIN:|18-getter|2|
+        return exitCommand;
+    }
+    //</editor-fold>//GEN-END:|18-getter|2|
 
-        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: mainForm ">//GEN-BEGIN:|14-getter|0|14-preInit
-        /**
-         * Returns an initiliazed instance of mainForm component.
-         * @return the initialized component instance
-         */
-        public Form getMainForm() {
-            if (mainForm == null) {//GEN-END:|14-getter|0|14-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: mainForm ">//GEN-BEGIN:|14-getter|0|14-preInit
+    /**
+     * Returns an initiliazed instance of mainForm component.
+     * @return the initialized component instance
+     */
+    public Form getMainForm() {
+        if (mainForm == null) {//GEN-END:|14-getter|0|14-preInit
             // write pre-init user code here
-                mainForm = new Form("GPS Logger", new Item[] { getDateTimeStringItem(), getLatitudeStringItem(), getLongitudeStringItem(), getAltitudeStringItem(), getSpeedStringItem(), getOdometerStringItem(), getTripTimeAndSpeedStringItem(), getTotalTimeAndSpeedStringItem() });//GEN-BEGIN:|14-getter|1|14-postInit
-                mainForm.addCommand(getMarkCommand());
-                mainForm.addCommand(getExitCommand());
-                mainForm.addCommand(getResetCommand());
-                mainForm.setCommandListener(this);//GEN-END:|14-getter|1|14-postInit
+            mainForm = new Form("GPS Logger", new Item[] { getDateTimeStringItem(), getLatitudeStringItem(), getLongitudeStringItem(), getAltitudeStringItem(), getSpeedStringItem(), getOdometerStringItem(), getTripTimeAndSpeedStringItem(), getTotalTimeAndSpeedStringItem() });//GEN-BEGIN:|14-getter|1|14-postInit
+            mainForm.addCommand(getMarkCommand());
+            mainForm.addCommand(getExitCommand());
+            mainForm.addCommand(getResetCommand());
+            mainForm.setCommandListener(this);//GEN-END:|14-getter|1|14-postInit
             // write post-init user code here
-            }//GEN-BEGIN:|14-getter|2|
-            return mainForm;
-        }
-        //</editor-fold>//GEN-END:|14-getter|2|
+        }//GEN-BEGIN:|14-getter|2|
+        return mainForm;
+    }
+    //</editor-fold>//GEN-END:|14-getter|2|
 
-        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: dateTimeStringItem ">//GEN-BEGIN:|30-getter|0|30-preInit
-        /**
-         * Returns an initiliazed instance of dateTimeStringItem component.
-         * @return the initialized component instance
-         */
-        public StringItem getDateTimeStringItem() {
-            if (dateTimeStringItem == null) {//GEN-END:|30-getter|0|30-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: dateTimeStringItem ">//GEN-BEGIN:|30-getter|0|30-preInit
+    /**
+     * Returns an initiliazed instance of dateTimeStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getDateTimeStringItem() {
+        if (dateTimeStringItem == null) {//GEN-END:|30-getter|0|30-preInit
             // write pre-init user code here
-                dateTimeStringItem = new StringItem("UT ", "Date/Time (UTC)", Item.PLAIN);//GEN-BEGIN:|30-getter|1|30-postInit
-                dateTimeStringItem.setLayout(ImageItem.LAYOUT_DEFAULT);//GEN-END:|30-getter|1|30-postInit
+            dateTimeStringItem = new StringItem("", "UT: Date/Time (UTC)", Item.PLAIN);//GEN-BEGIN:|30-getter|1|30-postInit
+            dateTimeStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
+            dateTimeStringItem.setFont(getFont());//GEN-END:|30-getter|1|30-postInit
             // write post-init user code here
-            }//GEN-BEGIN:|30-getter|2|
-            return dateTimeStringItem;
-        }
-        //</editor-fold>//GEN-END:|30-getter|2|
+        }//GEN-BEGIN:|30-getter|2|
+        return dateTimeStringItem;
+    }
+    //</editor-fold>//GEN-END:|30-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: latitudeStringItem ">//GEN-BEGIN:|31-getter|0|31-preInit
-/**
- * Returns an initiliazed instance of latitudeStringItem component.
- * @return the initialized component instance
- */
-public StringItem getLatitudeStringItem() {
-    if (latitudeStringItem == null) {//GEN-END:|31-getter|0|31-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: latitudeStringItem ">//GEN-BEGIN:|31-getter|0|31-preInit
+    /**
+     * Returns an initiliazed instance of latitudeStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getLatitudeStringItem() {
+        if (latitudeStringItem == null) {//GEN-END:|31-getter|0|31-preInit
             // write pre-init user code here
-        latitudeStringItem = new StringItem("NS ", "Latitude (Parallel)", Item.PLAIN);//GEN-BEGIN:|31-getter|1|31-postInit
-        latitudeStringItem.setLayout(ImageItem.LAYOUT_DEFAULT);//GEN-END:|31-getter|1|31-postInit
+            latitudeStringItem = new StringItem("", "NS: Latitude (Parallel)", Item.PLAIN);//GEN-BEGIN:|31-getter|1|31-postInit
+            latitudeStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
+            latitudeStringItem.setFont(getFont());//GEN-END:|31-getter|1|31-postInit
             // write post-init user code here
-    }//GEN-BEGIN:|31-getter|2|
-    return latitudeStringItem;
-}
-//</editor-fold>//GEN-END:|31-getter|2|
+        }//GEN-BEGIN:|31-getter|2|
+        return latitudeStringItem;
+    }
+    //</editor-fold>//GEN-END:|31-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Method: searchDevices ">//GEN-BEGIN:|82-entry|0|83-preAction
-/**
- * Performs an action assigned to the searchDevices entry-point.
- */
-public void searchDevices() {//GEN-END:|82-entry|0|83-preAction
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: searchDevices ">//GEN-BEGIN:|82-entry|0|83-preAction
+    /**
+     * Performs an action assigned to the searchDevices entry-point.
+     */
+    public void searchDevices() {//GEN-END:|82-entry|0|83-preAction
 
         // switch to the found device list
         switchDisplayable(null, getDeviceList());
@@ -369,60 +373,60 @@ public void searchDevices() {//GEN-END:|82-entry|0|83-preAction
 //GEN-LINE:|82-entry|1|83-postAction
         getDeviceList().setTitle("Choose GPS device:");
         System.out.println("GPS device scan complete.");
-}//GEN-BEGIN:|82-entry|2|
-//</editor-fold>//GEN-END:|82-entry|2|
+    }//GEN-BEGIN:|82-entry|2|
+    //</editor-fold>//GEN-END:|82-entry|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: deviceList ">//GEN-BEGIN:|85-getter|0|85-preInit
-/**
- * Returns an initiliazed instance of deviceList component.
- * @return the initialized component instance
- */
-public List getDeviceList() {
-    if (deviceList == null) {//GEN-END:|85-getter|0|85-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: deviceList ">//GEN-BEGIN:|85-getter|0|85-preInit
+    /**
+     * Returns an initiliazed instance of deviceList component.
+     * @return the initialized component instance
+     */
+    public List getDeviceList() {
+        if (deviceList == null) {//GEN-END:|85-getter|0|85-preInit
             // write pre-init user code here
-        deviceList = new List("GPS devices", Choice.IMPLICIT);//GEN-BEGIN:|85-getter|1|85-postInit
-        deviceList.addCommand(getCancelCommand());
-        deviceList.addCommand(getOkCommand());
-        deviceList.setCommandListener(this);
-        deviceList.setFitPolicy(Choice.TEXT_WRAP_ON);
-        deviceList.setSelectCommand(getOkCommand());//GEN-END:|85-getter|1|85-postInit
+            deviceList = new List("GPS devices", Choice.IMPLICIT);//GEN-BEGIN:|85-getter|1|85-postInit
+            deviceList.addCommand(getCancelCommand());
+            deviceList.addCommand(getOkCommand());
+            deviceList.setCommandListener(this);
+            deviceList.setFitPolicy(Choice.TEXT_WRAP_ON);
+            deviceList.setSelectCommand(getOkCommand());//GEN-END:|85-getter|1|85-postInit
             // write post-init user code here
-    }//GEN-BEGIN:|85-getter|2|
-    return deviceList;
-}
-//</editor-fold>//GEN-END:|85-getter|2|
+        }//GEN-BEGIN:|85-getter|2|
+        return deviceList;
+    }
+    //</editor-fold>//GEN-END:|85-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Method: deviceListAction ">//GEN-BEGIN:|85-action|0|85-preAction
-/**
- * Performs an action assigned to the selected list element in the deviceList component.
- */
-public void deviceListAction() {//GEN-END:|85-action|0|85-preAction
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: deviceListAction ">//GEN-BEGIN:|85-action|0|85-preAction
+    /**
+     * Performs an action assigned to the selected list element in the deviceList component.
+     */
+    public void deviceListAction() {//GEN-END:|85-action|0|85-preAction
         // enter pre-action user code here
-    String __selectedString = getDeviceList().getString(getDeviceList().getSelectedIndex());//GEN-LINE:|85-action|1|85-postAction
+        String __selectedString = getDeviceList().getString(getDeviceList().getSelectedIndex());//GEN-LINE:|85-action|1|85-postAction
         selectGPSDevice();
-}//GEN-BEGIN:|85-action|2|
-//</editor-fold>//GEN-END:|85-action|2|
+    }//GEN-BEGIN:|85-action|2|
+    //</editor-fold>//GEN-END:|85-action|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: searchCommand ">//GEN-BEGIN:|101-getter|0|101-preInit
-/**
- * Returns an initiliazed instance of searchCommand component.
- * @return the initialized component instance
- */
-public Command getSearchCommand() {
-    if (searchCommand == null) {//GEN-END:|101-getter|0|101-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: searchCommand ">//GEN-BEGIN:|101-getter|0|101-preInit
+    /**
+     * Returns an initiliazed instance of searchCommand component.
+     * @return the initialized component instance
+     */
+    public Command getSearchCommand() {
+        if (searchCommand == null) {//GEN-END:|101-getter|0|101-preInit
             // write pre-init user code here
-        searchCommand = new Command("Search", "Search GPS device", Command.OK, 3);//GEN-LINE:|101-getter|1|101-postInit
+            searchCommand = new Command("Search", "Search GPS device", Command.OK, 3);//GEN-LINE:|101-getter|1|101-postInit
             // write post-init user code here
-    }//GEN-BEGIN:|101-getter|2|
-    return searchCommand;
-}
-//</editor-fold>//GEN-END:|101-getter|2|
+        }//GEN-BEGIN:|101-getter|2|
+        return searchCommand;
+    }
+    //</editor-fold>//GEN-END:|101-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Method: start ">//GEN-BEGIN:|108-entry|0|109-preAction
-/**
- * Performs an action assigned to the start entry-point.
- */
-public void start() {//GEN-END:|108-entry|0|109-preAction
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: start ">//GEN-BEGIN:|108-entry|0|109-preAction
+    /**
+     * Performs an action assigned to the start entry-point.
+     */
+    public void start() {//GEN-END:|108-entry|0|109-preAction
 
         switchDisplayable(null, getMainForm()); // switch back to the main form
         getMainForm().setTitle("Connecting to GPS...");
@@ -444,159 +448,162 @@ public void start() {//GEN-END:|108-entry|0|109-preAction
             switchDisplayable(null, getSettingsForm()); // go to the settings screen
         }
 //GEN-LINE:|108-entry|1|109-postAction
-}//GEN-BEGIN:|108-entry|2|
-//</editor-fold>//GEN-END:|108-entry|2|
+    }//GEN-BEGIN:|108-entry|2|
+    //</editor-fold>//GEN-END:|108-entry|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: longitudeStringItem ">//GEN-BEGIN:|117-getter|0|117-preInit
-/**
- * Returns an initiliazed instance of longitudeStringItem component.
- * @return the initialized component instance
- */
-public StringItem getLongitudeStringItem() {
-    if (longitudeStringItem == null) {//GEN-END:|117-getter|0|117-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: longitudeStringItem ">//GEN-BEGIN:|117-getter|0|117-preInit
+    /**
+     * Returns an initiliazed instance of longitudeStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getLongitudeStringItem() {
+        if (longitudeStringItem == null) {//GEN-END:|117-getter|0|117-preInit
             // write pre-init user code here
-        longitudeStringItem = new StringItem("WE ", "Longitude (Meridian)", Item.PLAIN);//GEN-BEGIN:|117-getter|1|117-postInit
-        longitudeStringItem.setLayout(ImageItem.LAYOUT_DEFAULT);//GEN-END:|117-getter|1|117-postInit
+            longitudeStringItem = new StringItem("", "WE: Longitude (Meridian)", Item.PLAIN);//GEN-BEGIN:|117-getter|1|117-postInit
+            longitudeStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
+            longitudeStringItem.setFont(getFont());//GEN-END:|117-getter|1|117-postInit
             // write post-init user code here
-    }//GEN-BEGIN:|117-getter|2|
-    return longitudeStringItem;
-}
-//</editor-fold>//GEN-END:|117-getter|2|
+        }//GEN-BEGIN:|117-getter|2|
+        return longitudeStringItem;
+    }
+    //</editor-fold>//GEN-END:|117-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: altitudeStringItem ">//GEN-BEGIN:|118-getter|0|118-preInit
-/**
- * Returns an initiliazed instance of altitudeStringItem component.
- * @return the initialized component instance
- */
-public StringItem getAltitudeStringItem() {
-    if (altitudeStringItem == null) {//GEN-END:|118-getter|0|118-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: altitudeStringItem ">//GEN-BEGIN:|118-getter|0|118-preInit
+    /**
+     * Returns an initiliazed instance of altitudeStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getAltitudeStringItem() {
+        if (altitudeStringItem == null) {//GEN-END:|118-getter|0|118-preInit
             // write pre-init user code here
-        altitudeStringItem = new StringItem("A ", "Altitude & heading");//GEN-BEGIN:|118-getter|1|118-postInit
-        altitudeStringItem.setLayout(ImageItem.LAYOUT_DEFAULT);//GEN-END:|118-getter|1|118-postInit
+            altitudeStringItem = new StringItem("", "A: Altitude & heading");//GEN-BEGIN:|118-getter|1|118-postInit
+            altitudeStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
+            altitudeStringItem.setFont(getFont());//GEN-END:|118-getter|1|118-postInit
             // write post-init user code here
-    }//GEN-BEGIN:|118-getter|2|
-    return altitudeStringItem;
-}
-//</editor-fold>//GEN-END:|118-getter|2|
+        }//GEN-BEGIN:|118-getter|2|
+        return altitudeStringItem;
+    }
+    //</editor-fold>//GEN-END:|118-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: speedStringItem ">//GEN-BEGIN:|119-getter|0|119-preInit
-/**
- * Returns an initiliazed instance of speedStringItem component.
- * @return the initialized component instance
- */
-public StringItem getSpeedStringItem() {
-    if (speedStringItem == null) {//GEN-END:|119-getter|0|119-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: speedStringItem ">//GEN-BEGIN:|119-getter|0|119-preInit
+    /**
+     * Returns an initiliazed instance of speedStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getSpeedStringItem() {
+        if (speedStringItem == null) {//GEN-END:|119-getter|0|119-preInit
             // write pre-init user code here
-        speedStringItem = new StringItem("v ", "Current speed");//GEN-BEGIN:|119-getter|1|119-postInit
-        speedStringItem.setLayout(ImageItem.LAYOUT_LEFT | Item.LAYOUT_TOP | Item.LAYOUT_VCENTER | ImageItem.LAYOUT_NEWLINE_BEFORE | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_EXPAND);//GEN-END:|119-getter|1|119-postInit
+            speedStringItem = new StringItem("", "v: Current speed");//GEN-BEGIN:|119-getter|1|119-postInit
+            speedStringItem.setLayout(ImageItem.LAYOUT_LEFT | Item.LAYOUT_TOP | Item.LAYOUT_VCENTER | ImageItem.LAYOUT_NEWLINE_BEFORE | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
+            speedStringItem.setFont(getFont());//GEN-END:|119-getter|1|119-postInit
             // write post-init user code here
-    }//GEN-BEGIN:|119-getter|2|
-    return speedStringItem;
-}
-//</editor-fold>//GEN-END:|119-getter|2|
+        }//GEN-BEGIN:|119-getter|2|
+        return speedStringItem;
+    }
+    //</editor-fold>//GEN-END:|119-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: introForm ">//GEN-BEGIN:|125-getter|0|125-preInit
-/**
- * Returns an initiliazed instance of introForm component.
- * @return the initialized component instance
- */
-public Form getIntroForm() {
-    if (introForm == null) {//GEN-END:|125-getter|0|125-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: introForm ">//GEN-BEGIN:|125-getter|0|125-preInit
+    /**
+     * Returns an initiliazed instance of introForm component.
+     * @return the initialized component instance
+     */
+    public Form getIntroForm() {
+        if (introForm == null) {//GEN-END:|125-getter|0|125-preInit
             // write pre-init user code here
-        introForm = new Form("GPS Logger", new Item[] { getGpsDeviceStringItem(), getLogPathStringItem(), getFreeSpaceStringItem() });//GEN-BEGIN:|125-getter|1|125-postInit
-        introForm.addCommand(getStartCommand());
-        introForm.addCommand(getSettingsCommand());
-        introForm.addCommand(getExitCommand());
-        introForm.addCommand(getHelpCommand());
-        introForm.setCommandListener(this);//GEN-END:|125-getter|1|125-postInit
+            introForm = new Form("GPS Logger", new Item[] { getGpsDeviceStringItem(), getLogPathStringItem(), getFreeSpaceStringItem() });//GEN-BEGIN:|125-getter|1|125-postInit
+            introForm.addCommand(getStartCommand());
+            introForm.addCommand(getSettingsCommand());
+            introForm.addCommand(getExitCommand());
+            introForm.addCommand(getHelpCommand());
+            introForm.setCommandListener(this);//GEN-END:|125-getter|1|125-postInit
 
-    }//GEN-BEGIN:|125-getter|2|
-    return introForm;
-}
-//</editor-fold>//GEN-END:|125-getter|2|
+        }//GEN-BEGIN:|125-getter|2|
+        return introForm;
+    }
+    //</editor-fold>//GEN-END:|125-getter|2|
    
 
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: startCommand ">//GEN-BEGIN:|142-getter|0|142-preInit
-/**
- * Returns an initiliazed instance of startCommand component.
- * @return the initialized component instance
- */
-public Command getStartCommand() {
-    if (startCommand == null) {//GEN-END:|142-getter|0|142-preInit
+        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: startCommand ">//GEN-BEGIN:|142-getter|0|142-preInit
+        /**
+         * Returns an initiliazed instance of startCommand component.
+         * @return the initialized component instance
+         */
+        public Command getStartCommand() {
+            if (startCommand == null) {//GEN-END:|142-getter|0|142-preInit
             // write pre-init user code here
-        startCommand = new Command("Start", "Start/connect", Command.OK, 0);//GEN-LINE:|142-getter|1|142-postInit
+                startCommand = new Command("Start", "Start/connect", Command.OK, 0);//GEN-LINE:|142-getter|1|142-postInit
             // write post-init user code here
-    }//GEN-BEGIN:|142-getter|2|
-    return startCommand;
-}
-//</editor-fold>//GEN-END:|142-getter|2|
+            }//GEN-BEGIN:|142-getter|2|
+            return startCommand;
+        }
+        //</editor-fold>//GEN-END:|142-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: helpCommand ">//GEN-BEGIN:|145-getter|0|145-preInit
-/**
- * Returns an initiliazed instance of helpCommand component.
- * @return the initialized component instance
- */
-public Command getHelpCommand() {
-    if (helpCommand == null) {//GEN-END:|145-getter|0|145-preInit
+        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: helpCommand ">//GEN-BEGIN:|145-getter|0|145-preInit
+        /**
+         * Returns an initiliazed instance of helpCommand component.
+         * @return the initialized component instance
+         */
+        public Command getHelpCommand() {
+            if (helpCommand == null) {//GEN-END:|145-getter|0|145-preInit
             // write pre-init user code here
-        helpCommand = new Command("Help", Command.HELP, 5);//GEN-LINE:|145-getter|1|145-postInit
+                helpCommand = new Command("Help", Command.HELP, 5);//GEN-LINE:|145-getter|1|145-postInit
             // write post-init user code here
-    }//GEN-BEGIN:|145-getter|2|
-    return helpCommand;
-}
-//</editor-fold>//GEN-END:|145-getter|2|
+            }//GEN-BEGIN:|145-getter|2|
+            return helpCommand;
+        }
+        //</editor-fold>//GEN-END:|145-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: backCommand ">//GEN-BEGIN:|149-getter|0|149-preInit
-/**
- * Returns an initiliazed instance of backCommand component.
- * @return the initialized component instance
- */
-public Command getBackCommand() {
-    if (backCommand == null) {//GEN-END:|149-getter|0|149-preInit
+        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: backCommand ">//GEN-BEGIN:|149-getter|0|149-preInit
+        /**
+         * Returns an initiliazed instance of backCommand component.
+         * @return the initialized component instance
+         */
+        public Command getBackCommand() {
+            if (backCommand == null) {//GEN-END:|149-getter|0|149-preInit
             // write pre-init user code here
-        backCommand = new Command("Back", Command.BACK, 1);//GEN-LINE:|149-getter|1|149-postInit
+                backCommand = new Command("Back", Command.BACK, 1);//GEN-LINE:|149-getter|1|149-postInit
             // write post-init user code here
-    }//GEN-BEGIN:|149-getter|2|
-    return backCommand;
-}
-//</editor-fold>//GEN-END:|149-getter|2|
+            }//GEN-BEGIN:|149-getter|2|
+            return backCommand;
+        }
+        //</editor-fold>//GEN-END:|149-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: settingsForm ">//GEN-BEGIN:|141-getter|0|141-preInit
-/**
- * Returns an initiliazed instance of settingsForm component.
- * @return the initialized component instance
- */
-public Form getSettingsForm() {
-    if (settingsForm == null) {//GEN-END:|141-getter|0|141-preInit
+        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: settingsForm ">//GEN-BEGIN:|141-getter|0|141-preInit
+        /**
+         * Returns an initiliazed instance of settingsForm component.
+         * @return the initialized component instance
+         */
+        public Form getSettingsForm() {
+            if (settingsForm == null) {//GEN-END:|141-getter|0|141-preInit
             // write pre-init user code here
-        settingsForm = new Form("Settings", new Item[] { getGpsDeviceTextField(), getLogFolderTextField(), getCoordinateChoiceGroup(), getAltitudeChoiceGroup(), getSpeedChoiceGroup(), getLanguageChoiceGroup() });//GEN-BEGIN:|141-getter|1|141-postInit
-        settingsForm.addCommand(getSaveSettingsCommand());
-        settingsForm.addCommand(getCancelCommand());
-        settingsForm.addCommand(getExitCommand());
-        settingsForm.setCommandListener(this);//GEN-END:|141-getter|1|141-postInit
+                settingsForm = new Form("Settings", new Item[] { getGpsDeviceTextField(), getLogFolderTextField(), getCoordinateChoiceGroup(), getAltitudeChoiceGroup(), getSpeedChoiceGroup(), getLanguageChoiceGroup() });//GEN-BEGIN:|141-getter|1|141-postInit
+                settingsForm.addCommand(getSaveSettingsCommand());
+                settingsForm.addCommand(getCancelCommand());
+                settingsForm.addCommand(getExitCommand());
+                settingsForm.setCommandListener(this);//GEN-END:|141-getter|1|141-postInit
             // write post-init user code here
-    }//GEN-BEGIN:|141-getter|2|
-    return settingsForm;
-}
-//</editor-fold>//GEN-END:|141-getter|2|
+            }//GEN-BEGIN:|141-getter|2|
+            return settingsForm;
+        }
+        //</editor-fold>//GEN-END:|141-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: helpForm ">//GEN-BEGIN:|147-getter|0|147-preInit
-/**
- * Returns an initiliazed instance of helpForm component.
- * @return the initialized component instance
- */
-public Form getHelpForm() {
-    if (helpForm == null) {//GEN-END:|147-getter|0|147-preInit
+        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: helpForm ">//GEN-BEGIN:|147-getter|0|147-preInit
+        /**
+         * Returns an initiliazed instance of helpForm component.
+         * @return the initialized component instance
+         */
+        public Form getHelpForm() {
+            if (helpForm == null) {//GEN-END:|147-getter|0|147-preInit
             // write pre-init user code here
-        helpForm = new Form("Help", new Item[] { getStringItem1(), getEmailItem() });//GEN-BEGIN:|147-getter|1|147-postInit
-        helpForm.addCommand(getBackCommand());
-        helpForm.setCommandListener(this);//GEN-END:|147-getter|1|147-postInit
+                helpForm = new Form("Help", new Item[] { getStringItem1(), getEmailItem() });//GEN-BEGIN:|147-getter|1|147-postInit
+                helpForm.addCommand(getBackCommand());
+                helpForm.setCommandListener(this);//GEN-END:|147-getter|1|147-postInit
             // write post-init user code here
-    }//GEN-BEGIN:|147-getter|2|
-    return helpForm;
-}
-//</editor-fold>//GEN-END:|147-getter|2|
+            }//GEN-BEGIN:|147-getter|2|
+            return helpForm;
+        }
+        //</editor-fold>//GEN-END:|147-getter|2|
 
 //<editor-fold defaultstate="collapsed" desc=" Generated Getter: settingsCommand ">//GEN-BEGIN:|152-getter|0|152-preInit
 /**
@@ -1059,7 +1066,9 @@ public StringItem getFreeSpaceStringItem() {
 public StringItem getOdometerStringItem() {
     if (odometerStringItem == null) {//GEN-END:|251-getter|0|251-preInit
  // write pre-init user code here
-        odometerStringItem = new StringItem("s ", "Odometer (distance)");//GEN-LINE:|251-getter|1|251-postInit
+        odometerStringItem = new StringItem("", "s: Odometer (distance)");//GEN-BEGIN:|251-getter|1|251-postInit
+        odometerStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
+        odometerStringItem.setFont(getFont());//GEN-END:|251-getter|1|251-postInit
  // write post-init user code here
     }//GEN-BEGIN:|251-getter|2|
     return odometerStringItem;
@@ -1075,7 +1084,9 @@ public StringItem getOdometerStringItem() {
 public StringItem getTripTimeAndSpeedStringItem() {
     if (tripTimeAndSpeedStringItem == null) {//GEN-END:|252-getter|0|252-preInit
  // write pre-init user code here
-        tripTimeAndSpeedStringItem = new StringItem("t ", "Trip time & speed");//GEN-LINE:|252-getter|1|252-postInit
+        tripTimeAndSpeedStringItem = new StringItem("", "t: Trip time & speed");//GEN-BEGIN:|252-getter|1|252-postInit
+        tripTimeAndSpeedStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
+        tripTimeAndSpeedStringItem.setFont(getFont());//GEN-END:|252-getter|1|252-postInit
  // write post-init user code here
     }//GEN-BEGIN:|252-getter|2|
     return tripTimeAndSpeedStringItem;
@@ -1090,7 +1101,9 @@ public StringItem getTripTimeAndSpeedStringItem() {
 public StringItem getTotalTimeAndSpeedStringItem() {
     if (totalTimeAndSpeedStringItem == null) {//GEN-END:|253-getter|0|253-preInit
  // write pre-init user code here
-        totalTimeAndSpeedStringItem = new StringItem("T ", "Total time & speed");//GEN-LINE:|253-getter|1|253-postInit
+        totalTimeAndSpeedStringItem = new StringItem("", "T: Total time & speed");//GEN-BEGIN:|253-getter|1|253-postInit
+        totalTimeAndSpeedStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
+        totalTimeAndSpeedStringItem.setFont(getFont());//GEN-END:|253-getter|1|253-postInit
  // write post-init user code here
     }//GEN-BEGIN:|253-getter|2|
     return totalTimeAndSpeedStringItem;
@@ -1125,6 +1138,36 @@ public Command getResetCommand() {
     return resetCommand;
 }
 //</editor-fold>//GEN-END:|254-getter|2|
+
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: font ">//GEN-BEGIN:|260-getter|0|260-preInit
+/**
+ * Returns an initiliazed instance of font component.
+ * @return the initialized component instance
+ */
+public Font getFont() {
+    if (font == null) {//GEN-END:|260-getter|0|260-preInit
+        // write pre-init user code here
+        font = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_SMALL);//GEN-LINE:|260-getter|1|260-postInit
+        // write post-init user code here
+    }//GEN-BEGIN:|260-getter|2|
+    return font;
+}
+//</editor-fold>//GEN-END:|260-getter|2|
+
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: boldFont ">//GEN-BEGIN:|261-getter|0|261-preInit
+/**
+ * Returns an initiliazed instance of boldFont component.
+ * @return the initialized component instance
+ */
+public Font getBoldFont() {
+    if (boldFont == null) {//GEN-END:|261-getter|0|261-preInit
+        // write pre-init user code here
+        boldFont = Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD, Font.SIZE_SMALL);//GEN-LINE:|261-getter|1|261-postInit
+        // write post-init user code here
+    }//GEN-BEGIN:|261-getter|2|
+    return boldFont;
+}
+//</editor-fold>//GEN-END:|261-getter|2|
 
     public FileBrowser getFileBrowser() {
         if (fileBrowser == null) {

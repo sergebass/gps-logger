@@ -323,9 +323,10 @@ public class GPSProcessor
             latitude = 60.0 * latitudeDegrees + latitudeMinutes;
             double fractionalDegrees = latitudeMinutes / 60.0;
             String fractionalDegreesString = "." + (long)(fractionalDegrees * 1000000.0);
-            midlet.getLatitudeStringItem().setLabel(latitudeHemisphere + " "); // 'N' or 'S'
+            //midlet.getLatitudeStringItem().setLabel(latitudeHemisphere + " "); // 'N' or 'S'
+            String latitudeLabel = latitudeHemisphere + " "; // 'N' or 'S'
             midlet.setText(midlet.getLatitudeStringItem(),
-                           String.valueOf((int)latitudeDegrees) // degrees
+                           latitudeLabel + String.valueOf((int)latitudeDegrees) // degrees
                                     + "\u00B0"
                                     + latitudeMinutesString // minutes, fractional
                                     + "\' ("
@@ -365,9 +366,10 @@ public class GPSProcessor
             longitude = 60.0 * longitudeDegrees + longitudeMinutes;
             double fractionalDegrees = longitudeMinutes / 60.0;
             String fractionalDegreesString = "." + (long)(fractionalDegrees * 1000000.0);
-            midlet.getLongitudeStringItem().setLabel(longitudeHemisphere + " "); // 'W' or 'E'
+            //midlet.getLongitudeStringItem().setLabel(longitudeHemisphere + " "); // 'W' or 'E'
+            String longitudeLabel = longitudeHemisphere + " "; // 'W' or 'E'
             midlet.setText(midlet.getLongitudeStringItem(),
-                           String.valueOf((int)longitudeDegrees) // degrees
+                           longitudeLabel + String.valueOf((int)longitudeDegrees) // degrees
                                     + "\u00B0"
                                     + longitudeMinutesString // minutes, fractional
                                     + "\' ("
@@ -414,7 +416,7 @@ public class GPSProcessor
         }
 
         midlet.setText(midlet.getDateTimeStringItem(),
-                       timeString + ", " + dateString);
+                       "UT "+ timeString + ", " + dateString);
         
         double speedMS = 0.0;
         
@@ -472,12 +474,12 @@ public class GPSProcessor
 //        String groundSpeedKPHString = String.valueOf(((int)(groundSpeedKPH * 10)) / 10.0);
         String speedMSString = String.valueOf(((int)(speedMS * 10)) / 10.0);
         midlet.setText(midlet.getSpeedStringItem(),
-                       "" + speedString + " km/h ("
+                       "v " + speedString + " km/h ("
                        + speedMSString + " m/s)");
         
         String distanceString = String.valueOf(((long)(distance)) / 1000.0);
         midlet.setText(midlet.getOdometerStringItem(),
-                       distanceString + " km");
+                       "s " + distanceString + " km");
         
         // trip time & average speed
         String tripTimeString = convertMillisToString(tripTimeMillis);
@@ -487,7 +489,7 @@ public class GPSProcessor
             String tripAverageSpeedString = String.valueOf(((int)(tripAverageSpeed * 10)) / 10.0);
 
             midlet.setText(midlet.getTripTimeAndSpeedStringItem(),
-                    "" + tripTimeString
+                    "t " + tripTimeString
                     + " (" + tripAverageSpeedString + " km/h)");
         }
         
@@ -500,7 +502,7 @@ public class GPSProcessor
             String totalAverageSpeedString = String.valueOf(((int)(totalAverageSpeed * 10)) / 10.0);
 
             midlet.setText(midlet.getTotalTimeAndSpeedStringItem(),
-                    "" + totalTimeString
+                    "T " + totalTimeString
                     + " (" + totalAverageSpeedString + " km/h)");
         }
 
@@ -573,7 +575,7 @@ public class GPSProcessor
             String altitudeUnits = values[9].equals("M")? " m" : " ?";
             
             midlet.setText(midlet.getAltitudeStringItem(),
-                    values[8] + altitudeUnits
+                    "A " + values[8] + altitudeUnits
                     + ", ^" +  headingAngleString + "\u00B0" + headingSymbol);
         }
     }
