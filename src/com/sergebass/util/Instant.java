@@ -193,6 +193,38 @@ public class Instant
               + (second < 10? "0" : "") + second;
     }
 
+    public String getDateTimeIdInISO8601() {
+
+/// is GMT always equal to UTC?
+        
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        calendar.setTime(this);
+
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        int second = calendar.get(Calendar.SECOND);
+
+        // return the full date/time in UTC, according to ISO-8601
+        // (yyyy-mm-ddThh:mm:ssZ)
+        return "" + year
+              + "-"
+              + (month < 10? "0" : "") + month
+              + "-"
+              + (day < 10? "0" : "") + day
+              + "T"
+              + (hour < 10? "0" : "") + hour
+              + ":"
+              + (minute < 10? "0" : "") + minute
+              + ":"
+              + (second < 10? "0" : "") + second
+              + "Z";
+    }
+
     /**
      * Returns the full String representation of the date.
      *

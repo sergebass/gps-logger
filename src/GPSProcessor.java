@@ -36,6 +36,9 @@ public class GPSProcessor
     int satelliteCount = 0;
     String fixQuality = "";
             
+    String gpsTimeString = "";
+    String gpsDateString = "";
+        
     double latitude = 0.0; // minutes
     double longitude = 0.0; // minutes
     double altitude = Double.MIN_VALUE; // also as a flag
@@ -91,8 +94,24 @@ public class GPSProcessor
     }
     
     public void writeLogHeader(OutputStreamWriter writer) {
+
+        // let's use GPX 1.0 as of now, then we'll see...
+        
         try {
-            writer.write("Time(YMDHMS)\tLatitude(min)\tLongitude(min)\tAltitude(m)\tHeading(degrees)\tDistance(km)\tSpeed(km/h)\tSatellites\tComments\n");
+            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            writer.write("<gpx version=\"1.0\" creator=\"GPSLogger (http://code.google.com/p/gps-logger)\"\n");
+            writer.write(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n");
+            writer.write(" xmlns=\"http://www.topografix.com/GPX/1/0\"\n");
+            writer.write(" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd\">\n");
+            writer.write("\n<name>GPSLogger waypoints</name>\n");
+        } catch (IOException e) {
+            // ignore?
+        }
+    }
+    
+    public void writeLogFooter(OutputStreamWriter writer) {
+        try {
+            writer.write("\n</gpx>\n");
         } catch (IOException e) {
             // ignore?
         }
@@ -103,20 +122,48 @@ public class GPSProcessor
         
         try {
             Instant now = new Instant();
-            writer.write(now.getDateTimeId() + "\t");
-            
-            writer.write(String.valueOf(latitude) + "\t");
-            writer.write(String.valueOf(longitude) + "\t");
-            writer.write(String.valueOf(altitude) + "\t");
-            
-            writer.write(String.valueOf(headingAngle) + "\t");
-            writer.write(String.valueOf(((long)distance)/1000.0) + "\t");
-            writer.write(String.valueOf(speed) + "\t");
 
-            writer.write(String.valueOf(satelliteCount) + "\t");
-
-            writer.write(comment + "\n");
+            // <wpt> tag with latitude and longitude of the point. Decimal degrees, WGS84 datum.
+            writer.write("\n<wpt lat=\""
+                    + String.valueOf(latitude / 60.0) // convert to degrees
+                    + "\" lon=\""
+                    + String.valueOf(longitude / 60.0) // convert to degrees
+                    + "\">\n");
             
+            // <name> (if present) The GPS name of the waypoint.
+            if (comment != null) {
+                if (!comment.trim().equals("")) {
+                    writer.write(" <name>" + comment + "</name>\n");
+                }
+            }
+            
+            // <time> Creation/modification timestamp for element. UTC, ISO 8601.
+            writer.write(" <time>"
+                    + gpsDateString
+                    + "T"
+                    + gpsTimeString
+                    + "Z</time>\n");
+            
+            // <ele> altitude/elevation (in meters) of the point.
+            writer.write(" <ele>" + String.valueOf(altitude) + "</ele>\n");
+            
+            // <course> (degrees, true), actually, missing in GPX 1.1!
+            writer.write(" <course>" + String.valueOf(headingAngle) + "</course>\n");
+            
+            // <speed> (meters per second), actually, missing in GPX 1.1!
+            writer.write(" <speed>" + String.valueOf(speed / 3.6) + "</speed>\n");
+
+            // <sat> satellite count
+            writer.write(" <sat>" + String.valueOf(satelliteCount) + "</sat>\n");
+
+///TODO: <fix>
+///TODO: <hdop>
+///TODO: <vdop>
+///TODO: <pdop>
+           
+            // </wpt> waypoint closing tag
+            writer.write("</wpt>\n");
+
             midlet.getDisplay().vibrate(200);
         } catch (IOException e) {
             // ignore?
@@ -260,9 +307,6 @@ public class GPSProcessor
      */
     void parseGPRMC(String[] values) {
 
-        String timeString = "";
-        String dateString = "";
-        
         int fixTimeSeconds = Integer.MAX_VALUE;
         
         if (values.length > 0) {
@@ -271,7 +315,7 @@ public class GPSProcessor
                 String hourString = originalTimeString.substring(0, 2);
                 String minuteString = originalTimeString.substring(2, 4);
                 String secondString = originalTimeString.substring(4, 6);
-                timeString =  hourString + ":" + minuteString + ":" + secondString;
+                gpsTimeString =  hourString + ":" + minuteString + ":" + secondString;
                 
                 try {
                     fixTimeSeconds = Integer.parseInt(hourString) * 3600
@@ -406,7 +450,7 @@ public class GPSProcessor
         if (values.length > 8) { // date
             String originalDateString = values[8];
             if (originalDateString.length() > 5) { // DDMMYY must be present
-                dateString = "20"
+                gpsDateString = "20"
                        + originalDateString.substring(4, 6) // year
                        + "-"
                        + originalDateString.substring(2, 4) // month
@@ -416,7 +460,7 @@ public class GPSProcessor
         }
 
         midlet.setText(midlet.getDateTimeStringItem(),
-                       "UT "+ timeString + ", " + dateString);
+                       "UT "+ gpsTimeString + ", " + gpsDateString);
         
         double speedMS = 0.0;
         

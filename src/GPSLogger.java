@@ -2,19 +2,20 @@
  * (C) Serge Perinsky, 2007, 2008
  */
 
-import com.sergebass.bluetooth.BluetoothManager;
 import com.sergebass.gps.*;
-import com.sergebass.util.Instant;
+import com.sergebass.bluetooth.BluetoothManager;
 import com.sergebass.ui.FileBrowser;
+import com.sergebass.util.Instant;
 
 import java.util.Vector;
 import java.io.*;
-import javax.bluetooth.*;
-import javax.microedition.io.*;
-import javax.microedition.io.file.*;
+
 import javax.microedition.midlet.*;
 import javax.microedition.lcdui.*;
+import javax.microedition.io.file.*;
+import javax.microedition.io.*;
 import javax.microedition.rms.RecordStoreException;
+import javax.bluetooth.*;
 
 /**
  * @author Serge Perinsky
@@ -72,16 +73,16 @@ public class GPSLogger
     private StringItem freeSpaceStringItem;
     private StringItem logPathStringItem;
     private Form settingsForm;
+    private Spacer spacer1;
+    private StringItem browseLogFolderStringItem;
+    private Spacer spacer;
+    private StringItem searchGPSStringItem;
     private ChoiceGroup coordinateChoiceGroup;
     private ChoiceGroup speedChoiceGroup;
     private TextField gpsDeviceTextField;
     private TextField logFolderTextField;
     private ChoiceGroup altitudeChoiceGroup;
     private ChoiceGroup languageChoiceGroup;
-    private StringItem searchGPSStringItem;
-    private StringItem browseLogFolderStringItem;
-    private Spacer spacer;
-    private Spacer spacer1;
     private Form helpForm;
     private StringItem stringItem1;
     private StringItem emailItem;
@@ -832,37 +833,50 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|191-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: markPoint ">//GEN-BEGIN:|197-entry|0|198-preAction
-    /**
-     * Performs an action assigned to the markPoint entry-point.
-     */
-    public void markPoint() {//GEN-END:|197-entry|0|198-preAction
-    writeCurrentPointToMarksLog("");
-    new Exception("(marked a point)").printStackTrace();
+    ///TMP!!!
+static int iii = 0;
+///
+
+//<editor-fold defaultstate="collapsed" desc=" Generated Method: markPoint ">//GEN-BEGIN:|197-entry|0|198-preAction
+/**
+ * Performs an action assigned to the markPoint entry-point.
+ */
+public void markPoint() {//GEN-END:|197-entry|0|198-preAction
+        // request a point description from user
+
+///TODO: request a point description from user
+iii++;
+///
+
+        try {
+            writeCurrentPointToMarksLog("Point " + iii);
+        } catch (IOException e) {
+            handleException(e, getMainForm());
+        }
 //GEN-LINE:|197-entry|1|198-postAction
-    }//GEN-BEGIN:|197-entry|2|
-    //</editor-fold>//GEN-END:|197-entry|2|
+}//GEN-BEGIN:|197-entry|2|
+//</editor-fold>//GEN-END:|197-entry|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: markCommand ">//GEN-BEGIN:|195-getter|0|195-preInit
-    /**
-     * Returns an initiliazed instance of markCommand component.
-     * @return the initialized component instance
-     */
-    public Command getMarkCommand() {
-        if (markCommand == null) {//GEN-END:|195-getter|0|195-preInit
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: markCommand ">//GEN-BEGIN:|195-getter|0|195-preInit
+/**
+ * Returns an initiliazed instance of markCommand component.
+ * @return the initialized component instance
+ */
+public Command getMarkCommand() {
+    if (markCommand == null) {//GEN-END:|195-getter|0|195-preInit
             // write pre-init user code here
-            markCommand = new Command("Mark", Command.OK, 0);//GEN-LINE:|195-getter|1|195-postInit
+        markCommand = new Command("Mark", Command.OK, 0);//GEN-LINE:|195-getter|1|195-postInit
             // write post-init user code here
-        }//GEN-BEGIN:|195-getter|2|
-        return markCommand;
-    }
-    //</editor-fold>//GEN-END:|195-getter|2|
+    }//GEN-BEGIN:|195-getter|2|
+    return markCommand;
+}
+//</editor-fold>//GEN-END:|195-getter|2|
 
-        //<editor-fold defaultstate="collapsed" desc=" Generated Method: sendEmail ">//GEN-BEGIN:|211-entry|0|212-preAction
-        /**
-         * Performs an action assigned to the sendEmail entry-point.
-         */
-        public void sendEmail() {//GEN-END:|211-entry|0|212-preAction
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: sendEmail ">//GEN-BEGIN:|211-entry|0|212-preAction
+    /**
+     * Performs an action assigned to the sendEmail entry-point.
+     */
+    public void sendEmail() {//GEN-END:|211-entry|0|212-preAction
         try {
             platformRequest("mailto:" + getEmailItem().getText());
         } catch (ConnectionNotFoundException e) {
@@ -871,98 +885,98 @@ public class GPSLogger
 
 //GEN-LINE:|211-entry|1|212-postAction
         // write post-action user code here
-        }//GEN-BEGIN:|211-entry|2|
-        //</editor-fold>//GEN-END:|211-entry|2|
+    }//GEN-BEGIN:|211-entry|2|
+    //</editor-fold>//GEN-END:|211-entry|2|
 
-        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: sendEmailCommand ">//GEN-BEGIN:|209-getter|0|209-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: sendEmailCommand ">//GEN-BEGIN:|209-getter|0|209-preInit
+    /**
+     * Returns an initiliazed instance of sendEmailCommand component.
+     * @return the initialized component instance
+     */
+    public Command getSendEmailCommand() {
+        if (sendEmailCommand == null) {//GEN-END:|209-getter|0|209-preInit
+            // write pre-init user code here
+            sendEmailCommand = new Command("Email", "Send Email", Command.ITEM, 0);//GEN-LINE:|209-getter|1|209-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|209-getter|2|
+        return sendEmailCommand;
+    }
+    //</editor-fold>//GEN-END:|209-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: emailItem ">//GEN-BEGIN:|208-getter|0|208-preInit
+    /**
+     * Returns an initiliazed instance of emailItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getEmailItem() {
+        if (emailItem == null) {//GEN-END:|208-getter|0|208-preInit
+            // write pre-init user code here
+            emailItem = new StringItem("E-mail:", "sergebass@yahoo.com", Item.HYPERLINK);//GEN-BEGIN:|208-getter|1|208-postInit
+            emailItem.addCommand(getSendEmailCommand());
+            emailItem.setItemCommandListener(this);
+            emailItem.setDefaultCommand(getSendEmailCommand());//GEN-END:|208-getter|1|208-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|208-getter|2|
+        return emailItem;
+    }
+    //</editor-fold>//GEN-END:|208-getter|2|
+
+        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelCommand ">//GEN-BEGIN:|214-getter|0|214-preInit
         /**
-         * Returns an initiliazed instance of sendEmailCommand component.
+         * Returns an initiliazed instance of cancelCommand component.
          * @return the initialized component instance
          */
-        public Command getSendEmailCommand() {
-            if (sendEmailCommand == null) {//GEN-END:|209-getter|0|209-preInit
+        public Command getCancelCommand() {
+            if (cancelCommand == null) {//GEN-END:|214-getter|0|214-preInit
             // write pre-init user code here
-                sendEmailCommand = new Command("Email", "Send Email", Command.ITEM, 0);//GEN-LINE:|209-getter|1|209-postInit
+                cancelCommand = new Command("Cancel", Command.CANCEL, 1);//GEN-LINE:|214-getter|1|214-postInit
             // write post-init user code here
-            }//GEN-BEGIN:|209-getter|2|
-            return sendEmailCommand;
+            }//GEN-BEGIN:|214-getter|2|
+            return cancelCommand;
         }
-        //</editor-fold>//GEN-END:|209-getter|2|
+        //</editor-fold>//GEN-END:|214-getter|2|
 
-        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: emailItem ">//GEN-BEGIN:|208-getter|0|208-preInit
+        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: altitudeChoiceGroup ">//GEN-BEGIN:|220-getter|0|220-preInit
         /**
-         * Returns an initiliazed instance of emailItem component.
+         * Returns an initiliazed instance of altitudeChoiceGroup component.
          * @return the initialized component instance
          */
-        public StringItem getEmailItem() {
-            if (emailItem == null) {//GEN-END:|208-getter|0|208-preInit
+        public ChoiceGroup getAltitudeChoiceGroup() {
+            if (altitudeChoiceGroup == null) {//GEN-END:|220-getter|0|220-preInit
             // write pre-init user code here
-                emailItem = new StringItem("E-mail:", "sergebass@yahoo.com", Item.HYPERLINK);//GEN-BEGIN:|208-getter|1|208-postInit
-                emailItem.addCommand(getSendEmailCommand());
-                emailItem.setItemCommandListener(this);
-                emailItem.setDefaultCommand(getSendEmailCommand());//GEN-END:|208-getter|1|208-postInit
+                altitudeChoiceGroup = new ChoiceGroup("Altitude", Choice.EXCLUSIVE);//GEN-BEGIN:|220-getter|1|220-postInit
+                altitudeChoiceGroup.append("meters", null);
+                altitudeChoiceGroup.append("feet", null);
+                altitudeChoiceGroup.setSelectedFlags(new boolean[] { false, false });
+                altitudeChoiceGroup.setFont(0, null);
+                altitudeChoiceGroup.setFont(1, null);//GEN-END:|220-getter|1|220-postInit
             // write post-init user code here
-            }//GEN-BEGIN:|208-getter|2|
-            return emailItem;
+            }//GEN-BEGIN:|220-getter|2|
+            return altitudeChoiceGroup;
         }
-        //</editor-fold>//GEN-END:|208-getter|2|
+        //</editor-fold>//GEN-END:|220-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelCommand ">//GEN-BEGIN:|214-getter|0|214-preInit
-/**
- * Returns an initiliazed instance of cancelCommand component.
- * @return the initialized component instance
- */
-public Command getCancelCommand() {
-    if (cancelCommand == null) {//GEN-END:|214-getter|0|214-preInit
+        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: languageChoiceGroup ">//GEN-BEGIN:|223-getter|0|223-preInit
+        /**
+         * Returns an initiliazed instance of languageChoiceGroup component.
+         * @return the initialized component instance
+         */
+        public ChoiceGroup getLanguageChoiceGroup() {
+            if (languageChoiceGroup == null) {//GEN-END:|223-getter|0|223-preInit
             // write pre-init user code here
-        cancelCommand = new Command("Cancel", Command.CANCEL, 1);//GEN-LINE:|214-getter|1|214-postInit
+                languageChoiceGroup = new ChoiceGroup("Language", Choice.EXCLUSIVE);//GEN-BEGIN:|223-getter|1|223-postInit
+                languageChoiceGroup.append("Default", null);
+                languageChoiceGroup.append("English", null);
+                languageChoiceGroup.append("\u0420\u0443\u0441\u0441\u043A\u0438\u0439", null);
+                languageChoiceGroup.setSelectedFlags(new boolean[] { false, false, false });
+                languageChoiceGroup.setFont(0, null);
+                languageChoiceGroup.setFont(1, null);
+                languageChoiceGroup.setFont(2, null);//GEN-END:|223-getter|1|223-postInit
             // write post-init user code here
-    }//GEN-BEGIN:|214-getter|2|
-    return cancelCommand;
-}
-//</editor-fold>//GEN-END:|214-getter|2|
-
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: altitudeChoiceGroup ">//GEN-BEGIN:|220-getter|0|220-preInit
-/**
- * Returns an initiliazed instance of altitudeChoiceGroup component.
- * @return the initialized component instance
- */
-public ChoiceGroup getAltitudeChoiceGroup() {
-    if (altitudeChoiceGroup == null) {//GEN-END:|220-getter|0|220-preInit
-            // write pre-init user code here
-        altitudeChoiceGroup = new ChoiceGroup("Altitude", Choice.EXCLUSIVE);//GEN-BEGIN:|220-getter|1|220-postInit
-        altitudeChoiceGroup.append("meters", null);
-        altitudeChoiceGroup.append("feet", null);
-        altitudeChoiceGroup.setSelectedFlags(new boolean[] { false, false });
-        altitudeChoiceGroup.setFont(0, null);
-        altitudeChoiceGroup.setFont(1, null);//GEN-END:|220-getter|1|220-postInit
-            // write post-init user code here
-    }//GEN-BEGIN:|220-getter|2|
-    return altitudeChoiceGroup;
-}
-//</editor-fold>//GEN-END:|220-getter|2|
-
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: languageChoiceGroup ">//GEN-BEGIN:|223-getter|0|223-preInit
-/**
- * Returns an initiliazed instance of languageChoiceGroup component.
- * @return the initialized component instance
- */
-public ChoiceGroup getLanguageChoiceGroup() {
-    if (languageChoiceGroup == null) {//GEN-END:|223-getter|0|223-preInit
-            // write pre-init user code here
-        languageChoiceGroup = new ChoiceGroup("Language", Choice.EXCLUSIVE);//GEN-BEGIN:|223-getter|1|223-postInit
-        languageChoiceGroup.append("Default", null);
-        languageChoiceGroup.append("English", null);
-        languageChoiceGroup.append("\u0420\u0443\u0441\u0441\u043A\u0438\u0439", null);
-        languageChoiceGroup.setSelectedFlags(new boolean[] { false, false, false });
-        languageChoiceGroup.setFont(0, null);
-        languageChoiceGroup.setFont(1, null);
-        languageChoiceGroup.setFont(2, null);//GEN-END:|223-getter|1|223-postInit
-            // write post-init user code here
-    }//GEN-BEGIN:|223-getter|2|
-    return languageChoiceGroup;
-}
-//</editor-fold>//GEN-END:|223-getter|2|
+            }//GEN-BEGIN:|223-getter|2|
+            return languageChoiceGroup;
+        }
+        //</editor-fold>//GEN-END:|223-getter|2|
 
 //<editor-fold defaultstate="collapsed" desc=" Generated Method: selectGPSDevice ">//GEN-BEGIN:|227-entry|0|228-preAction
 /**
@@ -1132,7 +1146,6 @@ public StringItem getTotalTimeAndSpeedStringItem() {
 public void resetOdometer() {//GEN-END:|256-entry|0|257-preAction
     if (processor != null) {
         processor.resetOdometer();
-        writeCurrentPointToMarksLog("*RESET*");
     }
 //GEN-LINE:|256-entry|1|257-postAction
  // write post-action user code here
@@ -1292,6 +1305,23 @@ public void browseLogFolder() {//GEN-END:|275-entry|0|276-preAction
      * Exits MIDlet.
      */
     public void exitMIDlet() {
+
+        mustBeTerminated = true;
+
+       /* // need to wait?
+        try {
+            Thread.currentThread().wait(1000);
+        } catch (InterruptedException e) {
+            // ignore
+        }
+        */
+
+        //exit gracefully, close all connections first
+        try {
+            shutDown();
+        } catch (IOException e) {
+            // too late to handle this now...
+        }
         
         switchDisplayable (null, null);
         destroyApp(true);
@@ -1457,33 +1487,6 @@ e.printStackTrace();
                     gpsLogFile = new GPSLogFile(logFilePath);
                 }
             
-                if (gpsMarksLogFile == null) { // if no log file is being written, make a connection
-                    String logFolder = settings.getLogFolder();
-                    if (!logFolder.endsWith("/")) {
-                        logFolder = logFolder + "/"; // make sure we have the trailer here
-                    }
-            
-                    String logFilePath = logFolder
-                        + "GPS-"
-                        + now.getDateId()
-                        + "-"
-                        + now.getTimeId()
-                        + "-marks.txt";
-                    gpsMarksLogFile = new GPSLogFile(logFilePath);
-                    
-                    if (processor != null) {
-                        try {
-                            processor.writeLogHeader
-                                    (new OutputStreamWriter(gpsMarksLogFile.getOutputStream(),
-                                    "UTF-8"));
-                        } catch (IOException e) {
-                            // ignore?
-                        }
-                    }
-                }
-            
-                writeCurrentPointToMarksLog("*START*");
-            
                 InputStreamReader gpsReader = gpsReceiver.getInputStreamReader();
                 OutputStream outputStream = gpsLogFile.getOutputStream();
             
@@ -1520,7 +1523,6 @@ e.printStackTrace();
                 } while (!mustBeTerminated && !mustReconnectToGPS); // or until user decides to quit?
             
                 if (mustReconnectToGPS) {
-                    writeCurrentPointToMarksLog("*RECONNECT*");
                     processor.wakeUp();
                     try {
                         gpsReceiver.close();
@@ -1536,23 +1538,8 @@ e.printStackTrace();
         } catch (Exception e) {
             handleException(e, introForm);
         } finally {
-            writeCurrentPointToMarksLog("*FINISH*");
-            if (processor != null) {
-                processor.stop();
-            }
             try {
-                if (gpsReceiver != null) {
-                    gpsReceiver.close();
-                    gpsReceiver = null;
-                }
-                if (gpsLogFile != null) {
-                    gpsLogFile.close();
-                    gpsLogFile = null;
-                }
-                if (gpsMarksLogFile != null) {
-                    gpsMarksLogFile.close();
-                    gpsMarksLogFile = null;
-                }
+                shutDown();
             } catch (Exception e) {
                 handleException(e, introForm);
             }
@@ -1598,7 +1585,44 @@ e.printStackTrace();
         }
     }
     
-    void writeCurrentPointToMarksLog(String comments) {
+    void closeLog()
+            throws IOException {
+        if (gpsLogFile != null) {
+            gpsLogFile.close();
+            gpsLogFile = null;
+        }
+    }
+
+    void writeCurrentPointToMarksLog(String comments)
+                throws IOException {
+        
+        if (gpsMarksLogFile == null) { // if no log file is being written, make a connection
+            String logFolder = settings.getLogFolder();
+            if (!logFolder.endsWith("/")) {
+                logFolder = logFolder + "/"; // make sure we have the trailer here
+            }
+
+            Instant now = new Instant(); // reflect the time in the log file name
+
+            String logFilePath = logFolder
+                + "GPS-"
+                + now.getDateId()
+                + "-"
+                + now.getTimeId()
+                + "-points.gpx";
+            gpsMarksLogFile = new GPSLogFile(logFilePath);
+
+            if (processor != null) {
+                try {
+                    processor.writeLogHeader
+                            (new OutputStreamWriter(gpsMarksLogFile.getOutputStream(),
+                            "UTF-8"));
+                } catch (IOException e) {
+                    // ignore?
+                }
+            }
+        }
+        
         if (processor != null) {
             try {
                 processor.writeCurrentPoint
@@ -1609,5 +1633,39 @@ e.printStackTrace();
                 // ignore?
             }
         }
+    }
+
+    void closeMarksLog()
+            throws IOException {
+        if (gpsMarksLogFile != null) {
+            processor.writeLogFooter
+                    (new OutputStreamWriter(gpsMarksLogFile.getOutputStream(),
+                    "UTF-8"));
+            gpsMarksLogFile.close();
+            gpsMarksLogFile = null;
+        }
+    }
+    
+    void stopProcessor() {
+        if (processor != null) {
+            processor.stop();
+            processor = null;
+        }
+    }
+
+    void closeReceiver()
+            throws IOException {
+        if (gpsReceiver != null) {
+            gpsReceiver.close();
+            gpsReceiver = null;
+        }
+    }
+
+    void shutDown()
+            throws IOException {
+        closeLog();
+        closeMarksLog();
+        stopProcessor();
+        closeReceiver();
     }
 }
