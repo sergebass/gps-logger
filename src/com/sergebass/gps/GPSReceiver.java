@@ -53,7 +53,7 @@ public class GPSReceiver {
         return reader;
     }
     
-    public void close()
+    public synchronized void close()
             throws IOException {
 
         System.out.print("Closing GPS receiver connection...");

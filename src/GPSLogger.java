@@ -833,7 +833,7 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|191-getter|2|
 
-    ///TMP!!!
+///TMP!!!
 static int iii = 0;
 ///
 
@@ -1308,21 +1308,12 @@ public void browseLogFolder() {//GEN-END:|275-entry|0|276-preAction
 
         mustBeTerminated = true;
 
-       /* // need to wait?
         try {
-            Thread.currentThread().wait(1000);
+            Thread.currentThread().sleep(1000); // wait a second...
         } catch (InterruptedException e) {
             // ignore
         }
-        */
 
-        //exit gracefully, close all connections first
-        try {
-            shutDown();
-        } catch (IOException e) {
-            // too late to handle this now...
-        }
-        
         switchDisplayable (null, null);
         destroyApp(true);
         notifyDestroyed();
@@ -1360,8 +1351,12 @@ public void browseLogFolder() {//GEN-END:|275-entry|0|276-preAction
      * @param unconditional if true, then the MIDlet has to be unconditionally terminated and all resources has to be released.
      */
     public void destroyApp(boolean unconditional) {
-        
-        mustBeTerminated = true;
+        //exit gracefully, make sure all connections are closed
+        try {
+            shutDown();
+        } catch (IOException e) {
+            // too late to handle this now...
+        }
     }
     
     public void setText(StringItem stringItem, String text) {
@@ -1378,9 +1373,9 @@ public void browseLogFolder() {//GEN-END:|275-entry|0|276-preAction
         try {
             settings.load();
         } catch (Exception e) {
-///???                handleException(e);
+///???        handleException(e);
 /// just ignore?
-e.printStackTrace();
+            e.printStackTrace();
         }
         
         // initialize the settings screen with data from the loaded configuration
@@ -1585,14 +1580,6 @@ e.printStackTrace();
         }
     }
     
-    void closeLog()
-            throws IOException {
-        if (gpsLogFile != null) {
-            gpsLogFile.close();
-            gpsLogFile = null;
-        }
-    }
-
     void writeCurrentPointToMarksLog(String comments)
                 throws IOException {
         
@@ -1635,7 +1622,7 @@ e.printStackTrace();
         }
     }
 
-    void closeMarksLog()
+    synchronized void closeMarksLog()
             throws IOException {
         if (gpsMarksLogFile != null) {
             processor.writeLogFooter
@@ -1646,14 +1633,22 @@ e.printStackTrace();
         }
     }
     
-    void stopProcessor() {
+    synchronized void closeLog()
+            throws IOException {
+        if (gpsLogFile != null) {
+            gpsLogFile.close();
+            gpsLogFile = null;
+        }
+    }
+    
+    synchronized void stopProcessor() {
         if (processor != null) {
             processor.stop();
             processor = null;
         }
     }
 
-    void closeReceiver()
+    synchronized void closeReceiver()
             throws IOException {
         if (gpsReceiver != null) {
             gpsReceiver.close();
@@ -1661,10 +1656,10 @@ e.printStackTrace();
         }
     }
 
-    void shutDown()
+    synchronized void shutDown()
             throws IOException {
-        closeLog();
         closeMarksLog();
+        closeLog();
         stopProcessor();
         closeReceiver();
     }
