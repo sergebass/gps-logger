@@ -58,6 +58,8 @@ public class GPSLogger
     private Command sendEmailCommand;
     private Command resetCommand;
     private Command okCommand;
+    private Command cancelWaypointCommand;
+    private Command submitWaypointCommand;
     private Form mainForm;
     private StringItem latitudeStringItem;
     private StringItem dateTimeStringItem;
@@ -87,6 +89,8 @@ public class GPSLogger
     private StringItem stringItem1;
     private StringItem emailItem;
     private Alert errorAlert;
+    private Form waypointForm;
+    private TextField waypointNameTextField;
     private Font font;
     private Font boldFont;
     //</editor-fold>//GEN-END:|fields|0|
@@ -218,7 +222,7 @@ public class GPSLogger
             } else if (command == markCommand) {//GEN-LINE:|7-commandAction|19|196-preAction
                 // write pre-action user code here
 
-                markPoint();//GEN-LINE:|7-commandAction|20|196-postAction
+                switchDisplayable(null, getWaypointForm());//GEN-LINE:|7-commandAction|20|196-postAction
                 // write post-action user code here
             } else if (command == resetCommand) {//GEN-LINE:|7-commandAction|21|255-preAction
                 // write pre-action user code here
@@ -239,8 +243,18 @@ public class GPSLogger
                 saveSettings();//GEN-LINE:|7-commandAction|28|202-postAction
                 showSettings();
                 switchDisplayable(null, getIntroForm());
-            }//GEN-BEGIN:|7-commandAction|29|7-postCommandAction
-        }//GEN-END:|7-commandAction|29|7-postCommandAction
+            }//GEN-BEGIN:|7-commandAction|29|282-preAction
+        } else if (displayable == waypointForm) {
+            if (command == cancelWaypointCommand) {//GEN-END:|7-commandAction|29|282-preAction
+                // write pre-action user code here
+                switchDisplayable(null, getMainForm());//GEN-LINE:|7-commandAction|30|282-postAction
+                // write post-action user code here
+            } else if (command == submitWaypointCommand) {//GEN-LINE:|7-commandAction|31|284-preAction
+                // write pre-action user code here
+                markPoint();//GEN-LINE:|7-commandAction|32|284-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|33|7-postCommandAction
+        }//GEN-END:|7-commandAction|33|7-postCommandAction
         else if (displayable == fileBrowser) {
             if (command == FileBrowser.SELECT_ITEM_COMMAND) {
                 setLogFolder ();
@@ -248,8 +262,8 @@ public class GPSLogger
                 switchToPreviousDisplayable ();
             }
          }
-    }//GEN-BEGIN:|7-commandAction|30|
-    //</editor-fold>//GEN-END:|7-commandAction|30|
+    }//GEN-BEGIN:|7-commandAction|34|
+    //</editor-fold>//GEN-END:|7-commandAction|34|
 
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: exitCommand ">//GEN-BEGIN:|18-getter|0|18-preInit
@@ -833,50 +847,43 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|191-getter|2|
 
-///TMP!!!
-static int iii = 0;
-///
-
-//<editor-fold defaultstate="collapsed" desc=" Generated Method: markPoint ">//GEN-BEGIN:|197-entry|0|198-preAction
-/**
- * Performs an action assigned to the markPoint entry-point.
- */
-public void markPoint() {//GEN-END:|197-entry|0|198-preAction
-        // request a point description from user
-
-///TODO: request a point description from user
-iii++;
-///
-
-        try {
-            writeCurrentPointToMarksLog("Point " + iii);
-        } catch (IOException e) {
-            handleException(e, getMainForm());
-        }
-//GEN-LINE:|197-entry|1|198-postAction
-}//GEN-BEGIN:|197-entry|2|
-//</editor-fold>//GEN-END:|197-entry|2|
-
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: markCommand ">//GEN-BEGIN:|195-getter|0|195-preInit
-/**
- * Returns an initiliazed instance of markCommand component.
- * @return the initialized component instance
- */
-public Command getMarkCommand() {
-    if (markCommand == null) {//GEN-END:|195-getter|0|195-preInit
-            // write pre-init user code here
-        markCommand = new Command("Mark", Command.OK, 0);//GEN-LINE:|195-getter|1|195-postInit
-            // write post-init user code here
-    }//GEN-BEGIN:|195-getter|2|
-    return markCommand;
-}
-//</editor-fold>//GEN-END:|195-getter|2|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: sendEmail ">//GEN-BEGIN:|211-entry|0|212-preAction
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: markPoint ">//GEN-BEGIN:|197-entry|0|198-preAction
     /**
-     * Performs an action assigned to the sendEmail entry-point.
+     * Performs an action assigned to the markPoint entry-point.
      */
-    public void sendEmail() {//GEN-END:|211-entry|0|212-preAction
+    public void markPoint() {//GEN-END:|197-entry|0|198-preAction
+
+    switchDisplayable(null, mainForm); // go back to the main screen immediately anyway
+
+    try {
+        writeCurrentPointToMarksLog(getWaypointNameTextField().getString().trim());
+    } catch (IOException e) {
+        handleException(e, getMainForm());
+    }
+//GEN-LINE:|197-entry|1|198-postAction
+    }//GEN-BEGIN:|197-entry|2|
+    //</editor-fold>//GEN-END:|197-entry|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: markCommand ">//GEN-BEGIN:|195-getter|0|195-preInit
+    /**
+     * Returns an initiliazed instance of markCommand component.
+     * @return the initialized component instance
+     */
+    public Command getMarkCommand() {
+        if (markCommand == null) {//GEN-END:|195-getter|0|195-preInit
+            // write pre-init user code here
+            markCommand = new Command("Mark", Command.OK, 0);//GEN-LINE:|195-getter|1|195-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|195-getter|2|
+        return markCommand;
+    }
+    //</editor-fold>//GEN-END:|195-getter|2|
+
+//<editor-fold defaultstate="collapsed" desc=" Generated Method: sendEmail ">//GEN-BEGIN:|211-entry|0|212-preAction
+/**
+ * Performs an action assigned to the sendEmail entry-point.
+ */
+public void sendEmail() {//GEN-END:|211-entry|0|212-preAction
         try {
             platformRequest("mailto:" + getEmailItem().getText());
         } catch (ConnectionNotFoundException e) {
@@ -885,98 +892,98 @@ public Command getMarkCommand() {
 
 //GEN-LINE:|211-entry|1|212-postAction
         // write post-action user code here
-    }//GEN-BEGIN:|211-entry|2|
-    //</editor-fold>//GEN-END:|211-entry|2|
+}//GEN-BEGIN:|211-entry|2|
+//</editor-fold>//GEN-END:|211-entry|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: sendEmailCommand ">//GEN-BEGIN:|209-getter|0|209-preInit
-    /**
-     * Returns an initiliazed instance of sendEmailCommand component.
-     * @return the initialized component instance
-     */
-    public Command getSendEmailCommand() {
-        if (sendEmailCommand == null) {//GEN-END:|209-getter|0|209-preInit
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: sendEmailCommand ">//GEN-BEGIN:|209-getter|0|209-preInit
+/**
+ * Returns an initiliazed instance of sendEmailCommand component.
+ * @return the initialized component instance
+ */
+public Command getSendEmailCommand() {
+    if (sendEmailCommand == null) {//GEN-END:|209-getter|0|209-preInit
             // write pre-init user code here
-            sendEmailCommand = new Command("Email", "Send Email", Command.ITEM, 0);//GEN-LINE:|209-getter|1|209-postInit
+        sendEmailCommand = new Command("Email", "Send Email", Command.ITEM, 0);//GEN-LINE:|209-getter|1|209-postInit
             // write post-init user code here
-        }//GEN-BEGIN:|209-getter|2|
-        return sendEmailCommand;
-    }
-    //</editor-fold>//GEN-END:|209-getter|2|
+    }//GEN-BEGIN:|209-getter|2|
+    return sendEmailCommand;
+}
+//</editor-fold>//GEN-END:|209-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: emailItem ">//GEN-BEGIN:|208-getter|0|208-preInit
-    /**
-     * Returns an initiliazed instance of emailItem component.
-     * @return the initialized component instance
-     */
-    public StringItem getEmailItem() {
-        if (emailItem == null) {//GEN-END:|208-getter|0|208-preInit
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: emailItem ">//GEN-BEGIN:|208-getter|0|208-preInit
+/**
+ * Returns an initiliazed instance of emailItem component.
+ * @return the initialized component instance
+ */
+public StringItem getEmailItem() {
+    if (emailItem == null) {//GEN-END:|208-getter|0|208-preInit
             // write pre-init user code here
-            emailItem = new StringItem("E-mail:", "sergebass@yahoo.com", Item.HYPERLINK);//GEN-BEGIN:|208-getter|1|208-postInit
-            emailItem.addCommand(getSendEmailCommand());
-            emailItem.setItemCommandListener(this);
-            emailItem.setDefaultCommand(getSendEmailCommand());//GEN-END:|208-getter|1|208-postInit
+        emailItem = new StringItem("E-mail:", "sergebass@yahoo.com", Item.HYPERLINK);//GEN-BEGIN:|208-getter|1|208-postInit
+        emailItem.addCommand(getSendEmailCommand());
+        emailItem.setItemCommandListener(this);
+        emailItem.setDefaultCommand(getSendEmailCommand());//GEN-END:|208-getter|1|208-postInit
             // write post-init user code here
-        }//GEN-BEGIN:|208-getter|2|
-        return emailItem;
-    }
-    //</editor-fold>//GEN-END:|208-getter|2|
+    }//GEN-BEGIN:|208-getter|2|
+    return emailItem;
+}
+//</editor-fold>//GEN-END:|208-getter|2|
 
-        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelCommand ">//GEN-BEGIN:|214-getter|0|214-preInit
-        /**
-         * Returns an initiliazed instance of cancelCommand component.
-         * @return the initialized component instance
-         */
-        public Command getCancelCommand() {
-            if (cancelCommand == null) {//GEN-END:|214-getter|0|214-preInit
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelCommand ">//GEN-BEGIN:|214-getter|0|214-preInit
+/**
+ * Returns an initiliazed instance of cancelCommand component.
+ * @return the initialized component instance
+ */
+public Command getCancelCommand() {
+    if (cancelCommand == null) {//GEN-END:|214-getter|0|214-preInit
             // write pre-init user code here
-                cancelCommand = new Command("Cancel", Command.CANCEL, 1);//GEN-LINE:|214-getter|1|214-postInit
+        cancelCommand = new Command("Cancel", Command.CANCEL, 1);//GEN-LINE:|214-getter|1|214-postInit
             // write post-init user code here
-            }//GEN-BEGIN:|214-getter|2|
-            return cancelCommand;
-        }
-        //</editor-fold>//GEN-END:|214-getter|2|
+    }//GEN-BEGIN:|214-getter|2|
+    return cancelCommand;
+}
+//</editor-fold>//GEN-END:|214-getter|2|
 
-        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: altitudeChoiceGroup ">//GEN-BEGIN:|220-getter|0|220-preInit
-        /**
-         * Returns an initiliazed instance of altitudeChoiceGroup component.
-         * @return the initialized component instance
-         */
-        public ChoiceGroup getAltitudeChoiceGroup() {
-            if (altitudeChoiceGroup == null) {//GEN-END:|220-getter|0|220-preInit
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: altitudeChoiceGroup ">//GEN-BEGIN:|220-getter|0|220-preInit
+/**
+ * Returns an initiliazed instance of altitudeChoiceGroup component.
+ * @return the initialized component instance
+ */
+public ChoiceGroup getAltitudeChoiceGroup() {
+    if (altitudeChoiceGroup == null) {//GEN-END:|220-getter|0|220-preInit
             // write pre-init user code here
-                altitudeChoiceGroup = new ChoiceGroup("Altitude", Choice.EXCLUSIVE);//GEN-BEGIN:|220-getter|1|220-postInit
-                altitudeChoiceGroup.append("meters", null);
-                altitudeChoiceGroup.append("feet", null);
-                altitudeChoiceGroup.setSelectedFlags(new boolean[] { false, false });
-                altitudeChoiceGroup.setFont(0, null);
-                altitudeChoiceGroup.setFont(1, null);//GEN-END:|220-getter|1|220-postInit
+        altitudeChoiceGroup = new ChoiceGroup("Altitude", Choice.EXCLUSIVE);//GEN-BEGIN:|220-getter|1|220-postInit
+        altitudeChoiceGroup.append("meters", null);
+        altitudeChoiceGroup.append("feet", null);
+        altitudeChoiceGroup.setSelectedFlags(new boolean[] { false, false });
+        altitudeChoiceGroup.setFont(0, null);
+        altitudeChoiceGroup.setFont(1, null);//GEN-END:|220-getter|1|220-postInit
             // write post-init user code here
-            }//GEN-BEGIN:|220-getter|2|
-            return altitudeChoiceGroup;
-        }
-        //</editor-fold>//GEN-END:|220-getter|2|
+    }//GEN-BEGIN:|220-getter|2|
+    return altitudeChoiceGroup;
+}
+//</editor-fold>//GEN-END:|220-getter|2|
 
-        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: languageChoiceGroup ">//GEN-BEGIN:|223-getter|0|223-preInit
-        /**
-         * Returns an initiliazed instance of languageChoiceGroup component.
-         * @return the initialized component instance
-         */
-        public ChoiceGroup getLanguageChoiceGroup() {
-            if (languageChoiceGroup == null) {//GEN-END:|223-getter|0|223-preInit
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: languageChoiceGroup ">//GEN-BEGIN:|223-getter|0|223-preInit
+/**
+ * Returns an initiliazed instance of languageChoiceGroup component.
+ * @return the initialized component instance
+ */
+public ChoiceGroup getLanguageChoiceGroup() {
+    if (languageChoiceGroup == null) {//GEN-END:|223-getter|0|223-preInit
             // write pre-init user code here
-                languageChoiceGroup = new ChoiceGroup("Language", Choice.EXCLUSIVE);//GEN-BEGIN:|223-getter|1|223-postInit
-                languageChoiceGroup.append("Default", null);
-                languageChoiceGroup.append("English", null);
-                languageChoiceGroup.append("\u0420\u0443\u0441\u0441\u043A\u0438\u0439", null);
-                languageChoiceGroup.setSelectedFlags(new boolean[] { false, false, false });
-                languageChoiceGroup.setFont(0, null);
-                languageChoiceGroup.setFont(1, null);
-                languageChoiceGroup.setFont(2, null);//GEN-END:|223-getter|1|223-postInit
+        languageChoiceGroup = new ChoiceGroup("Language", Choice.EXCLUSIVE);//GEN-BEGIN:|223-getter|1|223-postInit
+        languageChoiceGroup.append("Default", null);
+        languageChoiceGroup.append("English", null);
+        languageChoiceGroup.append("\u0420\u0443\u0441\u0441\u043A\u0438\u0439", null);
+        languageChoiceGroup.setSelectedFlags(new boolean[] { false, false, false });
+        languageChoiceGroup.setFont(0, null);
+        languageChoiceGroup.setFont(1, null);
+        languageChoiceGroup.setFont(2, null);//GEN-END:|223-getter|1|223-postInit
             // write post-init user code here
-            }//GEN-BEGIN:|223-getter|2|
-            return languageChoiceGroup;
-        }
-        //</editor-fold>//GEN-END:|223-getter|2|
+    }//GEN-BEGIN:|223-getter|2|
+    return languageChoiceGroup;
+}
+//</editor-fold>//GEN-END:|223-getter|2|
 
 //<editor-fold defaultstate="collapsed" desc=" Generated Method: selectGPSDevice ">//GEN-BEGIN:|227-entry|0|228-preAction
 /**
@@ -1105,97 +1112,97 @@ public StringItem getOdometerStringItem() {
 //</editor-fold>//GEN-END:|251-getter|2|
 //</editor-fold>
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: tripTimeAndSpeedStringItem ">//GEN-BEGIN:|252-getter|0|252-preInit
-/**
- * Returns an initiliazed instance of tripTimeAndSpeedStringItem component.
- * @return the initialized component instance
- */
-public StringItem getTripTimeAndSpeedStringItem() {
-    if (tripTimeAndSpeedStringItem == null) {//GEN-END:|252-getter|0|252-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: tripTimeAndSpeedStringItem ">//GEN-BEGIN:|252-getter|0|252-preInit
+    /**
+     * Returns an initiliazed instance of tripTimeAndSpeedStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getTripTimeAndSpeedStringItem() {
+        if (tripTimeAndSpeedStringItem == null) {//GEN-END:|252-getter|0|252-preInit
  // write pre-init user code here
-        tripTimeAndSpeedStringItem = new StringItem("", "t: Trip time & speed");//GEN-BEGIN:|252-getter|1|252-postInit
-        tripTimeAndSpeedStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
-        tripTimeAndSpeedStringItem.setFont(getFont());//GEN-END:|252-getter|1|252-postInit
+            tripTimeAndSpeedStringItem = new StringItem("", "t: Trip time & speed");//GEN-BEGIN:|252-getter|1|252-postInit
+            tripTimeAndSpeedStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
+            tripTimeAndSpeedStringItem.setFont(getFont());//GEN-END:|252-getter|1|252-postInit
  // write post-init user code here
-    }//GEN-BEGIN:|252-getter|2|
-    return tripTimeAndSpeedStringItem;
-}
-//</editor-fold>//GEN-END:|252-getter|2|
+        }//GEN-BEGIN:|252-getter|2|
+        return tripTimeAndSpeedStringItem;
+    }
+    //</editor-fold>//GEN-END:|252-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: totalTimeAndSpeedStringItem ">//GEN-BEGIN:|253-getter|0|253-preInit
-/**
- * Returns an initiliazed instance of totalTimeAndSpeedStringItem component.
- * @return the initialized component instance
- */
-public StringItem getTotalTimeAndSpeedStringItem() {
-    if (totalTimeAndSpeedStringItem == null) {//GEN-END:|253-getter|0|253-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: totalTimeAndSpeedStringItem ">//GEN-BEGIN:|253-getter|0|253-preInit
+    /**
+     * Returns an initiliazed instance of totalTimeAndSpeedStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getTotalTimeAndSpeedStringItem() {
+        if (totalTimeAndSpeedStringItem == null) {//GEN-END:|253-getter|0|253-preInit
  // write pre-init user code here
-        totalTimeAndSpeedStringItem = new StringItem("", "T: Total time & speed");//GEN-BEGIN:|253-getter|1|253-postInit
-        totalTimeAndSpeedStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
-        totalTimeAndSpeedStringItem.setFont(getFont());//GEN-END:|253-getter|1|253-postInit
+            totalTimeAndSpeedStringItem = new StringItem("", "T: Total time & speed");//GEN-BEGIN:|253-getter|1|253-postInit
+            totalTimeAndSpeedStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
+            totalTimeAndSpeedStringItem.setFont(getFont());//GEN-END:|253-getter|1|253-postInit
  // write post-init user code here
-    }//GEN-BEGIN:|253-getter|2|
-    return totalTimeAndSpeedStringItem;
-}
-//</editor-fold>//GEN-END:|253-getter|2|
+        }//GEN-BEGIN:|253-getter|2|
+        return totalTimeAndSpeedStringItem;
+    }
+    //</editor-fold>//GEN-END:|253-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Method: resetOdometer ">//GEN-BEGIN:|256-entry|0|257-preAction
-/**
- * Performs an action assigned to the resetOdometer entry-point.
- */
-public void resetOdometer() {//GEN-END:|256-entry|0|257-preAction
+        //<editor-fold defaultstate="collapsed" desc=" Generated Method: resetOdometer ">//GEN-BEGIN:|256-entry|0|257-preAction
+        /**
+         * Performs an action assigned to the resetOdometer entry-point.
+         */
+        public void resetOdometer() {//GEN-END:|256-entry|0|257-preAction
     if (processor != null) {
         processor.resetOdometer();
     }
 //GEN-LINE:|256-entry|1|257-postAction
  // write post-action user code here
-}//GEN-BEGIN:|256-entry|2|
-//</editor-fold>//GEN-END:|256-entry|2|
+        }//GEN-BEGIN:|256-entry|2|
+        //</editor-fold>//GEN-END:|256-entry|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: resetCommand ">//GEN-BEGIN:|254-getter|0|254-preInit
-/**
- * Returns an initiliazed instance of resetCommand component.
- * @return the initialized component instance
- */
-public Command getResetCommand() {
-    if (resetCommand == null) {//GEN-END:|254-getter|0|254-preInit
+        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: resetCommand ">//GEN-BEGIN:|254-getter|0|254-preInit
+        /**
+         * Returns an initiliazed instance of resetCommand component.
+         * @return the initialized component instance
+         */
+        public Command getResetCommand() {
+            if (resetCommand == null) {//GEN-END:|254-getter|0|254-preInit
  // write pre-init user code here
-        resetCommand = new Command("Reset", Command.OK, 0);//GEN-LINE:|254-getter|1|254-postInit
+                resetCommand = new Command("Reset", Command.OK, 0);//GEN-LINE:|254-getter|1|254-postInit
  // write post-init user code here
-    }//GEN-BEGIN:|254-getter|2|
-    return resetCommand;
-}
-//</editor-fold>//GEN-END:|254-getter|2|
+            }//GEN-BEGIN:|254-getter|2|
+            return resetCommand;
+        }
+        //</editor-fold>//GEN-END:|254-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: font ">//GEN-BEGIN:|260-getter|0|260-preInit
-/**
- * Returns an initiliazed instance of font component.
- * @return the initialized component instance
- */
-public Font getFont() {
-    if (font == null) {//GEN-END:|260-getter|0|260-preInit
+        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: font ">//GEN-BEGIN:|260-getter|0|260-preInit
+        /**
+         * Returns an initiliazed instance of font component.
+         * @return the initialized component instance
+         */
+        public Font getFont() {
+            if (font == null) {//GEN-END:|260-getter|0|260-preInit
         // write pre-init user code here
-        font = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_SMALL);//GEN-LINE:|260-getter|1|260-postInit
+                font = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_SMALL);//GEN-LINE:|260-getter|1|260-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|260-getter|2|
-    return font;
-}
-//</editor-fold>//GEN-END:|260-getter|2|
+            }//GEN-BEGIN:|260-getter|2|
+            return font;
+        }
+        //</editor-fold>//GEN-END:|260-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: boldFont ">//GEN-BEGIN:|261-getter|0|261-preInit
-/**
- * Returns an initiliazed instance of boldFont component.
- * @return the initialized component instance
- */
-public Font getBoldFont() {
-    if (boldFont == null) {//GEN-END:|261-getter|0|261-preInit
+        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: boldFont ">//GEN-BEGIN:|261-getter|0|261-preInit
+        /**
+         * Returns an initiliazed instance of boldFont component.
+         * @return the initialized component instance
+         */
+        public Font getBoldFont() {
+            if (boldFont == null) {//GEN-END:|261-getter|0|261-preInit
         // write pre-init user code here
-        boldFont = Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD, Font.SIZE_SMALL);//GEN-LINE:|261-getter|1|261-postInit
+                boldFont = Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD, Font.SIZE_SMALL);//GEN-LINE:|261-getter|1|261-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|261-getter|2|
-    return boldFont;
-}
-//</editor-fold>//GEN-END:|261-getter|2|
+            }//GEN-BEGIN:|261-getter|2|
+            return boldFont;
+        }
+        //</editor-fold>//GEN-END:|261-getter|2|
 
 //<editor-fold defaultstate="collapsed" desc=" Generated Getter: searchGPSStringItem ">//GEN-BEGIN:|268-getter|0|268-preInit
 /**
@@ -1273,6 +1280,69 @@ public void browseLogFolder() {//GEN-END:|275-entry|0|276-preAction
 //GEN-LINE:|275-entry|1|276-postAction
 }//GEN-BEGIN:|275-entry|2|
 //</editor-fold>//GEN-END:|275-entry|2|
+
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: waypointForm ">//GEN-BEGIN:|279-getter|0|279-preInit
+/**
+ * Returns an initiliazed instance of waypointForm component.
+ * @return the initialized component instance
+ */
+public Form getWaypointForm() {
+    if (waypointForm == null) {//GEN-END:|279-getter|0|279-preInit
+        // write pre-init user code here
+        waypointForm = new Form("Waypoint", new Item[] { getWaypointNameTextField() });//GEN-BEGIN:|279-getter|1|279-postInit
+        waypointForm.addCommand(getCancelWaypointCommand());
+        waypointForm.addCommand(getSubmitWaypointCommand());
+        waypointForm.setCommandListener(this);//GEN-END:|279-getter|1|279-postInit
+        // write post-init user code here
+    }//GEN-BEGIN:|279-getter|2|
+    return waypointForm;
+}
+//</editor-fold>//GEN-END:|279-getter|2|
+
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: waypointNameTextField ">//GEN-BEGIN:|280-getter|0|280-preInit
+/**
+ * Returns an initiliazed instance of waypointNameTextField component.
+ * @return the initialized component instance
+ */
+public TextField getWaypointNameTextField() {
+    if (waypointNameTextField == null) {//GEN-END:|280-getter|0|280-preInit
+        // write pre-init user code here
+        waypointNameTextField = new TextField("Name:", "", 32, TextField.ANY);//GEN-LINE:|280-getter|1|280-postInit
+        // write post-init user code here
+    }//GEN-BEGIN:|280-getter|2|
+    return waypointNameTextField;
+}
+//</editor-fold>//GEN-END:|280-getter|2|
+
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelWaypointCommand ">//GEN-BEGIN:|281-getter|0|281-preInit
+/**
+ * Returns an initiliazed instance of cancelWaypointCommand component.
+ * @return the initialized component instance
+ */
+public Command getCancelWaypointCommand() {
+    if (cancelWaypointCommand == null) {//GEN-END:|281-getter|0|281-preInit
+        // write pre-init user code here
+        cancelWaypointCommand = new Command("Cancel", Command.BACK, 0);//GEN-LINE:|281-getter|1|281-postInit
+        // write post-init user code here
+    }//GEN-BEGIN:|281-getter|2|
+    return cancelWaypointCommand;
+}
+//</editor-fold>//GEN-END:|281-getter|2|
+
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: submitWaypointCommand ">//GEN-BEGIN:|283-getter|0|283-preInit
+/**
+ * Returns an initiliazed instance of submitWaypointCommand component.
+ * @return the initialized component instance
+ */
+public Command getSubmitWaypointCommand() {
+    if (submitWaypointCommand == null) {//GEN-END:|283-getter|0|283-preInit
+        // write pre-init user code here
+        submitWaypointCommand = new Command("Save", Command.OK, 0);//GEN-LINE:|283-getter|1|283-postInit
+        // write post-init user code here
+    }//GEN-BEGIN:|283-getter|2|
+    return submitWaypointCommand;
+}
+//</editor-fold>//GEN-END:|283-getter|2|
 
     public FileBrowser getFileBrowser() {
         if (fileBrowser == null) {
