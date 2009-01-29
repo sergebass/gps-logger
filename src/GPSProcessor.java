@@ -459,6 +459,10 @@ public class GPSProcessor
             }
         }
 
+///
+midlet.getCanvas().setTime(gpsTimeString);
+///
+
         midlet.setText(midlet.getDateTimeStringItem(),
                        "UT "+ gpsTimeString + ", " + gpsDateString);
         
