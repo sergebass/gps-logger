@@ -44,8 +44,8 @@ public class GPSProcessor
     double altitude = Double.MIN_VALUE; // also as a flag
     
     double directionAngle = 0.0;
-    String headingSymbol = "";
-    String headingAngleString = "";
+    String directionSymbol = "";
+    String directionAngleString = "";
 
     double groundSpeedKPH = -1.0; // km/h (kilometers per hour)
     double groundSpeedKnots = -1.0; // knots (sea miles per hour)
@@ -428,7 +428,10 @@ midlet.getCanvas().setLatitude(latitudeLabel + String.valueOf((int)latitudeDegre
                                     + "\' ("
                                     + fractionalDegreesString
                                     + ")");
-///
+
+/// MAKE DATA FORMAT SWITCH BETWEEN VIEWS ALTERNATIVELY!
+
+            ///
 midlet.getCanvas().setLongitude(longitudeLabel + String.valueOf((int)longitudeDegrees) // degrees
                                     + "\u00B0"
                                     + longitudeMinutesString // minutes, fractional
@@ -438,29 +441,29 @@ midlet.getCanvas().setLongitude(longitudeLabel + String.valueOf((int)longitudeDe
 ///
         }
         
-        if (values.length > 7) { // heading
-            headingAngleString = values[7];
+        if (values.length > 7) { // direction
+            directionAngleString = values[7];
             try {
-                directionAngle = Double.parseDouble(headingAngleString);
+                directionAngle = Double.parseDouble(directionAngleString);
             } catch (Exception e) {
                 directionAngle = 0.0;
             }
             if (directionAngle >= 22.5 && directionAngle < 67.5) {
-                headingSymbol = "NE"; // north-east
+                directionSymbol = "NE"; // north-east
             } else if (directionAngle >= 67.5 && directionAngle < 112.5) {
-                headingSymbol = "E"; // east
+                directionSymbol = "E"; // east
             } else if (directionAngle >= 112.5 && directionAngle < 157.5) {
-                headingSymbol = "SE"; // south-east
+                directionSymbol = "SE"; // south-east
             } else if (directionAngle >= 157.5 && directionAngle < 202.5) {
-                headingSymbol = "S"; // south
+                directionSymbol = "S"; // south
             } else if (directionAngle >= 202.5 && directionAngle < 247.5) {
-                headingSymbol = "SW"; // south-west
+                directionSymbol = "SW"; // south-west
             } else if (directionAngle >= 247.5 && directionAngle < 292.5) {
-                headingSymbol = "W"; // west
+                directionSymbol = "W"; // west
             } else if (directionAngle >= 292.5 && directionAngle < 337.5) {
-                headingSymbol = "NW"; // north-west
+                directionSymbol = "NW"; // north-west
             } else {
-                headingSymbol = "N"; // north
+                directionSymbol = "N"; // north
             }
         }
         
@@ -477,7 +480,7 @@ midlet.getCanvas().setLongitude(longitudeLabel + String.valueOf((int)longitudeDe
         }
 
 ///
-midlet.getCanvas().setTime(gpsTimeString);
+midlet.getCanvas().setTime(gpsTimeString + " UTC");
 midlet.getCanvas().setDate(gpsDateString);
 ///
 
@@ -544,8 +547,8 @@ midlet.getCanvas().setDate(gpsDateString);
                        + speedMSString + " m/s)");
         
 ///
-midlet.getCanvas().setSpeed("v " + speedString + " km/h ("
-                       + speedMSString + " m/s)");
+midlet.getCanvas().setSpeed(speedString + " km/h");
+///+ speedMSString + " m/s)");
 ///
         String distanceString = String.valueOf(((long)(distance)) / 1000.0);
         midlet.setText(midlet.getOdometerStringItem(),
@@ -643,7 +646,7 @@ midlet.getCanvas().setTotalTime("T " + totalTimeString
             }
         }
         
-        midlet.getCanvas().setTitle("" + satelliteCount
+        midlet.getCanvas().setSatelliteInfo("" + satelliteCount
                   +  " sat. (" + fixQuality + ")");
         
         if (values.length > 11) {
@@ -657,11 +660,11 @@ midlet.getCanvas().setTotalTime("T " + totalTimeString
             
             midlet.setText(midlet.getAltitudeStringItem(),
                     "A " + values[8] + altitudeUnits
-                    + ", ^" +  headingAngleString + "\u00B0" + headingSymbol);
+                    + ", ^" +  directionAngleString + "\u00B0" + directionSymbol);
 ///
 midlet.getCanvas().setAltitude("A " + values[8] + altitudeUnits);
 midlet.getCanvas().setDirection(directionAngle);
-midlet.getCanvas().setDirection("^" +  headingAngleString + "\u00B0" + headingSymbol);
+midlet.getCanvas().setDirection(directionAngleString + "\u00B0" + directionSymbol);
 ///
         }
     }

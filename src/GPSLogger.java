@@ -284,6 +284,8 @@ public class GPSLogger
                 exitMIDlet();
             } else if (command.getCommandType() == Command.BACK) {
                 switchToPreviousDisplayable();
+            } else if (command == markCommand) {
+                switchDisplayable(null, getWaypointForm());
             }
         }
     }//GEN-BEGIN:|7-commandAction|36|
@@ -475,7 +477,7 @@ public class GPSLogger
         x(dataScreen); /// or getMainForm() for text mode
     }
 
-    void x(Displayable screen) {
+    void x(final Displayable screen) {
         switchDisplayable(null, screen);
         screen.setTitle("Connecting to GPS...");
         System.out.println("Connecting to GPS receiver...");
@@ -488,7 +490,7 @@ public class GPSLogger
             // run our tracking stuff in a separate thread
             new Thread() {
                 public void run() {
-                    startTracking(connectionURLString);
+                    startTracking(connectionURLString, screen);
                 }
             }.start();
         } else { // null connectionURLString
@@ -882,7 +884,7 @@ public class GPSLogger
      */
     public void markPoint() {//GEN-END:|197-entry|0|198-preAction
 
-        switchDisplayable(null, mainForm); // go back to the main screen immediately anyway
+        switchDisplayable(null, getCanvas()); // go back to the main screen immediately anyway
 
         try {
             writeCurrentPointToMarksLog(getWaypointNameTextField().getString().trim());
@@ -1581,7 +1583,7 @@ public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
         spaceCalculatorThread.start();
     }
 
-    void startTracking(String connectionURLString) {
+    void startTracking(String connectionURLString, Displayable screen) {
         
         System.out.println("Starting tracking...");
         
@@ -1593,7 +1595,7 @@ public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
             
         try {
             do { // (re)connect loop
-                getMainForm().setTitle(mustReconnectToGPS?
+                screen.setTitle(mustReconnectToGPS?
                           "Restarting..."
                         : "Starting...");
                 
@@ -1624,7 +1626,7 @@ public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
                 InputStreamReader gpsReader = gpsReceiver.getInputStreamReader();
                 OutputStream outputStream = gpsLogFile.getOutputStream();
             
-                getMainForm().setTitle("GPS: started");
+                screen.setTitle(null); // remove the title when started
         
                 do {
                     StringBuffer buffer = new StringBuffer();
