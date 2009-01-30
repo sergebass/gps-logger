@@ -376,6 +376,14 @@ public class GPSProcessor
                                     + "\' ("
                                     + fractionalDegreesString
                                     + ")");
+///
+midlet.getCanvas().displayLatitude(latitudeLabel + String.valueOf((int)latitudeDegrees) // degrees
+                                    + "\u00B0"
+                                    + latitudeMinutesString // minutes, fractional
+                                    + "\' ("
+                                    + fractionalDegreesString
+                                    + ")");
+///
         }
         
         double longitudeDegrees = 0.0;
@@ -419,6 +427,14 @@ public class GPSProcessor
                                     + "\' ("
                                     + fractionalDegreesString
                                     + ")");
+///
+midlet.getCanvas().displayLongitude(longitudeLabel + String.valueOf((int)longitudeDegrees) // degrees
+                                    + "\u00B0"
+                                    + longitudeMinutesString // minutes, fractional
+                                    + "\' ("
+                                    + fractionalDegreesString
+                                    + ")");
+///
         }
         
         if (values.length > 7) { // heading
@@ -460,7 +476,8 @@ public class GPSProcessor
         }
 
 ///
-midlet.getCanvas().setTime(gpsTimeString);
+midlet.getCanvas().displayTime(gpsTimeString);
+midlet.getCanvas().displayDate(gpsDateString);
 ///
 
         midlet.setText(midlet.getDateTimeStringItem(),

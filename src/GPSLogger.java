@@ -1431,21 +1431,24 @@ public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
     public void exitMIDlet() {
 
 /// MAKE SURE THE LOG FILE IS PROPERLY CLOSED!!! NO MORE TRUNCATED DATA LOGS!!!
+/*
         try {
-            shutDown();
+            ///shutDown();
+            closeLog();
+            closeMarksLog();
         } catch (IOException e) {
             // just ignore, no time to do anything more now
         }
-
+*/
         mustBeTerminated = true;
 
         try {
-            Thread.currentThread().sleep(1000); // wait a second...
+            Thread.currentThread().sleep(2000); // wait a little...
         } catch (InterruptedException e) {
             // ignore
         }
 
-        switchDisplayable (null, null);
+        switchDisplayable(null, null);
         destroyApp(true);
         notifyDestroyed();
     }
