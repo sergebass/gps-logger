@@ -471,12 +471,13 @@ public class GPSLogger
      * Performs an action assigned to the start entry-point.
      */
     public void start() {//GEN-END:|108-entry|0|109-preAction
-
-///
         dataScreen = new GPSScreen(this);
-///
-        switchDisplayable(null, getMainForm()); // switch back to the main form
-        getMainForm().setTitle("Connecting to GPS...");
+        x(dataScreen); /// or getMainForm() for text mode
+    }
+
+    void x(Displayable screen) {
+        switchDisplayable(null, screen);
+        screen.setTitle("Connecting to GPS...");
         System.out.println("Connecting to GPS receiver...");
 
         final String connectionURLString = settings.getGPSDeviceURL();

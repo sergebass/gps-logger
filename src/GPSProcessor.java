@@ -43,7 +43,7 @@ public class GPSProcessor
     double longitude = 0.0; // minutes
     double altitude = Double.MIN_VALUE; // also as a flag
     
-    double headingAngle = 0.0;
+    double directionAngle = 0.0;
     String headingSymbol = "";
     String headingAngleString = "";
 
@@ -148,7 +148,7 @@ public class GPSProcessor
             writer.write(" <ele>" + String.valueOf(altitude) + "</ele>\n");
             
             // <course> (degrees, true), actually, missing in GPX 1.1!
-            writer.write(" <course>" + String.valueOf(headingAngle) + "</course>\n");
+            writer.write(" <course>" + String.valueOf(directionAngle) + "</course>\n");
             
             // <speed> (meters per second), actually, missing in GPX 1.1!
             writer.write(" <speed>" + String.valueOf(speed / 3.6) + "</speed>\n");
@@ -236,6 +236,7 @@ public class GPSProcessor
         
         if (sentenceHeader.equals("$GPRMC,")) {
             parseGPRMC(convertToArray(strippedSentence));
+            midlet.getCanvas().repaint(); // GPRMC sentence is the key one for display update
         } else if (sentenceHeader.equals("$GPGGA,")) {
             parseGPGGA(convertToArray(strippedSentence));
 //        } else if (sentenceHeader.equals("$GPGSA,")) {
@@ -377,7 +378,7 @@ public class GPSProcessor
                                     + fractionalDegreesString
                                     + ")");
 ///
-midlet.getCanvas().displayLatitude(latitudeLabel + String.valueOf((int)latitudeDegrees) // degrees
+midlet.getCanvas().setLatitude(latitudeLabel + String.valueOf((int)latitudeDegrees) // degrees
                                     + "\u00B0"
                                     + latitudeMinutesString // minutes, fractional
                                     + "\' ("
@@ -428,7 +429,7 @@ midlet.getCanvas().displayLatitude(latitudeLabel + String.valueOf((int)latitudeD
                                     + fractionalDegreesString
                                     + ")");
 ///
-midlet.getCanvas().displayLongitude(longitudeLabel + String.valueOf((int)longitudeDegrees) // degrees
+midlet.getCanvas().setLongitude(longitudeLabel + String.valueOf((int)longitudeDegrees) // degrees
                                     + "\u00B0"
                                     + longitudeMinutesString // minutes, fractional
                                     + "\' ("
@@ -440,23 +441,23 @@ midlet.getCanvas().displayLongitude(longitudeLabel + String.valueOf((int)longitu
         if (values.length > 7) { // heading
             headingAngleString = values[7];
             try {
-                headingAngle = Double.parseDouble(headingAngleString);
+                directionAngle = Double.parseDouble(headingAngleString);
             } catch (Exception e) {
-                headingAngle = 0.0;
+                directionAngle = 0.0;
             }
-            if (headingAngle >= 22.5 && headingAngle < 67.5) {
+            if (directionAngle >= 22.5 && directionAngle < 67.5) {
                 headingSymbol = "NE"; // north-east
-            } else if (headingAngle >= 67.5 && headingAngle < 112.5) {
+            } else if (directionAngle >= 67.5 && directionAngle < 112.5) {
                 headingSymbol = "E"; // east
-            } else if (headingAngle >= 112.5 && headingAngle < 157.5) {
+            } else if (directionAngle >= 112.5 && directionAngle < 157.5) {
                 headingSymbol = "SE"; // south-east
-            } else if (headingAngle >= 157.5 && headingAngle < 202.5) {
+            } else if (directionAngle >= 157.5 && directionAngle < 202.5) {
                 headingSymbol = "S"; // south
-            } else if (headingAngle >= 202.5 && headingAngle < 247.5) {
+            } else if (directionAngle >= 202.5 && directionAngle < 247.5) {
                 headingSymbol = "SW"; // south-west
-            } else if (headingAngle >= 247.5 && headingAngle < 292.5) {
+            } else if (directionAngle >= 247.5 && directionAngle < 292.5) {
                 headingSymbol = "W"; // west
-            } else if (headingAngle >= 292.5 && headingAngle < 337.5) {
+            } else if (directionAngle >= 292.5 && directionAngle < 337.5) {
                 headingSymbol = "NW"; // north-west
             } else {
                 headingSymbol = "N"; // north
@@ -476,8 +477,8 @@ midlet.getCanvas().displayLongitude(longitudeLabel + String.valueOf((int)longitu
         }
 
 ///
-midlet.getCanvas().displayTime(gpsTimeString);
-midlet.getCanvas().displayDate(gpsDateString);
+midlet.getCanvas().setTime(gpsTimeString);
+midlet.getCanvas().setDate(gpsDateString);
 ///
 
         midlet.setText(midlet.getDateTimeStringItem(),
@@ -542,10 +543,17 @@ midlet.getCanvas().displayDate(gpsDateString);
                        "v " + speedString + " km/h ("
                        + speedMSString + " m/s)");
         
+///
+midlet.getCanvas().setSpeed("v " + speedString + " km/h ("
+                       + speedMSString + " m/s)");
+///
         String distanceString = String.valueOf(((long)(distance)) / 1000.0);
         midlet.setText(midlet.getOdometerStringItem(),
                        "s " + distanceString + " km");
         
+///
+midlet.getCanvas().setDistance("s " + distanceString + " km");
+///
         // trip time & average speed
         String tripTimeString = convertMillisToString(tripTimeMillis);
         
@@ -556,6 +564,10 @@ midlet.getCanvas().displayDate(gpsDateString);
             midlet.setText(midlet.getTripTimeAndSpeedStringItem(),
                     "t " + tripTimeString
                     + " (" + tripAverageSpeedString + " km/h)");
+///
+midlet.getCanvas().setTripTime("t " + tripTimeString
+                    + " (" + tripAverageSpeedString + " km/h)");
+///
         }
         
         // total time & average speed
@@ -569,6 +581,10 @@ midlet.getCanvas().displayDate(gpsDateString);
             midlet.setText(midlet.getTotalTimeAndSpeedStringItem(),
                     "T " + totalTimeString
                     + " (" + totalAverageSpeedString + " km/h)");
+///
+midlet.getCanvas().setTotalTime("T " + totalTimeString
+                    + " (" + totalAverageSpeedString + " km/h)");
+///
         }
 
         if (isValidGPSData) {
@@ -627,7 +643,7 @@ midlet.getCanvas().displayDate(gpsDateString);
             }
         }
         
-        midlet.getMainForm().setTitle("" + satelliteCount
+        midlet.getCanvas().setTitle("" + satelliteCount
                   +  " sat. (" + fixQuality + ")");
         
         if (values.length > 11) {
@@ -642,6 +658,11 @@ midlet.getCanvas().displayDate(gpsDateString);
             midlet.setText(midlet.getAltitudeStringItem(),
                     "A " + values[8] + altitudeUnits
                     + ", ^" +  headingAngleString + "\u00B0" + headingSymbol);
+///
+midlet.getCanvas().setAltitude("A " + values[8] + altitudeUnits);
+midlet.getCanvas().setDirection(directionAngle);
+midlet.getCanvas().setDirection("^" +  headingAngleString + "\u00B0" + headingSymbol);
+///
         }
     }
 

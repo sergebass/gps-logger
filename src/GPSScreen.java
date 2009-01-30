@@ -19,17 +19,175 @@ public class GPSScreen
 ///tmp:
 Image bgImage = null;
 ///
+    double directionAngle = 0.0; // degrees
+
+    String timeString = "";
+    String dateString = "";
+
+    String latitudeString = "";
+    String longitudeString = "";
+    String altitudeString = "";
+
+    String directionString = "";
+    String speedString = "";
+    String distanceString = "";
+    String tripTimeString = "";
+    String totalTimeString = "";
 
     public GPSScreen(GPSLogger midlet) {
         super(false); // do not suppress key events
         this.midlet = midlet;
-        this.setFullScreenMode(true);
+        this.setFullScreenMode(false);
         init();
     }
 
+    public void setTime(String string) {
+        timeString = string;
+    }
+
+    public void displayTime() {
+        displayString(timeString,
+                    0, smallFont.getHeight() * 0,
+                    smallFont.stringWidth(timeString), smallFont.getHeight(),
+                    0xFF00FFFF, 0xA0000000, // cyan on 60% black
+                    smallFont,
+                    false,
+                    false);
+    }
+
+    public void setDate(String string) {
+        dateString = string;
+    }
+
+    public void displayDate() {
+        displayString(dateString,
+                    0, smallFont.getHeight() * 1,
+                    smallFont.stringWidth(dateString), smallFont.getHeight(),
+                    0xFF00FFFF, 0xA0000000, // cyan on 60% black
+                    smallFont,
+                    false,
+                    false);
+    }
+
+    public void setLatitude(String string) {
+        latitudeString = string;
+    }
+
+    public void displayLatitude() {
+        displayString(latitudeString,
+                    0, smallFont.getHeight() * 2,
+                    smallFont.stringWidth(latitudeString), smallFont.getHeight(),
+                    0xFF00FF00, 0xA0000000, // green on 60% black
+                    smallFont,
+                    false,
+                    false);
+    }
+
+    public void setLongitude(String string) {
+        longitudeString = string;
+    }
+
+    public void displayLongitude() {
+        displayString(longitudeString,
+                    0, smallFont.getHeight() * 3,
+                    smallFont.stringWidth(longitudeString), smallFont.getHeight(),
+                    0xFF00FF00, 0xA0000000, // green on 60% black
+                    smallFont,
+                    false,
+                    false);
+    }
+    
+    public void setAltitude(String string) {
+        altitudeString = string;
+    }
+
+    public void displayAltitude() {
+        displayString(altitudeString,
+                    0, smallFont.getHeight() * 4,
+                    smallFont.stringWidth(altitudeString), smallFont.getHeight(),
+                    0xFF00FF00, 0xA0000000, // green on 60% black
+                    smallFont,
+                    false,
+                    false);
+    }
+
+    public void setDirection(double directionAngle) {
+        this.directionAngle = directionAngle;
+    }
+
+    public void setDirection(String string) {
+        directionString = string;
+    }
+
+    public void displayDirection() {
+        displayString(directionString,
+                    0, smallFont.getHeight() * 5,
+                    smallFont.stringWidth(directionString), smallFont.getHeight(),
+                    0xFFFFFF00, 0xA0000000, // yellow on 60% black
+                    smallFont,
+                    false,
+                    false);
+    }
+
+    public void setSpeed(String string) {
+        speedString = string;
+    }
+
+    public void displaySpeed() {
+        displayString(speedString,
+                    0, smallFont.getHeight() * 6,
+                    smallFont.stringWidth(speedString), smallFont.getHeight(),
+                    0xFFFFFF00, 0xA0000000, // yellow on 60% black
+                    smallFont,
+                    false,
+                    false);
+    }
+
+    public void setDistance(String string) {
+        distanceString = string;
+    }
+
+    public void displayDistance() {
+        displayString(distanceString,
+                    0, smallFont.getHeight() * 7,
+                    smallFont.stringWidth(distanceString), smallFont.getHeight(),
+                    0xFFFFFF00, 0xA0000000, // yellow on 60% black
+                    smallFont,
+                    false,
+                    false);
+    }
+
+    public void setTripTime(String string) {
+        tripTimeString = string;
+    }
+
+    public void displayTripTime() {
+        displayString(tripTimeString,
+                    0, smallFont.getHeight() * 8,
+                    smallFont.stringWidth(tripTimeString), smallFont.getHeight(),
+                    0xFFFFFF00, 0xA0000000, // yellow on 60% black
+                    smallFont,
+                    false,
+                    false);
+    }
+
+    public void setTotalTime(String string) {
+        totalTimeString = string;
+    }
+
+    public void displayTotalTime() {
+        displayString(totalTimeString,
+                    0, smallFont.getHeight() * 9,
+                    smallFont.stringWidth(totalTimeString), smallFont.getHeight(),
+                    0xFFFFFF00, 0xA0000000, // yellow on 60% black
+                    smallFont,
+                    false,
+                    false);
+    }
+
     void init() {
-        addCommand(new Command("Back", Command.BACK, 1));
-        addCommand(new Command("Exit", Command.EXIT, 2));
+        addCommand(new Command("Exit", Command.EXIT, 1));
+///     addCommand(new Command("Back", Command.BACK, 2));
         setCommandListener(midlet);
 
 ///tmp:
@@ -39,11 +197,10 @@ try {
 
 }
 ///
-        
-        repaint();
     }
 
-    void drawBackground(int x, int y, int width, int height) {
+    void drawBackground(int x, int y, int width, int height,
+                        boolean mustFlushGraphics) {
 
         Graphics g = getGraphics();
 
@@ -64,19 +221,41 @@ try {
             g.fillRect(x, y, width, height); // just fill/clear it...
         }
 
-        flushGraphics(x, y, width, height);
+///tmp: FIX ASAP
+drawCompass(directionAngle, getWidth() - 22, getHeight() - 22, 20);
+///
+
+        if (mustFlushGraphics) {
+            flushGraphics(x, y, width, height);
+        }
     }
 
     public void paint(Graphics g) {
-        drawBackground(0, 0, getWidth(), getHeight());
+
+        drawBackground(0, 0, getWidth(), getHeight(), false);
+
+        displayTime();
+        displayDate();
+        displayLatitude();
+        displayLongitude();
+        displayAltitude();
+        displayDirection();
+        displaySpeed();
+        displayDistance();
+        displayTripTime();
+        displayTotalTime();
+
+        flushGraphics();
     }
 
-    public void displayText(String text,
+    public void displayString(String string,
                          int x, int y, int width, int height,
                          int fgColor, int bgColor,
-                         Font font) {
+                         Font font,
+                         boolean mustDrawBackground,
+                         boolean mustFlushGraphics) {
 
-        if (!isShown()) {
+        if (!isShown() || string.equals("")) {
             return; // do not waste battery energy in vain
         }
 
@@ -92,7 +271,7 @@ try {
         g2.fillRect(0, 0, width, height); // clear/fill image background
         g2.setFont(font);
         g2.setColor(opaqueFGColor); // alpha channel is ignored anyway
-        g2.drawString(text, 0, 0, 0);
+        g2.drawString(string, 0, 0, 0);
 
         int[] dataPixels = new int[width * height];
         image.getRGB(dataPixels, 0, width, 0, 0, width, height);
@@ -113,42 +292,34 @@ try {
         // this will be our data, but possibly (semi)transparent
         image = Image.createRGBImage(dataPixels, width, height, true); // with alpha
 
-        drawBackground(x, y, width, height); // restore background under our data
+        if (mustDrawBackground) {
+            drawBackground(x, y, width, height, false); // restore background under our data
+        }
+        
         Graphics g = getGraphics();
         g.drawImage(image, x, y, 0); // overlay our image with data
 
-        flushGraphics(x, y, width, height);
+        if (mustFlushGraphics) {
+            flushGraphics(x, y, width, height);
+        }
     }
 
-    public void displayTime(String text) {
-        displayText(text,
-                    0, smallFont.getHeight() * 0,
-                    smallFont.stringWidth(text), smallFont.getHeight(),
-                    0xC0FFFFFF, 0x80000000, // transparent white on 50% black
-                    smallFont);
-    }
+    void drawCompass(double angle, int centerX, int centerY, int radius) {
 
-    public void displayDate(String text) {
-        displayText(text,
-                    0, smallFont.getHeight() * 1,
-                    smallFont.stringWidth(text), smallFont.getHeight(),
-                    0xFF00FFFF, 0x80000000, // cyan on 50% black
-                    smallFont);
-    }
+        Graphics g = getGraphics();
+        g.setColor(0xFFFFFFFF); ///tmp
+        g.drawArc(centerX - radius,
+                  centerY - radius,
+                  radius + radius,
+                  radius + radius,
+                  0, 360);
 
-    public void displayLatitude(String text) {
-        displayText(text,
-                    0, smallFont.getHeight() * 2,
-                    smallFont.stringWidth(text), smallFont.getHeight(),
-                    0xFF00FF00, 0x80000000, // green on 50% black
-                    smallFont);
-    }
+        double angleInRadians = directionAngle / 180.0 * Math.PI;
 
-    public void displayLongitude(String text) {
-        displayText(text,
-                    0, smallFont.getHeight() * 3,
-                    smallFont.stringWidth(text), smallFont.getHeight(),
-                    0xFFFFFF00, 0x80000000, // yellow on 50% black
-                    smallFont);
+        int y = centerY + (int)(((double)radius) * Math.sin(angleInRadians));
+        int x = centerX + (int)(((double)radius) * Math.cos(angleInRadians));
+
+        g.setColor(0xFFFFFF00);
+        g.drawLine(centerX, centerY, x, y);
     }
 }

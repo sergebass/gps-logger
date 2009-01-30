@@ -114,16 +114,16 @@
                     <Property name="priority" typeID="Pint" value="V0"/>
                     <Property name="ordinary" typeID="Pboolean" value="Vfalse"/>
                 </Component>
-                <Component componentID="289" typeID="Cjavax.microedition.lcdui.Command">
-                    <Property name="instanceName" typeID="Pjava.lang.String" value="VscreenCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VGraphics Mode"/>
-                    <Property name="type" typeID="Pint" value="V1"/>
-                </Component>
                 <Component componentID="50" typeID="C#FileBrowserOpenCommand">
                     <Property name="label" typeID="Pjava.lang.String" value="VOpen File"/>
                     <Property name="type" typeID="Pint" value="V4"/>
                     <Property name="priority" typeID="Pint" value="V0"/>
                     <Property name="ordinary" typeID="Pboolean" value="Vfalse"/>
+                </Component>
+                <Component componentID="289" typeID="Cjavax.microedition.lcdui.Command">
+                    <Property name="instanceName" typeID="Pjava.lang.String" value="VscreenCommand"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="VGraphics Mode"/>
+                    <Property name="type" typeID="Pint" value="V1"/>
                 </Component>
                 <Component componentID="53" typeID="C#SMSComposerSendCommand">
                     <Property name="label" typeID="Pjava.lang.String" value="VSend"/>
@@ -697,22 +697,22 @@
     </Document>
     <FlowScene version="1">
         <Node componentID="256" descriptorID="componentNode256" x="1159" y="648"/>
-        <Node componentID="275" descriptorID="componentNode275" x="64" y="470"/>
-        <Node componentID="291" descriptorID="componentNode291" x="1155" y="169"/>
-        <Node componentID="227" descriptorID="componentNode227" x="266" y="24"/>
-        <Node componentID="2" descriptorID="componentNode2" x="955" y="313"/>
-        <Node componentID="233" descriptorID="componentNode233" x="159" y="100"/>
+        <Node componentID="183" descriptorID="componentNode183" x="34" y="712"/>
         <Node componentID="82" descriptorID="componentNode82" x="504" y="14"/>
+        <Node componentID="188" descriptorID="componentNode188" x="34" y="313"/>
+        <Node componentID="197" descriptorID="componentNode197" x="772" y="66"/>
+        <Node componentID="279" descriptorID="componentNode279" x="364" y="679"/>
+        <Node componentID="14" descriptorID="componentNode14" x="1189" y="500"/>
+        <Node componentID="2" descriptorID="componentNode2" x="955" y="313"/>
         <Node componentID="125" descriptorID="componentNode125" x="744" y="500"/>
         <Node componentID="141" descriptorID="componentNode141" x="505" y="343"/>
-        <Node componentID="183" descriptorID="componentNode183" x="34" y="712"/>
-        <Node componentID="147" descriptorID="componentNode147" x="955" y="712"/>
-        <Node componentID="85" descriptorID="componentNode85" x="272" y="154"/>
-        <Node componentID="197" descriptorID="componentNode197" x="772" y="66"/>
-        <Node componentID="211" descriptorID="componentNode211" x="514" y="104"/>
-        <Node componentID="279" descriptorID="componentNode279" x="364" y="679"/>
+        <Node componentID="227" descriptorID="componentNode227" x="266" y="24"/>
         <Node componentID="108" descriptorID="componentNode108" x="34" y="32"/>
-        <Node componentID="14" descriptorID="componentNode14" x="1189" y="500"/>
-        <Node componentID="188" descriptorID="componentNode188" x="34" y="313"/>
+        <Node componentID="85" descriptorID="componentNode85" x="272" y="154"/>
+        <Node componentID="275" descriptorID="componentNode275" x="64" y="470"/>
+        <Node componentID="291" descriptorID="componentNode291" x="1155" y="169"/>
+        <Node componentID="211" descriptorID="componentNode211" x="514" y="104"/>
+        <Node componentID="233" descriptorID="componentNode233" x="159" y="100"/>
+        <Node componentID="147" descriptorID="componentNode147" x="955" y="712"/>
     </FlowScene>
 </VisualDesign>
