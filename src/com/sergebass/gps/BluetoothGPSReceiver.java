@@ -8,17 +8,17 @@ import java.io.*;
 import javax.microedition.io.*;
 
 /**
- * GPSReceiver.
+ * BluetoothGPSReceiver.
  *
  * @author Serge Perinsky
  */
-public class GPSReceiver {
+public class BluetoothGPSReceiver {
 
     StreamConnection streamConnection = null;
     InputStream stream = null;
     InputStreamReader reader = null;
     
-    public GPSReceiver(String connectionURLString)
+    public BluetoothGPSReceiver(String connectionURLString)
             throws IOException {
         System.out.print("Creating GPS receiver connection to "
                          + connectionURLString + "...");

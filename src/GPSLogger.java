@@ -40,7 +40,7 @@ public class GPSLogger
     
     int number = 0;
 
-    GPSReceiver gpsReceiver = null;
+    BluetoothGPSReceiver gpsReceiver = null;
     GPSLogFile gpsLogFile = null;
     GPSLogFile gpsMarksLogFile = null;
     
@@ -474,10 +474,10 @@ public class GPSLogger
      */
     public void start() {//GEN-END:|108-entry|0|109-preAction
         dataScreen = new GPSScreen(this);
-        x(dataScreen); /// or getMainForm() for text mode
+        go(dataScreen); /// or getMainForm() for text mode
     }
 
-    void x(final Displayable screen) {
+    void go(final Displayable screen) {
         switchDisplayable(null, screen);
         screen.setTitle("Connecting to GPS...");
         System.out.println("Connecting to GPS receiver...");
@@ -1583,9 +1583,24 @@ public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
         spaceCalculatorThread.start();
     }
 
+///
+///LAPIGPSReceiver lapiReceiver = null;
+///
+
     void startTracking(String connectionURLString, Displayable screen) {
         
         System.out.println("Starting tracking...");
+        
+/*///tmp!!!
+try {
+    Class testClass = Class.forName("javax.microedition.location.LocationProvider");
+    screen.setTitle("+LocationProvider");
+    lapiReceiver = new LAPIGPSReceiver();
+} catch (ClassNotFoundException eee) {
+    screen.setTitle("-LocationProvider");
+    lapiReceiver = null;
+}
+*///
         
         processor = new GPSProcessor(this);
         processor.resetOdometer();
@@ -1602,7 +1617,7 @@ public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
                 System.out.println(getMainForm().getTitle());
         
                 if (gpsReceiver == null) { // connect to the GPS if not connected yet
-                    gpsReceiver = new GPSReceiver(connectionURLString);
+                    gpsReceiver = new BluetoothGPSReceiver(connectionURLString);
                     mustReconnectToGPS = false; // drop the flag
                 }
             
@@ -1627,7 +1642,8 @@ public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
                 OutputStream outputStream = gpsLogFile.getOutputStream();
             
                 screen.setTitle(null); // remove the title when started
-        
+
+      
                 do {
                     StringBuffer buffer = new StringBuffer();
                     char c;
@@ -1655,7 +1671,7 @@ public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
                     }
             
                     processor.setSentence(line);
-            
+           
                 } while (!mustBeTerminated && !mustReconnectToGPS); // or until user decides to quit?
             
                 if (mustReconnectToGPS) {

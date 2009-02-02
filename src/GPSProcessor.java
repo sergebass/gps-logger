@@ -236,7 +236,12 @@ public class GPSProcessor
         
         if (sentenceHeader.equals("$GPRMC,")) {
             parseGPRMC(convertToArray(strippedSentence));
-            midlet.getCanvas().repaint(); // GPRMC sentence is the key one for display update
+
+///            midlet.getCanvas().repaint(); // GPRMC sentence is the key one for display update
+///            midlet.getCanvas().serviceRepaints(); /// SHOULD WE DO IT LIKE THIS?? MAY DEADLOCK!!!
+///move this to a different thread? (to avoid deadlocking)
+            midlet.getCanvas().forceRepaint(); // this call blocks until the screen is repainted
+///
         } else if (sentenceHeader.equals("$GPGGA,")) {
             parseGPGGA(convertToArray(strippedSentence));
 //        } else if (sentenceHeader.equals("$GPGSA,")) {
@@ -663,8 +668,8 @@ midlet.getCanvas().setTotalTime("T " + totalTimeString
                     + ", ^" +  directionAngleString + "\u00B0" + directionSymbol);
 ///
 midlet.getCanvas().setAltitude("A " + values[8] + altitudeUnits);
-midlet.getCanvas().setDirection(directionAngle);
-midlet.getCanvas().setDirection(directionAngleString + "\u00B0" + directionSymbol);
+midlet.getCanvas().setCourse(directionAngle);
+midlet.getCanvas().setCourse(directionAngleString + "\u00B0" + directionSymbol);
 ///
         }
     }

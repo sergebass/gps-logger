@@ -29,16 +29,18 @@ Image bgImage = null;
     String timeString = "";
     String satelliteInfoString = "";
 
-    String directionString = "";
+    String courseString = "";
     String speedString = "";
     String distanceString = "";
     String tripTimeString = "";
     String totalTimeString = "";
 
+    String xString = "";
+
     public GPSScreen(GPSLogger midlet) {
         super(false); // do not suppress key events
         this.midlet = midlet;
-        this.setFullScreenMode(false);
+        this.setFullScreenMode(true); /// let user decide between full-screen and not
         init();
     }
 
@@ -92,7 +94,7 @@ Image bgImage = null;
         displayString(satelliteInfoString,
                     0, getHeight() - smallFont.getHeight(),
                     smallFont.stringWidth(satelliteInfoString), smallFont.getHeight(),
-                    0xFF00FFFF, 0xA0000000, // cyan on 60% black
+                    0xFFFF8080, 0xA0000000, // pink on 60% black
                     smallFont,
                     false,
                     false);
@@ -104,7 +106,7 @@ Image bgImage = null;
 
     public void displayTime() {
         displayString(timeString,
-                    0, getHeight() - smallFont.getHeight() * 2,
+                    0, getHeight() - smallFont.getHeight() * 3,
                     smallFont.stringWidth(timeString), smallFont.getHeight(),
                     0xFF00FFFF, 0xA0000000, // cyan on 60% black
                     smallFont,
@@ -118,7 +120,7 @@ Image bgImage = null;
 
     public void displayDate() {
         displayString(dateString,
-                    0, getHeight() - smallFont.getHeight() * 3,
+                    0, getHeight() - smallFont.getHeight() * 2,
                     smallFont.stringWidth(dateString), smallFont.getHeight(),
                     0xFF00FFFF, 0xA0000000, // cyan on 60% black
                     smallFont,
@@ -141,19 +143,19 @@ Image bgImage = null;
                     false);
     }
 
-    public void setDirection(double directionAngle) {
+    public void setCourse(double directionAngle) {
         this.directionAngle = directionAngle;
     }
 
-    public void setDirection(String string) {
-        directionString = string;
+    public void setCourse(String string) {
+        courseString = string;
     }
 
-    public void displayDirection() {
-        displayString(directionString,
-                    getWidth() - smallFont.stringWidth(directionString),
+    public void displayCourse() {
+        displayString(courseString,
+                    getWidth() - smallFont.stringWidth(courseString),
                     smallFont.getHeight() * 1,
-                    smallFont.stringWidth(directionString), smallFont.getHeight(),
+                    smallFont.stringWidth(courseString), smallFont.getHeight(),
                     0xFFFFFF00, 0xA0000000, // yellow on 60% black
                     smallFont,
                     false,
@@ -205,19 +207,37 @@ Image bgImage = null;
                     false);
     }
 
+///TMP:!!!
+    public void setX(String string) {
+        xString = string;
+    }
+
+    public void displayX() {
+
+        displayString(xString,
+                    getWidth() - smallFont.stringWidth(xString),
+                    getHeight() - smallFont.getHeight() * 5,
+                    smallFont.stringWidth(totalTimeString), smallFont.getHeight(),
+                    0xFFFFFFFF, 0x00000000, // white on black
+                    smallFont,
+                    false,
+                    false);
+    }
+///^^^
+
     void init() {
 
         addCommand(midlet.getMarkCommand());
         addCommand(new Command("Exit", Command.EXIT, 2));
         setCommandListener(midlet);
 
-///tmp:
+/*///tmp:
 try {
     bgImage = Image.createImage("/images/_map.png");
 } catch (IOException e) {
 
 }
-///
+*///
     }
 
     void drawBackground(int x, int y, int width, int height,
@@ -225,15 +245,16 @@ try {
 
         Graphics g = getGraphics();
 
-        int imageWidth = bgImage.getWidth();
-        int imageHeight = bgImage.getHeight();
-
 /// clear the background regardless of anything?
 g.setColor(0x000000); // black
 g.fillRect(x, y, width, height); // just fill/clear it...
 ///
 
         if (bgImage != null) {
+
+            int imageWidth = bgImage.getWidth();
+            int imageHeight = bgImage.getHeight();
+            
             /// how do I scale it over the whole screen?
             g.drawRegion(bgImage,
                     x, y,
@@ -255,6 +276,10 @@ g.fillRect(x, y, width, height); // just fill/clear it...
         }
     }
 
+    public void forceRepaint() {
+        paint(getGraphics());
+    }
+
     public void paint(Graphics g) {
 
         drawBackground(0, 0, getWidth(), getHeight(), false);
@@ -268,11 +293,15 @@ g.fillRect(x, y, width, height); // just fill/clear it...
         displaySatelliteInfo();
 
         displaySpeed();
-        displayDirection();
+        displayCourse();
         
         displayDistance();
         displayTripTime();
         displayTotalTime();
+
+///
+///displayX();
+///
 
         flushGraphics();
     }
