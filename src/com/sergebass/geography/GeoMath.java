@@ -1,15 +1,15 @@
 /*
- * GPSMath.java (C) Serge Perinsky, 2008
+ * GeoMath.java (C) Serge Perinsky, 2008
  */
 
-package com.sergebass.gps;
+package com.sergebass.geography;
 
 /**
- * GPSMath.
+ * GeoMath.
  *
  * @author Serge Perinsky
  */
-public class GPSMath {
+public class GeoMath {
     
     public static double computeDistance(double latitude1, double longitude1,
                            double latitude2, double longitude2) {
@@ -26,5 +26,20 @@ public class GPSMath {
         // calculate the hypotenuse of our right-angle triangle
         return Math.sqrt((vDistanceDelta * vDistanceDelta)
                        + (hDistanceDelta * hDistanceDelta));
+    }
+
+    public static String convertSecondsToString(long seconds) {
+        return convertMillisToString(seconds * 1000L);
+    }
+
+    public static String convertMillisToString(long millis) {
+        long hours = millis / 3600000L;
+        long remainderMillis = millis % 3600000L;
+        long minutes = remainderMillis / 60000L;
+        String minutesString = minutes < 10? "0" + minutes : String.valueOf(minutes);
+        remainderMillis = remainderMillis % 60000L;
+        long seconds = remainderMillis / 1000L;
+        String secondsString = seconds < 10? "0" + seconds : String.valueOf(seconds);
+        return hours + ":" + minutesString + ":" + secondsString;
     }
 }

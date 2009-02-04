@@ -2,23 +2,25 @@
  * (C) Serge Perinsky,  2008
  */
 
-package com.sergebass.gps;
+package com.sergebass.geography;
 
 import java.io.*;
 import javax.microedition.io.*;
 
 /**
- * BluetoothGPSReceiver.
+ * BluetoothGeoLocator.
  *
  * @author Serge Perinsky
  */
-public class BluetoothGPSReceiver {
+public class BluetoothGeoLocator
+        implements GeoLocator {
 
     StreamConnection streamConnection = null;
     InputStream stream = null;
-    InputStreamReader reader = null;
-    
-    public BluetoothGPSReceiver(String connectionURLString)
+
+    NMEA0183Parser nmeaParser = null;
+
+    public BluetoothGeoLocator(String connectionURLString)
             throws IOException {
         System.out.print("Creating GPS receiver connection to "
                          + connectionURLString + "...");
@@ -27,7 +29,7 @@ public class BluetoothGPSReceiver {
             streamConnection = (StreamConnection)Connector.open(connectionURLString);
         } catch (Exception e) {
             // strip the device URL string of parameters,
-            // some devices have problems with this...
+            // some devices have problems with this... (e.g. some Nokias)
             int parameterStart = connectionURLString.indexOf(";");
             if (parameterStart > 0) {
                 connectionURLString = connectionURLString.substring(0, parameterStart);
@@ -36,33 +38,28 @@ public class BluetoothGPSReceiver {
         }
         
         stream = streamConnection.openInputStream();
-        reader = new InputStreamReader(stream);
+
+        nmeaParser = new NMEA0183Parser(stream);
+        nmeaParser.start();
         
         System.out.println(" Done.");
     }
     
-    public StreamConnection getStreamConnection() {
-        return streamConnection;
+    public void setLocationListener(GeoLocationListener listener) {
+        if (nmeaParser != null) {
+            nmeaParser.setLocationListener(listener);
+        }
     }
-    
-    public InputStream getInputStream() {
-        return stream;
-    }
-    
-    public InputStreamReader getInputStreamReader() {
-        return reader;
-    }
-    
+
     public synchronized void close()
             throws IOException {
 
         System.out.print("Closing GPS receiver connection...");
         
-        if (reader != null) {
-            reader.close();
-            reader = null;
+        if (nmeaParser != null) {
+            nmeaParser.stop();
         }
-        
+
         if (stream != null) {
             stream.close();
             stream = null;
@@ -74,5 +71,9 @@ public class BluetoothGPSReceiver {
         }
         
         System.out.println(" Done.");
+    }
+
+    public GeoLocation getLocation() {
+        return (nmeaParser != null)? nmeaParser.getLocation() : null;
     }
 }

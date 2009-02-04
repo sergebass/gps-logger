@@ -2,7 +2,7 @@
  * (C) Serge Perinsky, 2009
  */
 
-import java.io.IOException;
+import com.sergebass.geography.GeoLocation;
 import javax.microedition.lcdui.*;
 import javax.microedition.lcdui.game.*;
 
@@ -16,10 +16,10 @@ public class GPSScreen
     GPSLogger midlet = null;
 
     Font smallFont = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL);
-///tmp:
-Image bgImage = null;
-///
-    double directionAngle = 0.0; // degrees
+    
+    GeoLocation location = null;
+
+    double courseAngle = 0.0; // degrees
 
     String latitudeString = "";
     String longitudeString = "";
@@ -35,13 +35,62 @@ Image bgImage = null;
     String tripTimeString = "";
     String totalTimeString = "";
 
-    String xString = "";
+///
+String xString = "";
+///
+
+///tmp:
+Image bgImage = null;
+///
 
     public GPSScreen(GPSLogger midlet) {
         super(false); // do not suppress key events
         this.midlet = midlet;
-        this.setFullScreenMode(true); /// let user decide between full-screen and not
-        init();
+        this.setFullScreenMode(false); /// actually, let user decide between full-screen and not
+
+        addCommand(midlet.getMarkCommand());
+        addCommand(midlet.getResetCommand());
+        addCommand(new Command("Exit", Command.EXIT, 2));
+        setCommandListener(midlet);
+
+/*///tmp:
+try {
+    bgImage = Image.createImage("/images/_map.png");
+} catch (IOException e) {
+
+}
+*///
+    }
+
+    public void setLocation(GeoLocation location) {
+        this.location = location;
+
+/// FIX THIS!!!
+        double latitude = location.getLatitude();
+        setLatitude("NS " + latitude + "\u00B0");
+
+        double longitude = location.getLongitude();
+        setLongitude("WE " + longitude + "\u00B0");
+
+        float altitude = location.getAltitude();
+        setAltitude("A " + altitude + "m");
+
+        float course = location.getCourse();
+        setCourse("^ " + course + "\u00B0");
+
+        float speed = location.getSpeed();
+        setSpeed("v " + speed + " m/s");
+
+        String date = location.getDateString();
+        setDate(date);
+
+        String time = location.getTimeString();
+        setTime(time);
+
+        int satelliteCount = location.getSatelliteCount();
+        setSatelliteInfo(satelliteCount + " satellite(s)");
+
+///...
     }
 
     public void setLatitude(String string) {
@@ -144,7 +193,7 @@ Image bgImage = null;
     }
 
     public void setCourse(double directionAngle) {
-        this.directionAngle = directionAngle;
+        this.courseAngle = directionAngle;
     }
 
     public void setCourse(String string) {
@@ -225,21 +274,6 @@ Image bgImage = null;
     }
 ///^^^
 
-    void init() {
-
-        addCommand(midlet.getMarkCommand());
-        addCommand(new Command("Exit", Command.EXIT, 2));
-        setCommandListener(midlet);
-
-/*///tmp:
-try {
-    bgImage = Image.createImage("/images/_map.png");
-} catch (IOException e) {
-
-}
-*///
-    }
-
     void drawBackground(int x, int y, int width, int height,
                         boolean mustFlushGraphics) {
 
@@ -269,7 +303,8 @@ g.fillRect(x, y, width, height); // just fill/clear it...
             g.fillRect(x, y, width, height); // just fill/clear it...
         }
 
-        drawCompass(directionAngle, getWidth() - 16, 2 * smallFont.getHeight() + 16, 15);
+        // center the compass in the screen
+        drawCompass(courseAngle, getWidth() / 2, getHeight() / 2, 20);
 
         if (mustFlushGraphics) {
             flushGraphics(x, y, width, height);
@@ -370,10 +405,10 @@ g.fillRect(x, y, width, height); // just fill/clear it...
                   centerY - radius,
                   radius + radius,
                   radius + radius,
-                  0, 360);
+                  0, 360); // this is a full circle (0-360 degrees)
 
         // shift the angle as well, our 0 degrees direction points upwards
-        double angleInRadians = (90.0 - directionAngle) * Math.PI / 180.0;
+        double angleInRadians = (90.0 - courseAngle) * Math.PI / 180.0;
 
         // besides, our Y axis is upside down
         int y = centerY - (int)(((double)radius) * Math.sin(angleInRadians));
@@ -383,3 +418,23 @@ g.fillRect(x, y, width, height); // just fill/clear it...
         g.drawLine(centerX, centerY, x, y);
     }
 }
+
+/*
+            if (courseAngle >= 22.5 && courseAngle < 67.5) {
+                directionSymbol = "NE"; // north-east
+            } else if (courseAngle >= 67.5 && courseAngle < 112.5) {
+                directionSymbol = "E"; // east
+            } else if (courseAngle >= 112.5 && courseAngle < 157.5) {
+                directionSymbol = "SE"; // south-east
+            } else if (courseAngle >= 157.5 && courseAngle < 202.5) {
+                directionSymbol = "S"; // south
+            } else if (courseAngle >= 202.5 && courseAngle < 247.5) {
+                directionSymbol = "SW"; // south-west
+            } else if (courseAngle >= 247.5 && courseAngle < 292.5) {
+                directionSymbol = "W"; // west
+            } else if (courseAngle >= 292.5 && courseAngle < 337.5) {
+                directionSymbol = "NW"; // north-west
+            } else {
+                directionSymbol = "N"; // north
+            }
+ */

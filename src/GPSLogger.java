@@ -2,7 +2,7 @@
  * (C) Serge Perinsky, 2007, 2008, 2009
  */
 
-import com.sergebass.gps.*;
+import com.sergebass.geography.*;
 import com.sergebass.bluetooth.BluetoothManager;
 import com.sergebass.ui.FileBrowser;
 import com.sergebass.util.Instant;
@@ -23,12 +23,12 @@ import javax.bluetooth.*;
  */
 public class GPSLogger
         extends MIDlet
-        implements CommandListener, ItemCommandListener {
+        implements CommandListener,
+                   ItemCommandListener,
+                   GeoLocationListener {
 
     static final String ERROR_AUDIO_FILE = "sounds/error.wav";
     
-    GPSProcessor processor = null;
-        
     private boolean mustBeTerminated = false;
     private boolean midletPaused = false;
 
@@ -40,9 +40,13 @@ public class GPSLogger
     
     int number = 0;
 
-    BluetoothGPSReceiver gpsReceiver = null;
-    GPSLogFile gpsLogFile = null;
-    GPSLogFile gpsMarksLogFile = null;
+    GeoLocator geoLocator = null;
+    
+    GPSLogFile trackLogFile = null;
+    GPXWriter trackLogWriter = null;
+    
+    GPSLogFile waypointLogFile = null;
+    GPXWriter waypointLogWriter = null;
     
     FileBrowser fileBrowser;
         
@@ -55,6 +59,7 @@ public class GPSLogger
     private Command submitWaypointCommand;
     private Command cancelWaypointCommand;
     private Command exitCommand;
+    private Command screenCommand;
     private Command searchCommand;
     private Command startCommand;
     private Command settingsCommand;
@@ -67,18 +72,8 @@ public class GPSLogger
     private Command sendEmailCommand;
     private Command resetCommand;
     private Command okCommand;
-    private Command screenCommand;
     private Form waypointForm;
     private TextField waypointNameTextField;
-    private Form mainForm;
-    private StringItem latitudeStringItem;
-    private StringItem dateTimeStringItem;
-    private StringItem speedStringItem;
-    private StringItem altitudeStringItem;
-    private StringItem longitudeStringItem;
-    private StringItem tripTimeAndSpeedStringItem;
-    private StringItem totalTimeAndSpeedStringItem;
-    private StringItem odometerStringItem;
     private List deviceList;
     private Form introForm;
     private StringItem gpsDeviceStringItem;
@@ -155,7 +150,7 @@ public class GPSLogger
      */
     public void resumeMIDlet() {//GEN-END:|4-resumeMIDlet|0|4-preAction
         // write pre-action user code here
-        switchDisplayable(null, getMainForm());//GEN-LINE:|4-resumeMIDlet|1|4-postAction
+//GEN-LINE:|4-resumeMIDlet|1|4-postAction
         // write post-action user code here
     }//GEN-BEGIN:|4-resumeMIDlet|2|
     //</editor-fold>//GEN-END:|4-resumeMIDlet|2|
@@ -227,52 +222,33 @@ public class GPSLogger
                 // write pre-action user code here
                 start();//GEN-LINE:|7-commandAction|16|143-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|17|19-preAction
-        } else if (displayable == mainForm) {
-            if (command == exitCommand) {//GEN-END:|7-commandAction|17|19-preAction
-                // write pre-action user code here
-                exitMIDlet();//GEN-LINE:|7-commandAction|18|19-postAction
-                // write post-action user code here
-            } else if (command == markCommand) {//GEN-LINE:|7-commandAction|19|196-preAction
-                // write pre-action user code here
-
-                switchDisplayable(null, getWaypointForm());//GEN-LINE:|7-commandAction|20|196-postAction
-                // write post-action user code here
-            } else if (command == resetCommand) {//GEN-LINE:|7-commandAction|21|255-preAction
-                // write pre-action user code here
-                resetOdometer();//GEN-LINE:|7-commandAction|22|255-postAction
-                // write post-action user code here
-            } else if (command == screenCommand) {//GEN-LINE:|7-commandAction|23|290-preAction
-                // write pre-action user code here
-                testGraphics();//GEN-LINE:|7-commandAction|24|290-postAction
-                // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|25|215-preAction
+            }//GEN-BEGIN:|7-commandAction|17|215-preAction
         } else if (displayable == settingsForm) {
-            if (command == cancelCommand) {//GEN-END:|7-commandAction|25|215-preAction
+            if (command == cancelCommand) {//GEN-END:|7-commandAction|17|215-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getIntroForm());//GEN-LINE:|7-commandAction|26|215-postAction
+                switchDisplayable(null, getIntroForm());//GEN-LINE:|7-commandAction|18|215-postAction
                 // write post-action user code here
-            } else if (command == exitCommand) {//GEN-LINE:|7-commandAction|27|246-preAction
+            } else if (command == exitCommand) {//GEN-LINE:|7-commandAction|19|246-preAction
                 // write pre-action user code here
-                exitMIDlet();//GEN-LINE:|7-commandAction|28|246-postAction
+                exitMIDlet();//GEN-LINE:|7-commandAction|20|246-postAction
                 // write post-action user code here
-            } else if (command == saveSettingsCommand) {//GEN-LINE:|7-commandAction|29|202-preAction
+            } else if (command == saveSettingsCommand) {//GEN-LINE:|7-commandAction|21|202-preAction
                 // write pre-action user code here
-                saveSettings();//GEN-LINE:|7-commandAction|30|202-postAction
+                saveSettings();//GEN-LINE:|7-commandAction|22|202-postAction
                 showSettings();
                 switchDisplayable(null, getIntroForm());
-            }//GEN-BEGIN:|7-commandAction|31|282-preAction
+            }//GEN-BEGIN:|7-commandAction|23|282-preAction
         } else if (displayable == waypointForm) {
-            if (command == cancelWaypointCommand) {//GEN-END:|7-commandAction|31|282-preAction
+            if (command == cancelWaypointCommand) {//GEN-END:|7-commandAction|23|282-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getMainForm());//GEN-LINE:|7-commandAction|32|282-postAction
+//GEN-LINE:|7-commandAction|24|282-postAction
                 // write post-action user code here
-            } else if (command == submitWaypointCommand) {//GEN-LINE:|7-commandAction|33|284-preAction
+            } else if (command == submitWaypointCommand) {//GEN-LINE:|7-commandAction|25|284-preAction
                 // write pre-action user code here
-                markPoint();//GEN-LINE:|7-commandAction|34|284-postAction
+                markPoint();//GEN-LINE:|7-commandAction|26|284-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|35|7-postCommandAction
-        }//GEN-END:|7-commandAction|35|7-postCommandAction
+            }//GEN-BEGIN:|7-commandAction|27|7-postCommandAction
+        }//GEN-END:|7-commandAction|27|7-postCommandAction
         else if (displayable == fileBrowser) {
             if (command == FileBrowser.SELECT_ITEM_COMMAND) {
                 setLogFolder ();
@@ -288,9 +264,8 @@ public class GPSLogger
                 switchDisplayable(null, getWaypointForm());
             }
         }
-    }//GEN-BEGIN:|7-commandAction|36|
-    //</editor-fold>//GEN-END:|7-commandAction|36|
-
+    }//GEN-BEGIN:|7-commandAction|28|246-postAction
+    //</editor-fold>//GEN-END:|7-commandAction|28|246-postAction
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: exitCommand ">//GEN-BEGIN:|18-getter|0|18-preInit
     /**
@@ -306,60 +281,6 @@ public class GPSLogger
         return exitCommand;
     }
     //</editor-fold>//GEN-END:|18-getter|2|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: mainForm ">//GEN-BEGIN:|14-getter|0|14-preInit
-    /**
-     * Returns an initiliazed instance of mainForm component.
-     * @return the initialized component instance
-     */
-    public Form getMainForm() {
-        if (mainForm == null) {//GEN-END:|14-getter|0|14-preInit
-            // write pre-init user code here
-            mainForm = new Form("GPS Logger", new Item[] { getDateTimeStringItem(), getLatitudeStringItem(), getLongitudeStringItem(), getAltitudeStringItem(), getSpeedStringItem(), getOdometerStringItem(), getTripTimeAndSpeedStringItem(), getTotalTimeAndSpeedStringItem() });//GEN-BEGIN:|14-getter|1|14-postInit
-            mainForm.addCommand(getMarkCommand());
-            mainForm.addCommand(getExitCommand());
-            mainForm.addCommand(getResetCommand());
-            mainForm.addCommand(getScreenCommand());
-            mainForm.setCommandListener(this);//GEN-END:|14-getter|1|14-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|14-getter|2|
-        return mainForm;
-    }
-    //</editor-fold>//GEN-END:|14-getter|2|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: dateTimeStringItem ">//GEN-BEGIN:|30-getter|0|30-preInit
-    /**
-     * Returns an initiliazed instance of dateTimeStringItem component.
-     * @return the initialized component instance
-     */
-    public StringItem getDateTimeStringItem() {
-        if (dateTimeStringItem == null) {//GEN-END:|30-getter|0|30-preInit
-            // write pre-init user code here
-            dateTimeStringItem = new StringItem("", "UT: Date/Time (UTC)", Item.PLAIN);//GEN-BEGIN:|30-getter|1|30-postInit
-            dateTimeStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
-            dateTimeStringItem.setFont(getFont());//GEN-END:|30-getter|1|30-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|30-getter|2|
-        return dateTimeStringItem;
-    }
-    //</editor-fold>//GEN-END:|30-getter|2|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: latitudeStringItem ">//GEN-BEGIN:|31-getter|0|31-preInit
-    /**
-     * Returns an initiliazed instance of latitudeStringItem component.
-     * @return the initialized component instance
-     */
-    public StringItem getLatitudeStringItem() {
-        if (latitudeStringItem == null) {//GEN-END:|31-getter|0|31-preInit
-            // write pre-init user code here
-            latitudeStringItem = new StringItem("", "NS: Latitude (Parallel)", Item.PLAIN);//GEN-BEGIN:|31-getter|1|31-postInit
-            latitudeStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
-            latitudeStringItem.setFont(getFont());//GEN-END:|31-getter|1|31-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|31-getter|2|
-        return latitudeStringItem;
-    }
-    //</editor-fold>//GEN-END:|31-getter|2|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: searchDevices ">//GEN-BEGIN:|82-entry|0|83-preAction
     /**
@@ -482,75 +403,15 @@ public class GPSLogger
         screen.setTitle("Connecting to GPS...");
         System.out.println("Connecting to GPS receiver...");
 
-        final String connectionURLString = settings.getGPSDeviceURL();
-
-        System.out.println("connection URL = " + connectionURLString);
-
-        if (connectionURLString != null) {
-            // run our tracking stuff in a separate thread
-            new Thread() {
-                public void run() {
-                    startTracking(connectionURLString, screen);
-                }
-            }.start();
-        } else { // null connectionURLString
-            getDisplay().vibrate(1000);
-            switchDisplayable(null, getSettingsForm()); // go to the settings screen
-        }
+        // run our tracking stuff in a separate thread
+        new Thread() {
+            public void run() {
+                startTracking(screen);
+            }
+        }.start();
 //GEN-LINE:|108-entry|1|109-postAction
     }//GEN-BEGIN:|108-entry|2|
     //</editor-fold>//GEN-END:|108-entry|2|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: longitudeStringItem ">//GEN-BEGIN:|117-getter|0|117-preInit
-    /**
-     * Returns an initiliazed instance of longitudeStringItem component.
-     * @return the initialized component instance
-     */
-    public StringItem getLongitudeStringItem() {
-        if (longitudeStringItem == null) {//GEN-END:|117-getter|0|117-preInit
-            // write pre-init user code here
-            longitudeStringItem = new StringItem("", "WE: Longitude (Meridian)", Item.PLAIN);//GEN-BEGIN:|117-getter|1|117-postInit
-            longitudeStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
-            longitudeStringItem.setFont(getFont());//GEN-END:|117-getter|1|117-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|117-getter|2|
-        return longitudeStringItem;
-    }
-    //</editor-fold>//GEN-END:|117-getter|2|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: altitudeStringItem ">//GEN-BEGIN:|118-getter|0|118-preInit
-    /**
-     * Returns an initiliazed instance of altitudeStringItem component.
-     * @return the initialized component instance
-     */
-    public StringItem getAltitudeStringItem() {
-        if (altitudeStringItem == null) {//GEN-END:|118-getter|0|118-preInit
-            // write pre-init user code here
-            altitudeStringItem = new StringItem("", "A: Altitude & heading");//GEN-BEGIN:|118-getter|1|118-postInit
-            altitudeStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
-            altitudeStringItem.setFont(getFont());//GEN-END:|118-getter|1|118-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|118-getter|2|
-        return altitudeStringItem;
-    }
-    //</editor-fold>//GEN-END:|118-getter|2|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: speedStringItem ">//GEN-BEGIN:|119-getter|0|119-preInit
-    /**
-     * Returns an initiliazed instance of speedStringItem component.
-     * @return the initialized component instance
-     */
-    public StringItem getSpeedStringItem() {
-        if (speedStringItem == null) {//GEN-END:|119-getter|0|119-preInit
-            // write pre-init user code here
-            speedStringItem = new StringItem("", "v: Current speed");//GEN-BEGIN:|119-getter|1|119-postInit
-            speedStringItem.setLayout(ImageItem.LAYOUT_LEFT | Item.LAYOUT_TOP | Item.LAYOUT_VCENTER | ImageItem.LAYOUT_NEWLINE_BEFORE | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
-            speedStringItem.setFont(getFont());//GEN-END:|119-getter|1|119-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|119-getter|2|
-        return speedStringItem;
-    }
-    //</editor-fold>//GEN-END:|119-getter|2|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: introForm ">//GEN-BEGIN:|125-getter|0|125-preInit
     /**
@@ -572,8 +433,6 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|125-getter|2|
    
-
-
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: startCommand ">//GEN-BEGIN:|142-getter|0|142-preInit
     /**
      * Returns an initiliazed instance of startCommand component.
@@ -791,8 +650,6 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|163-getter|2|
 
-
-
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: browseCommand ">//GEN-BEGIN:|178-getter|0|178-preInit
     /**
      * Returns an initiliazed instance of browseCommand component.
@@ -843,7 +700,7 @@ public class GPSLogger
             return;
         }
 //GEN-LINE:|188-entry|1|189-postAction
-        switchDisplayable(null, getMainForm());
+        switchDisplayable(null, getCanvas());
     }//GEN-BEGIN:|188-entry|2|
     //</editor-fold>//GEN-END:|188-entry|2|
 
@@ -889,7 +746,7 @@ public class GPSLogger
         try {
             writeCurrentPointToMarksLog(getWaypointNameTextField().getString().trim());
         } catch (IOException e) {
-            handleException(e, getMainForm());
+            handleException(e, getCanvas());
         }
 //GEN-LINE:|197-entry|1|198-postAction
     }//GEN-BEGIN:|197-entry|2|
@@ -1108,82 +965,28 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|249-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: freeSpaceStringItem ">//GEN-BEGIN:|250-getter|0|250-preInit
-/**
- * Returns an initiliazed instance of freeSpaceStringItem component.
- * @return the initialized component instance
- */
-public StringItem getFreeSpaceStringItem() {
-    if (freeSpaceStringItem == null) {//GEN-END:|250-getter|0|250-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: freeSpaceStringItem ">//GEN-BEGIN:|250-getter|0|250-preInit
+    /**
+     * Returns an initiliazed instance of freeSpaceStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getFreeSpaceStringItem() {
+        if (freeSpaceStringItem == null) {//GEN-END:|250-getter|0|250-preInit
             // write pre-init user code here
-        freeSpaceStringItem = new StringItem("", "");//GEN-LINE:|250-getter|1|250-postInit
+            freeSpaceStringItem = new StringItem("", "");//GEN-LINE:|250-getter|1|250-postInit
             // write post-init user code here
-    }//GEN-BEGIN:|250-getter|2|
-    return freeSpaceStringItem;
-}
-//</editor-fold>//GEN-END:|250-getter|2|
-//</editor-fold>
-//</editor-fold>
-
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: odometerStringItem ">//GEN-BEGIN:|251-getter|0|251-preInit
-/**
- * Returns an initiliazed instance of odometerStringItem component.
- * @return the initialized component instance
- */
-public StringItem getOdometerStringItem() {
-    if (odometerStringItem == null) {//GEN-END:|251-getter|0|251-preInit
- // write pre-init user code here
-        odometerStringItem = new StringItem("", "s: Odometer (distance)");//GEN-BEGIN:|251-getter|1|251-postInit
-        odometerStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
-        odometerStringItem.setFont(getFont());//GEN-END:|251-getter|1|251-postInit
- // write post-init user code here
-    }//GEN-BEGIN:|251-getter|2|
-    return odometerStringItem;
-}
-//</editor-fold>//GEN-END:|251-getter|2|
-//</editor-fold>
-
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: tripTimeAndSpeedStringItem ">//GEN-BEGIN:|252-getter|0|252-preInit
-/**
- * Returns an initiliazed instance of tripTimeAndSpeedStringItem component.
- * @return the initialized component instance
- */
-public StringItem getTripTimeAndSpeedStringItem() {
-    if (tripTimeAndSpeedStringItem == null) {//GEN-END:|252-getter|0|252-preInit
- // write pre-init user code here
-        tripTimeAndSpeedStringItem = new StringItem("", "t: Trip time & speed");//GEN-BEGIN:|252-getter|1|252-postInit
-        tripTimeAndSpeedStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
-        tripTimeAndSpeedStringItem.setFont(getFont());//GEN-END:|252-getter|1|252-postInit
- // write post-init user code here
-    }//GEN-BEGIN:|252-getter|2|
-    return tripTimeAndSpeedStringItem;
-}
-//</editor-fold>//GEN-END:|252-getter|2|
-
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: totalTimeAndSpeedStringItem ">//GEN-BEGIN:|253-getter|0|253-preInit
-/**
- * Returns an initiliazed instance of totalTimeAndSpeedStringItem component.
- * @return the initialized component instance
- */
-public StringItem getTotalTimeAndSpeedStringItem() {
-    if (totalTimeAndSpeedStringItem == null) {//GEN-END:|253-getter|0|253-preInit
- // write pre-init user code here
-        totalTimeAndSpeedStringItem = new StringItem("", "T: Total time & speed");//GEN-BEGIN:|253-getter|1|253-postInit
-        totalTimeAndSpeedStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK | Item.LAYOUT_EXPAND);
-        totalTimeAndSpeedStringItem.setFont(getFont());//GEN-END:|253-getter|1|253-postInit
- // write post-init user code here
-    }//GEN-BEGIN:|253-getter|2|
-    return totalTimeAndSpeedStringItem;
-}
-//</editor-fold>//GEN-END:|253-getter|2|
+        }//GEN-BEGIN:|250-getter|2|
+        return freeSpaceStringItem;
+    }
+    //</editor-fold>//GEN-END:|250-getter|2|
 
 //<editor-fold defaultstate="collapsed" desc=" Generated Method: resetOdometer ">//GEN-BEGIN:|256-entry|0|257-preAction
 /**
  * Performs an action assigned to the resetOdometer entry-point.
  */
 public void resetOdometer() {//GEN-END:|256-entry|0|257-preAction
-    if (processor != null) {
-        processor.resetOdometer();
+    if (geoLocator != null) {
+///        locator.resetOdometer();
     }
 //GEN-LINE:|256-entry|1|257-postAction
  // write post-action user code here
@@ -1286,64 +1089,64 @@ public Spacer getSpacer() {
 }
 //</editor-fold>//GEN-END:|271-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: spacer1 ">//GEN-BEGIN:|274-getter|0|274-preInit
-    /**
-     * Returns an initiliazed instance of spacer1 component.
-     * @return the initialized component instance
-     */
-    public Spacer getSpacer1() {
-        if (spacer1 == null) {//GEN-END:|274-getter|0|274-preInit
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: spacer1 ">//GEN-BEGIN:|274-getter|0|274-preInit
+/**
+ * Returns an initiliazed instance of spacer1 component.
+ * @return the initialized component instance
+ */
+public Spacer getSpacer1() {
+    if (spacer1 == null) {//GEN-END:|274-getter|0|274-preInit
         // write pre-init user code here
-            spacer1 = new Spacer(16, 1);//GEN-LINE:|274-getter|1|274-postInit
+        spacer1 = new Spacer(16, 1);//GEN-LINE:|274-getter|1|274-postInit
         // write post-init user code here
-        }//GEN-BEGIN:|274-getter|2|
-        return spacer1;
-    }
-    //</editor-fold>//GEN-END:|274-getter|2|
+    }//GEN-BEGIN:|274-getter|2|
+    return spacer1;
+}
+//</editor-fold>//GEN-END:|274-getter|2|
 
-        //<editor-fold defaultstate="collapsed" desc=" Generated Method: browseLogFolder ">//GEN-BEGIN:|275-entry|0|276-preAction
-        /**
-         * Performs an action assigned to the browseLogFolder entry-point.
-         */
-        public void browseLogFolder() {//GEN-END:|275-entry|0|276-preAction
+//<editor-fold defaultstate="collapsed" desc=" Generated Method: browseLogFolder ">//GEN-BEGIN:|275-entry|0|276-preAction
+/**
+ * Performs an action assigned to the browseLogFolder entry-point.
+ */
+public void browseLogFolder() {//GEN-END:|275-entry|0|276-preAction
 
     switchDisplayable(null, getFileBrowser());
 //GEN-LINE:|275-entry|1|276-postAction
-        }//GEN-BEGIN:|275-entry|2|
-        //</editor-fold>//GEN-END:|275-entry|2|
+}//GEN-BEGIN:|275-entry|2|
+//</editor-fold>//GEN-END:|275-entry|2|
 
-        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: waypointForm ">//GEN-BEGIN:|279-getter|0|279-preInit
-        /**
-         * Returns an initiliazed instance of waypointForm component.
-         * @return the initialized component instance
-         */
-        public Form getWaypointForm() {
-            if (waypointForm == null) {//GEN-END:|279-getter|0|279-preInit
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: waypointForm ">//GEN-BEGIN:|279-getter|0|279-preInit
+/**
+ * Returns an initiliazed instance of waypointForm component.
+ * @return the initialized component instance
+ */
+public Form getWaypointForm() {
+    if (waypointForm == null) {//GEN-END:|279-getter|0|279-preInit
         // write pre-init user code here
-                waypointForm = new Form("Waypoint", new Item[] { getWaypointNameTextField() });//GEN-BEGIN:|279-getter|1|279-postInit
-                waypointForm.addCommand(getCancelWaypointCommand());
-                waypointForm.addCommand(getSubmitWaypointCommand());
-                waypointForm.setCommandListener(this);//GEN-END:|279-getter|1|279-postInit
+        waypointForm = new Form("Waypoint", new Item[] { getWaypointNameTextField() });//GEN-BEGIN:|279-getter|1|279-postInit
+        waypointForm.addCommand(getCancelWaypointCommand());
+        waypointForm.addCommand(getSubmitWaypointCommand());
+        waypointForm.setCommandListener(this);//GEN-END:|279-getter|1|279-postInit
         // write post-init user code here
-            }//GEN-BEGIN:|279-getter|2|
-            return waypointForm;
-        }
-        //</editor-fold>//GEN-END:|279-getter|2|
+    }//GEN-BEGIN:|279-getter|2|
+    return waypointForm;
+}
+//</editor-fold>//GEN-END:|279-getter|2|
 
-        //<editor-fold defaultstate="collapsed" desc=" Generated Getter: waypointNameTextField ">//GEN-BEGIN:|280-getter|0|280-preInit
-        /**
-         * Returns an initiliazed instance of waypointNameTextField component.
-         * @return the initialized component instance
-         */
-        public TextField getWaypointNameTextField() {
-            if (waypointNameTextField == null) {//GEN-END:|280-getter|0|280-preInit
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: waypointNameTextField ">//GEN-BEGIN:|280-getter|0|280-preInit
+/**
+ * Returns an initiliazed instance of waypointNameTextField component.
+ * @return the initialized component instance
+ */
+public TextField getWaypointNameTextField() {
+    if (waypointNameTextField == null) {//GEN-END:|280-getter|0|280-preInit
         // write pre-init user code here
-                waypointNameTextField = new TextField("Name:", "", 32, TextField.ANY);//GEN-LINE:|280-getter|1|280-postInit
+        waypointNameTextField = new TextField("Name:", "", 32, TextField.ANY);//GEN-LINE:|280-getter|1|280-postInit
         // write post-init user code here
-            }//GEN-BEGIN:|280-getter|2|
-            return waypointNameTextField;
-        }
-        //</editor-fold>//GEN-END:|280-getter|2|
+    }//GEN-BEGIN:|280-getter|2|
+    return waypointNameTextField;
+}
+//</editor-fold>//GEN-END:|280-getter|2|
 
 //<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelWaypointCommand ">//GEN-BEGIN:|281-getter|0|281-preInit
 /**
@@ -1360,46 +1163,46 @@ public Command getCancelWaypointCommand() {
 }
 //</editor-fold>//GEN-END:|281-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: submitWaypointCommand ">//GEN-BEGIN:|283-getter|0|283-preInit
-/**
- * Returns an initiliazed instance of submitWaypointCommand component.
- * @return the initialized component instance
- */
-public Command getSubmitWaypointCommand() {
-    if (submitWaypointCommand == null) {//GEN-END:|283-getter|0|283-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: submitWaypointCommand ">//GEN-BEGIN:|283-getter|0|283-preInit
+    /**
+     * Returns an initiliazed instance of submitWaypointCommand component.
+     * @return the initialized component instance
+     */
+    public Command getSubmitWaypointCommand() {
+        if (submitWaypointCommand == null) {//GEN-END:|283-getter|0|283-preInit
         // write pre-init user code here
-        submitWaypointCommand = new Command("Save", Command.OK, 0);//GEN-LINE:|283-getter|1|283-postInit
+            submitWaypointCommand = new Command("Save", Command.OK, 0);//GEN-LINE:|283-getter|1|283-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|283-getter|2|
-    return submitWaypointCommand;
-}
-//</editor-fold>//GEN-END:|283-getter|2|
+        }//GEN-BEGIN:|283-getter|2|
+        return submitWaypointCommand;
+    }
+    //</editor-fold>//GEN-END:|283-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: screenCommand ">//GEN-BEGIN:|289-getter|0|289-preInit
-/**
- * Returns an initiliazed instance of screenCommand component.
- * @return the initialized component instance
- */
-public Command getScreenCommand() {
-    if (screenCommand == null) {//GEN-END:|289-getter|0|289-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: screenCommand ">//GEN-BEGIN:|289-getter|0|289-preInit
+    /**
+     * Returns an initiliazed instance of screenCommand component.
+     * @return the initialized component instance
+     */
+    public Command getScreenCommand() {
+        if (screenCommand == null) {//GEN-END:|289-getter|0|289-preInit
         // write pre-init user code here
-        screenCommand = new Command("Graphics Mode", Command.SCREEN, 0);//GEN-LINE:|289-getter|1|289-postInit
+            screenCommand = new Command("Graphics Mode", Command.SCREEN, 0);//GEN-LINE:|289-getter|1|289-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|289-getter|2|
-    return screenCommand;
-}
-//</editor-fold>//GEN-END:|289-getter|2|
+        }//GEN-BEGIN:|289-getter|2|
+        return screenCommand;
+    }
+    //</editor-fold>//GEN-END:|289-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Method: testGraphics ">//GEN-BEGIN:|291-entry|0|292-preAction
-/**
- * Performs an action assigned to the testGraphics entry-point.
- */
-public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
+        //<editor-fold defaultstate="collapsed" desc=" Generated Method: testGraphics ">//GEN-BEGIN:|291-entry|0|292-preAction
+        /**
+         * Performs an action assigned to the testGraphics entry-point.
+         */
+        public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
     switchDisplayable(null, dataScreen);
 //GEN-LINE:|291-entry|1|292-postAction
     // write post-action user code here
-}//GEN-BEGIN:|291-entry|2|
-//</editor-fold>//GEN-END:|291-entry|2|
+        }//GEN-BEGIN:|291-entry|2|
+        //</editor-fold>//GEN-END:|291-entry|2|
 
     public FileBrowser getFileBrowser() {
         if (fileBrowser == null) {
@@ -1437,8 +1240,8 @@ public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
 /*
         try {
             ///shutDown();
-            closeLog();
-            closeMarksLog();
+            closeTrackLog();
+            closeWaypointLog();
         } catch (IOException e) {
             // just ignore, no time to do anything more now
         }
@@ -1446,7 +1249,7 @@ public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
         mustBeTerminated = true;
 
         try {
-            Thread.currentThread().sleep(2000); // wait a little...
+            Thread.sleep(2000); // wait a little...
         } catch (InterruptedException e) {
             // ignore
         }
@@ -1500,12 +1303,6 @@ public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
         return dataScreen;
     }
 
-    public void setText(StringItem stringItem, String text) {
-        if (getMainForm().isShown()) { // no need to update GUI when invisible
-            stringItem.setText(text);
-        }
-    }
-    
     void loadSettings() {
         if (settings == null) {
             settings = new GPSLoggerSettings(this);
@@ -1583,28 +1380,10 @@ public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
         spaceCalculatorThread.start();
     }
 
-///
-///LAPIGPSReceiver lapiReceiver = null;
-///
-
-    void startTracking(String connectionURLString, Displayable screen) {
+    void startTracking(Displayable screen) {
         
-        System.out.println("Starting tracking...");
-        
-/*///tmp!!!
-try {
-    Class testClass = Class.forName("javax.microedition.location.LocationProvider");
-    screen.setTitle("+LocationProvider");
-    lapiReceiver = new LAPIGPSReceiver();
-} catch (ClassNotFoundException eee) {
-    screen.setTitle("-LocationProvider");
-    lapiReceiver = null;
-}
-*///
-        
-        processor = new GPSProcessor(this);
-        processor.resetOdometer();
-        processor.start();
+        String connectionURLString = settings.getGPSDeviceURL();
+        System.out.println("Starting tracking, connection URL = " + connectionURLString);
         
         boolean mustReconnectToGPS = false;
             
@@ -1614,74 +1393,64 @@ try {
                           "Restarting..."
                         : "Starting...");
                 
-                System.out.println(getMainForm().getTitle());
+                System.out.println(getCanvas().getTitle());
         
-                if (gpsReceiver == null) { // connect to the GPS if not connected yet
-                    gpsReceiver = new BluetoothGPSReceiver(connectionURLString);
+                if (geoLocator == null) { // connect to the GPS if not connected yet
+                    if (connectionURLString != null) {
+                        geoLocator = new BluetoothGeoLocator(connectionURLString);
+                    } else { // no bluetooth device was specified: try Location API provider
+/// check JSR-179 availability here!
+                        geoLocator = new JSR179GeoLocator();
+                    }
+
                     mustReconnectToGPS = false; // drop the flag
                 }
             
-                Instant now = new Instant(); // reflect the time in the log file name
+                Instant now = new Instant(); // reflect the start time in the log file name
                 
-                if (gpsLogFile == null) { // if no log file is being written, make a connection
+                if (trackLogFile == null) { // if no log file is being written, make a connection
                     String logFolder = settings.getLogFolder();
                     if (!logFolder.endsWith("/")) {
                         logFolder = logFolder + "/"; // make sure we have the trailer here
                     }
             
                     String logFilePath = logFolder
-                        + "GPS-"
+                        + "GPSLogger-"
                         + now.getDateId()
                         + "-"
                         + now.getTimeId()
-                        + ".txt";
-                    gpsLogFile = new GPSLogFile(logFilePath);
+                        + ".gpx";
+                    trackLogFile = new GPSLogFile(logFilePath);
                 }
             
-                InputStreamReader gpsReader = gpsReceiver.getInputStreamReader();
-                OutputStream outputStream = gpsLogFile.getOutputStream();
+                OutputStream trackLogStream = trackLogFile.getOutputStream();
+                trackLogWriter = new GPXWriter(trackLogStream);
+                trackLogWriter.writeHeader("GPSLogger track log");
+                trackLogWriter.writeTrackHeader("GPSLogger track");
+                trackLogWriter.writeTrackSegmentHeader();
             
                 screen.setTitle(null); // remove the title when started
 
-      
-                do {
-                    StringBuffer buffer = new StringBuffer();
-                    char c;
+                // show initial screen
+                getCanvas().setLocation(geoLocator.getLocation());
+                getCanvas().forceRepaint();
 
-                    do { // first, read a sentence, ended by a LF character
-                        int aWord = gpsReader.read();
-                    
-                        if (aWord == -1) { // end-of-file?
-                            mustReconnectToGPS = true;
-                            getDisplay().vibrate(500);
-                            break;
-                        }
-                    
-                        c = (char)aWord;
-                        buffer.append(c);
-                    
-                    } while (c != '\n');
-            
-                    String line = buffer.toString().trim();
-                
-                    // eliminate broken lines (not starting with '$')
-                    if (outputStream != null && line.startsWith("$")) {
-                        outputStream.write(line.getBytes()); // write the whole line
-                        outputStream.write('\n');
-                    }
-            
-                    processor.setSentence(line);
-           
+                // we will start receiving notifications after this call:
+                geoLocator.setLocationListener(this);
+
+                do {
+                    Thread.sleep(200);
+
                 } while (!mustBeTerminated && !mustReconnectToGPS); // or until user decides to quit?
             
                 if (mustReconnectToGPS) {
-                    processor.wakeUp();
+///                    locator.wakeUp();
                     try {
-                        gpsReceiver.close();
+                        geoLocator.close();
                     } catch (Exception e) {
                         // ignore
                     } finally {
-                        gpsReceiver = null;
+                        geoLocator = null;
                     }
                 }
                 
@@ -1717,7 +1486,7 @@ try {
         if (errorPlayer.getDuration() != Player.TIME_UNKNOWN) {
             try {
                 // convert microseconds to milliseconds
-                Thread.currentThread().sleep(errorPlayer.getDuration() / 1000L);
+                Thread.sleep(errorPlayer.getDuration() / 1000L);
             } catch (InterruptedException ee) {
                 ///ignore?
             }
@@ -1759,7 +1528,7 @@ try {
     void writeCurrentPointToMarksLog(String comments)
                 throws IOException {
         
-        if (gpsMarksLogFile == null) { // if no log file is being written, make a connection
+        if (waypointLogFile == null) { // if no log file is being written, make a connection
             String logFolder = settings.getLogFolder();
             if (!logFolder.endsWith("/")) {
                 logFolder = logFolder + "/"; // make sure we have the trailer here
@@ -1768,75 +1537,93 @@ try {
             Instant now = new Instant(); // reflect the time in the log file name
 
             String logFilePath = logFolder
-                + "GPS-"
+                + "GPSLogger-"
                 + now.getDateId()
                 + "-"
                 + now.getTimeId()
                 + "-points.gpx";
-            gpsMarksLogFile = new GPSLogFile(logFilePath);
-
-            if (processor != null) {
-                try {
-                    processor.writeLogHeader
-                            (new OutputStreamWriter(gpsMarksLogFile.getOutputStream(),
-                            "UTF-8"));
-                } catch (IOException e) {
-                    // ignore?
-                }
-            }
+            waypointLogFile = new GPSLogFile(logFilePath);
+            waypointLogWriter = new GPXWriter(waypointLogFile.getOutputStream());
+            waypointLogWriter.writeHeader("GPSLogger waypoints");
         }
         
-        if (processor != null) {
-            try {
-                processor.writeCurrentPoint
-                    (new OutputStreamWriter(gpsMarksLogFile.getOutputStream(),
-                                            "UTF-8"),
-                     comments); // a comment to this point
-            } catch (IOException e) {
-                // ignore?
-            }
+        if (waypointLogWriter != null) {
+            GeoLocation waypoint = geoLocator.getLocation();
+            waypoint.setName(comments);
+            waypointLogWriter.writeLocationAsWaypoint(waypoint);
         }
     }
 
-    synchronized void closeMarksLog()
+    synchronized void closeWaypointLog()
             throws IOException {
-        if (gpsMarksLogFile != null) {
-            processor.writeLogFooter
-                    (new OutputStreamWriter(gpsMarksLogFile.getOutputStream(),
-                    "UTF-8"));
-            gpsMarksLogFile.close();
-            gpsMarksLogFile = null;
+        if (waypointLogWriter != null) {
+            waypointLogWriter.writeFooter();
+            waypointLogWriter.flush();
         }
-    }
-    
-    synchronized void closeLog()
-            throws IOException {
-        if (gpsLogFile != null) {
-            gpsLogFile.close();
-            gpsLogFile = null;
-        }
-    }
-    
-    synchronized void stopProcessor() {
-        if (processor != null) {
-            processor.stop();
-            processor = null;
-        }
-    }
 
-    synchronized void closeReceiver()
+        if (waypointLogFile != null) {
+            waypointLogFile.close();
+        }
+
+        waypointLogWriter = null;
+        waypointLogFile = null;
+    }
+    
+    synchronized void closeTrackLog()
             throws IOException {
-        if (gpsReceiver != null) {
-            gpsReceiver.close();
-            gpsReceiver = null;
+
+        if (trackLogWriter != null) {
+            trackLogWriter.writeTrackSegmentFooter();
+            trackLogWriter.writeTrackFooter();
+            trackLogWriter.writeFooter();
+            trackLogWriter.flush();
+        }
+
+        if (trackLogFile != null) {
+            trackLogFile.close();
+        }
+
+        trackLogWriter = null;
+        trackLogFile = null;
+    }
+    
+    synchronized void closeGeoLocator()
+            throws IOException {
+        if (geoLocator != null) {
+            geoLocator.close();
+            geoLocator = null;
         }
     }
 
     synchronized void shutDown()
             throws IOException {
-        closeMarksLog();
-        closeLog();
-        stopProcessor();
-        closeReceiver();
+        closeWaypointLog();
+        closeTrackLog();
+        closeGeoLocator();
+    }
+
+    public void locationChanged(GeoLocation location) {
+
+///TMP!!!
+///getDisplay().vibrate(200);
+///
+
+        if (trackLogWriter != null) {
+            try {
+                trackLogWriter.writeLocationAsTrackpoint(location);
+            } catch (IOException e) {
+                handleException(e, getIntroForm());
+            }
+        }
+
+        getCanvas().setLocation(location);
+///!!! or forceRepaint()?
+getCanvas().repaint();
+///
+    }
+
+    public void handleLocatorException(Exception e) {
+///???
+        handleException(e, getIntroForm());
     }
 }
