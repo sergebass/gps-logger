@@ -16,7 +16,7 @@ public class GPSScreen
     GPSLogger midlet = null;
 
     Font smallFont = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL);
-    
+
     GeoLocation location = null;
 
     String latitudeString = "";
@@ -71,12 +71,14 @@ try {
             setDate("");
             setTime("");
             setSatelliteInfo("Location data unavailable");
-            
+
             return;
         }
 
         double latitude = location.getLatitude();
-        if (latitude != Double.NaN) {
+        if (!Double.isNaN(latitude)) {
+            // leave 6 digits after decimal point
+            latitude = ((long)(latitude * 1000000.0)) / 1000000.0;
             if (latitude >= 0) { // northern hemisphere
                 setLatitude("N " + latitude + "\u00B0");
             } else { // southern hemisphere
@@ -87,7 +89,9 @@ try {
         }
 
         double longitude = location.getLongitude();
-        if (longitude != Double.NaN) {
+        if (!Double.isNaN(longitude)) {
+            // leave 6 digits after decimal point
+            longitude = ((long)(longitude * 1000000.0)) / 1000000.0;
             if (longitude >= 0) { // eastern hemisphere
                 setLongitude("E " + longitude + "\u00B0");
             } else { // western hemisphere
@@ -98,14 +102,16 @@ try {
         }
 
         float altitude = location.getAltitude();
-        if (altitude != Float.NaN) {
+        if (!Float.isNaN(altitude)) {
+            altitude = ((long)(altitude * 10.0f)) / 10.0f; // leave 1 digit after decimal point
             setAltitude("A " + altitude + "m");
         } else {
             setAltitude("");
         }
 
         this.course = location.getCourse();
-        if (course != Float.NaN) {
+        if (!Float.isNaN(course)) {
+            course = ((long)(course * 10.0f)) / 10.0f; // leave 1 digit after decimal point
             String directionSymbol = "";
             if (course >= 22.5 && course < 67.5) {
                 directionSymbol = "NE"; // north-east
@@ -130,8 +136,10 @@ try {
         }
 
         float speed = location.getSpeed();
-        if (speed != Float.NaN) {
-            setSpeed("v " + (speed * 3.6) + " km/h");
+        if (!Float.isNaN(speed)) {
+            // convert m/s to km/h at the same time
+            speed = ((long)(speed * 36.0f)) / 10.0f; // leave 1 digit after decimal point
+            setSpeed("v " + speed + " km/h");
         } else {
             setSpeed("");
         }
@@ -329,7 +337,7 @@ g.fillRect(x, y, width, height); // just fill/clear it...
 
             int imageWidth = bgImage.getWidth();
             int imageHeight = bgImage.getHeight();
-            
+
             /// how do I scale it over the whole screen?
             g.drawRegion(bgImage,
                     x, y,
@@ -370,7 +378,7 @@ g.fillRect(x, y, width, height); // just fill/clear it...
 
         displaySpeed();
         displayCourse();
-        
+
         displayDistance();
         displayTripTime();
         displayTotalTime();
@@ -429,7 +437,7 @@ g.fillRect(x, y, width, height); // just fill/clear it...
         if (mustDrawBackground) {
             drawBackground(x, y, width, height, false); // restore background under our data
         }
-        
+
         Graphics g = getGraphics();
         g.drawImage(image, x, y, 0); // overlay our image with data
 

@@ -31,6 +31,8 @@ public class NMEA0183Parser
 
     float course = Float.NaN; // the terminal's course made good in degrees relative to true north or Float.NaN if the course is not known
 
+    int satelliteCount = 0;
+    
     final static String fixQualityNames[] = {
                                             "invalid",
                                             "GPS/SPS",
@@ -43,11 +45,18 @@ public class NMEA0183Parser
                                             "simulation"
     };
 
-    int satelliteCount = 0;
+    int fixQualityIndex = -1;
     String fixQuality = "";
+
+    int fixTypeIndex = -1;
+    String fixType = "";
 
     float speed = Float.NaN; // the current ground speed in m/s for the terminal or Float.NaN if the speed is not known
             
+    float pdop = Float.NaN; // Position dillution of precision
+    float hdop = Float.NaN; // Horizontal dillution of precision
+    float vdop = Float.NaN; // Vertical dillution of precision
+
     // other important fields
     boolean isStarted = false;
     final Object sentenceLock = new Object();
@@ -65,12 +74,37 @@ public class NMEA0183Parser
     public GeoLocation getLocation() {
 
         GeoLocation location = new GeoLocation(latitude, longitude);
-        location.setAltitude(altitude);
-        location.setCourse(course);
-        location.setSpeed(speed);
+
+        if (!Float.isNaN(altitude)) {
+            location.setAltitude(altitude);
+        }
+
+        if (!Float.isNaN(course)) {
+            location.setCourse(course);
+        }
+
+        if (!Float.isNaN(speed)) {
+            location.setSpeed(speed);
+        }
+        
         location.setDateString(gpxDateString);
         location.setTimeString(gpxTimeString);
+
         location.setSatelliteCount(satelliteCount);
+        location.setFixType(fixType);
+
+        if (!Float.isNaN(pdop)) {
+            location.setPDOP(pdop);
+        }
+
+        if (!Float.isNaN(hdop)) {
+            location.setHDOP(hdop);
+        }
+
+        if (!Float.isNaN(vdop)) {
+            location.setVDOP(vdop);
+        }
+        
         location.setValid(isValidGPSData);
 ///add the other fields...
         
@@ -96,8 +130,9 @@ public class NMEA0183Parser
                     aWord = reader.read();
 
                     if (aWord == -1) { // end-of-file?
-        ///???                mustReconnectToGPS = true;
-        ///???                getDisplay().vibrate(500);
+/// signal error here!
+///???                mustReconnectToGPS = true;
+///getDisplay().vibrate(500);
                         break;
                     }
 
@@ -167,6 +202,14 @@ public class NMEA0183Parser
      */
     public String[] convertToArray(String sentence) {
         
+        // first, strip the sentence of the checksum
+        // (starts with asterisk at the end of the sentence)
+        int checkSumPosition = sentence.indexOf('*');
+
+        if (checkSumPosition != -1) {
+            sentence = sentence.substring(0, checkSumPosition);
+        }
+
         Vector stringVector = new Vector/* <String> */();
         
         int fromPosition = 0;
@@ -176,9 +219,11 @@ public class NMEA0183Parser
             commaPosition = sentence.indexOf(',', fromPosition);
         
             if (commaPosition > 0) {
-                stringVector.addElement(sentence.substring(fromPosition, commaPosition).trim());
+                String element = sentence.substring(fromPosition, commaPosition).trim();
+                stringVector.addElement(element);
             } else { // no more commas in the sentence
-                stringVector.addElement(sentence.substring(fromPosition).trim());
+                String element = sentence.substring(fromPosition).trim();
+                stringVector.addElement(element);
                 break;
             }
             
@@ -369,20 +414,20 @@ public class NMEA0183Parser
         
         // (the date/time and latitude/longitude values are currently set by the GPRMC sentence)
         
-        if (values.length > 7) { // satellite information
+        if (values.length > 6) { // satellite information
             try {
-                int fixQualityIndex = Integer.parseInt(values[5]);
+                fixQualityIndex = Integer.parseInt(values[5]);
                 if (fixQualityIndex < fixQualityNames.length) {
                     fixQuality = fixQualityNames[fixQualityIndex];
                 }
-                        
                 satelliteCount = Integer.parseInt(values[6]);
             } catch (Exception e) {
                 satelliteCount = 0;
+                fixQualityIndex = -1;
             }
         }
         
-        if (values.length > 11) {
+        if (values.length > 8) {
             try {
                 altitude = Float.valueOf(values[8]).floatValue();
             } catch (Exception e) {
@@ -412,9 +457,53 @@ public class NMEA0183Parser
      */
     public void parseGPGSA(String[] values) {
         
-///!! process this ASAP: supported by GPX format, needs to be saved
-///e.g. $GPGSA,A,3,21,24,06,29,16,30,31,,,,,,1.46,1.16,0.89*08
+        fixType = ""; // reset
+        
+        if (values.length > 1) {
+            try {
+                fixTypeIndex = Integer.parseInt(values[1]);
+            } catch (Exception e) {
+                fixTypeIndex = -1;
+            }
 
+            if (fixQualityIndex == 1) { // normal GPS
+                if (fixTypeIndex == 2) {
+                    fixType = "2d";
+                } else if (fixTypeIndex == 3) {
+                    fixType = "3d";
+                }
+            } else if (fixQualityIndex == 2) { // DGPS
+                fixType = "dgps";
+            } else if (fixQualityIndex == 3) { // PPS
+                fixType = "pps";
+            } else if (fixQualityIndex == 0) { // invalid
+                fixType = "none";
+            }
+        }
+
+        if (values.length > 14) {
+            try {
+                pdop = Float.valueOf(values[14]).floatValue();
+            } catch (Exception e) {
+                pdop = Float.NaN;
+            }
+        }
+
+        if (values.length > 15) {
+            try {
+                hdop = Float.valueOf(values[15]).floatValue();
+            } catch (Exception e) {
+                hdop = Float.NaN;
+            }
+        }
+
+        if (values.length > 16) {
+            try {
+                vdop = Float.valueOf(values[16]).floatValue();
+            } catch (Exception e) {
+                vdop = Float.NaN;
+            }
+        }
     }
 
     /**

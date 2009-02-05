@@ -54,6 +54,8 @@ public class GPSLogger
 
     GPSScreen dataScreen = null;
 
+    long startTimeMillis = 0L;
+
     //<editor-fold defaultstate="collapsed" desc=" Generated Fields ">//GEN-BEGIN:|fields|0|
     private java.util.Hashtable __previousDisplayables = new java.util.Hashtable();
     private Command submitWaypointCommand;
@@ -262,6 +264,8 @@ public class GPSLogger
                 switchToPreviousDisplayable();
             } else if (command == markCommand) {
                 switchDisplayable(null, getWaypointForm());
+            } else if (command == resetCommand) {
+                resetOdometer();
             }
         }
     }//GEN-BEGIN:|7-commandAction|28|
@@ -985,9 +989,9 @@ public class GPSLogger
      * Performs an action assigned to the resetOdometer entry-point.
      */
     public void resetOdometer() {//GEN-END:|256-entry|0|257-preAction
-    if (geoLocator != null) {
-///        locator.resetOdometer();
-    }
+
+        startTimeMillis = System.currentTimeMillis();
+        getCanvas().setTotalTime("");
 //GEN-LINE:|256-entry|1|257-postAction
  // write post-action user code here
     }//GEN-BEGIN:|256-entry|2|
@@ -1038,23 +1042,23 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|261-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: searchGPSStringItem ">//GEN-BEGIN:|268-getter|0|268-preInit
-/**
- * Returns an initiliazed instance of searchGPSStringItem component.
- * @return the initialized component instance
- */
-public StringItem getSearchGPSStringItem() {
-    if (searchGPSStringItem == null) {//GEN-END:|268-getter|0|268-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: searchGPSStringItem ">//GEN-BEGIN:|268-getter|0|268-preInit
+    /**
+     * Returns an initiliazed instance of searchGPSStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getSearchGPSStringItem() {
+        if (searchGPSStringItem == null) {//GEN-END:|268-getter|0|268-preInit
         // write pre-init user code here
-        searchGPSStringItem = new StringItem("Search GPS...", "", Item.BUTTON);//GEN-BEGIN:|268-getter|1|268-postInit
-        searchGPSStringItem.addCommand(getSearchCommand());
-        searchGPSStringItem.setItemCommandListener(this);
-        searchGPSStringItem.setDefaultCommand(getSearchCommand());//GEN-END:|268-getter|1|268-postInit
+            searchGPSStringItem = new StringItem("Search GPS...", "", Item.BUTTON);//GEN-BEGIN:|268-getter|1|268-postInit
+            searchGPSStringItem.addCommand(getSearchCommand());
+            searchGPSStringItem.setItemCommandListener(this);
+            searchGPSStringItem.setDefaultCommand(getSearchCommand());//GEN-END:|268-getter|1|268-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|268-getter|2|
-    return searchGPSStringItem;
-}
-//</editor-fold>//GEN-END:|268-getter|2|
+        }//GEN-BEGIN:|268-getter|2|
+        return searchGPSStringItem;
+    }
+    //</editor-fold>//GEN-END:|268-getter|2|
 
 //<editor-fold defaultstate="collapsed" desc=" Generated Getter: browseLogFolderStringItem ">//GEN-BEGIN:|270-getter|0|270-preInit
 /**
@@ -1208,7 +1212,6 @@ public Command getScreenCommand() {
      * The GPSLogger constructor.
      */
     public GPSLogger() {
-
     }
 
     /**
@@ -1216,7 +1219,6 @@ public Command getScreenCommand() {
      * @return the display instance.
      */
     public Display getDisplay () {
-        
         return Display.getDisplay(this);
     }
 
@@ -1255,11 +1257,8 @@ public Command getScreenCommand() {
     public void startApp() {
         
         if (midletPaused) {
-            
             resumeMIDlet ();
-            
         } else {
-            
             initialize ();
             startMIDlet ();
         }
@@ -1271,7 +1270,6 @@ public Command getScreenCommand() {
      * Called when MIDlet is paused.
      */
     public void pauseApp() {
-        
         midletPaused = true;
     }
 
@@ -1441,6 +1439,8 @@ public Command getScreenCommand() {
             
                 screen.setTitle(null); // remove the title when started
 
+                resetOdometer();
+                
                 // show initial screen
                 getCanvas().setSatelliteInfo("Acquiring location, please wait...");
                 getCanvas().forceRepaint();
@@ -1559,7 +1559,7 @@ public Command getScreenCommand() {
         if (waypointLogWriter != null) {
             GeoLocation waypoint = geoLocator.getLocation();
             waypoint.setName(comments);
-            waypointLogWriter.writeLocationAsWaypoint(waypoint);
+            waypointLogWriter.writeWaypoint(waypoint);
         }
     }
 
@@ -1622,16 +1622,18 @@ public Command getScreenCommand() {
 
         if (trackLogWriter != null) {
             try {
-                trackLogWriter.writeLocationAsTrackpoint(location);
+                trackLogWriter.writeTrackpoint(location);
             } catch (IOException e) {
                 handleException(e, getIntroForm());
             }
         }
 
         getCanvas().setLocation(location);
-///!!! or forceRepaint()?
-getCanvas().repaint();
-///
+        long totalTimeMillis = System.currentTimeMillis() - startTimeMillis;
+        Instant totalTime = new Instant(totalTimeMillis);
+        getCanvas().setTotalTime(totalTime.getISO8601TimeId());
+
+        getCanvas().repaint();
     }
 
     public void handleLocatorException(Exception e) {

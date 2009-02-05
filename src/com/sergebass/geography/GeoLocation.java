@@ -29,7 +29,11 @@ public class GeoLocation {
     String timeString = "";
 
     int satelliteCount = -1;
-    String fixTypeString = null;
+    String fixType = null;
+
+    float pdop = Float.NaN; // Position dillution of precision
+    float hdop = Float.NaN; // Horizontal dillution of precision
+    float vdop = Float.NaN; // Vertical dillution of precision
 
     Hashtable otherData;
 
@@ -141,6 +145,38 @@ public class GeoLocation {
         this.satelliteCount = satelliteCount;
     }
 
+    public String getFixType() {
+        return fixType;
+    }
+
+    public void setFixType(String fixType) {
+        this.fixType = fixType;
+    }
+
+    public float getPDOP() {
+        return pdop;
+    }
+
+    public void setPDOP(float pdop) {
+        this.pdop = pdop;
+    }
+
+    public float getHDOP() {
+        return hdop;
+    }
+
+    public void setHDOP(float hdop) {
+        this.hdop = hdop;
+    }
+
+    public float getVDOP() {
+        return vdop;
+    }
+
+    public void setVDOP(float vdop) {
+        this.vdop = vdop;
+    }
+
     public String toString() {
         return toGPXTrackpointString(); // let this be default
     }
@@ -190,17 +226,17 @@ public class GeoLocation {
         }
 
         // <ele> altitude/elevation (in meters) of the point.
-        if (altitude != Float.NaN) {
+        if (!Float.isNaN(altitude)) {
             stringBuffer.append(" <ele>" + String.valueOf(altitude) + "</ele>\n");
         }
 
         // <course> (degrees, true), actually, missing in GPX 1.1!
-        if (course != Float.NaN) {
+        if (!Float.isNaN(course)) {
             stringBuffer.append(" <course>" + String.valueOf(course) + "</course>\n");
         }
 
         // <speed> (meters per second), actually, missing in GPX 1.1!
-        if (speed != Float.NaN) {
+        if (!Float.isNaN(speed)) {
             stringBuffer.append(" <speed>" + String.valueOf(speed) + "</speed>\n");
         }
 
@@ -209,14 +245,23 @@ public class GeoLocation {
             stringBuffer.append(" <sat>" + String.valueOf(satelliteCount) + "</sat>\n");
         }
 
-        if (fixTypeString != null) {
-            stringBuffer.append(" <fix>" + String.valueOf(fixTypeString) + "</fix>\n");
+        if (fixType != null) {
+            if (!fixType.equals("")) {
+                stringBuffer.append(" <fix>" + String.valueOf(fixType) + "</fix>\n");
+            }
         }
 
-///TODO: <fix>
-///TODO: <hdop>
-///TODO: <vdop>
-///TODO: <pdop>
+        if (!Float.isNaN(pdop)) {
+            stringBuffer.append(" <pdop>" + String.valueOf(pdop) + "</pdop>\n");
+        }
+
+        if (!Float.isNaN(hdop)) {
+            stringBuffer.append(" <hdop>" + String.valueOf(hdop) + "</hdop>\n");
+        }
+
+        if (!Float.isNaN(vdop)) {
+            stringBuffer.append(" <vdop>" + String.valueOf(vdop) + "</vdop>\n");
+        }
 
         // point closing tag
         stringBuffer.append("</" + pointTypeTag + ">\n");

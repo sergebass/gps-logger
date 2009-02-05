@@ -109,11 +109,25 @@ public class JSR179GeoLocator
         QualifiedCoordinates coordinates = lapiLocation.getQualifiedCoordinates();
         GeoLocation location = new GeoLocation
                     (coordinates.getLatitude(), coordinates.getLongitude());
-        location.setAltitude(coordinates.getAltitude());
-        location.setCourse(lapiLocation.getCourse());
-        location.setSpeed(lapiLocation.getSpeed());
+
+        float altitude = coordinates.getAltitude();
+        if (!Float.isNaN(altitude)) {
+            location.setAltitude(coordinates.getAltitude());
+        }
+
+        float course = lapiLocation.getCourse();
+        if (!Float.isNaN(course)) {
+            location.setCourse(course);
+        }
+
+        float speed = lapiLocation.getSpeed();
+        if (!Float.isNaN(speed)) {
+            location.setSpeed(speed);
+        }
+
         location.setTimestamp(lapiLocation.getTimestamp());
         location.setValid(lapiLocation.isValid());
+        
 ///... add more fields?
 
         return location;

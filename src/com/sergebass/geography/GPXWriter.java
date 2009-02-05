@@ -77,13 +77,13 @@ public class GPXWriter
         write("</trkseg>\n");
     }
 
-    public void writeLocationAsTrackpoint(GeoLocation location)
+    public void writeTrackpoint(GeoLocation location)
             throws IOException {
 
         write(location.toGPXTrackpointString());
     }
 
-    public void writeLocationAsWaypoint(GeoLocation location)
+    public void writeWaypoint(GeoLocation location)
             throws IOException {
 
         write(location.toGPXWaypointString());
