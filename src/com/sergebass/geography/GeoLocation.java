@@ -28,7 +28,7 @@ public class GeoLocation {
     String dateString = "";
     String timeString = "";
 
-    int satelliteCount = 0;
+    int satelliteCount = -1;
     String fixTypeString = null;
 
     Hashtable otherData;
@@ -190,16 +190,24 @@ public class GeoLocation {
         }
 
         // <ele> altitude/elevation (in meters) of the point.
-        stringBuffer.append(" <ele>" + String.valueOf(altitude) + "</ele>\n");
+        if (altitude != Float.NaN) {
+            stringBuffer.append(" <ele>" + String.valueOf(altitude) + "</ele>\n");
+        }
 
         // <course> (degrees, true), actually, missing in GPX 1.1!
-        stringBuffer.append(" <course>" + String.valueOf(course) + "</course>\n");
+        if (course != Float.NaN) {
+            stringBuffer.append(" <course>" + String.valueOf(course) + "</course>\n");
+        }
 
         // <speed> (meters per second), actually, missing in GPX 1.1!
-        stringBuffer.append(" <speed>" + String.valueOf(speed / 3.6) + "</speed>\n");
+        if (speed != Float.NaN) {
+            stringBuffer.append(" <speed>" + String.valueOf(speed) + "</speed>\n");
+        }
 
         // <sat> satellite count
-        stringBuffer.append(" <sat>" + String.valueOf(satelliteCount) + "</sat>\n");
+        if (satelliteCount >= 0) {
+            stringBuffer.append(" <sat>" + String.valueOf(satelliteCount) + "</sat>\n");
+        }
 
         if (fixTypeString != null) {
             stringBuffer.append(" <fix>" + String.valueOf(fixTypeString) + "</fix>\n");

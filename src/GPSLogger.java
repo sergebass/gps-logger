@@ -1318,7 +1318,12 @@ public Command getScreenCommand() {
         
         if (connectionURLString != null) {
             gpsDeviceStringItem.setText(connectionURLString);
-        } else { // null URL
+        } else { // empty bluetooth URL
+            gpsDeviceStringItem.setText("");
+        }
+
+        // check again
+        if (gpsDeviceStringItem.getText().trim().equals("")) { // empty URL?
             gpsDeviceStringItem.setText("[use Location API (JSR-179)]");
             //commented because will fall back to JSR-179 is BT device was not specified
             //mustConfigure = true;
@@ -1398,7 +1403,7 @@ public Command getScreenCommand() {
                     }
 
                     if (tryJSR179) {
-                    /// check JSR-179 availability here!
+/// check JSR-179 availability here!
 
 ///       Criteria criteria = new Criteria();
 //        criteria.setSpeedAndCourseRequired(true);
@@ -1437,7 +1442,7 @@ public Command getScreenCommand() {
                 screen.setTitle(null); // remove the title when started
 
                 // show initial screen
-                getCanvas().setLocation(geoLocator.getLocation());
+                getCanvas().setSatelliteInfo("Acquiring location, please wait...");
                 getCanvas().forceRepaint();
 
                 // we will start receiving notifications after this call:
@@ -1608,10 +1613,12 @@ public Command getScreenCommand() {
 
     public void locationChanged(GeoLocation location) {
 
-///TMP!!!
-getDisplay().vibrate(200);
-System.out.println(location);
-///
+        if (location == null) {
+            System.out.println("Null location received!");
+            return;
+        }
+
+        System.out.println(location);
 
         if (trackLogWriter != null) {
             try {

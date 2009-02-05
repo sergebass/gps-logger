@@ -35,10 +35,6 @@ public class GPSScreen
     String tripTimeString = "";
     String totalTimeString = "";
 
-///
-String xString = "";
-///
-
 ///tmp:
 Image bgImage = null;
 ///
@@ -65,30 +61,93 @@ try {
     public void setLocation(GeoLocation location) {
         this.location = location;
 
-/// FIX THIS!!!
+        if (location == null) { // bad data, clear everything
+
+            setLatitude("");
+            setLongitude("");
+            setAltitude("");
+            setCourse("");
+            setSpeed("");
+            setDate("");
+            setTime("");
+            setSatelliteInfo("Location data unavailable");
+            
+            return;
+        }
+
         double latitude = location.getLatitude();
-        setLatitude("NS " + latitude + "\u00B0");
+        if (latitude != Double.NaN) {
+            if (latitude >= 0) { // northern hemisphere
+                setLatitude("N " + latitude + "\u00B0");
+            } else { // southern hemisphere
+                setLatitude("S " + (-latitude) + "\u00B0");
+            }
+        } else {
+            setLatitude("");
+        }
 
         double longitude = location.getLongitude();
-        setLongitude("WE " + longitude + "\u00B0");
+        if (longitude != Double.NaN) {
+            if (longitude >= 0) { // eastern hemisphere
+                setLongitude("E " + longitude + "\u00B0");
+            } else { // western hemisphere
+                setLongitude("W " + (-longitude) + "\u00B0");
+            }
+        } else {
+            setLongitude("");
+        }
 
         float altitude = location.getAltitude();
-        setAltitude("A " + altitude + "m");
+        if (altitude != Float.NaN) {
+            setAltitude("A " + altitude + "m");
+        } else {
+            setAltitude("");
+        }
 
         this.course = location.getCourse();
-        setCourse("^ " + course + "\u00B0");
+        if (course != Float.NaN) {
+            String directionSymbol = "";
+            if (course >= 22.5 && course < 67.5) {
+                directionSymbol = "NE"; // north-east
+            } else if (course >= 67.5 && course < 112.5) {
+                directionSymbol = "E"; // east
+            } else if (course >= 112.5 && course < 157.5) {
+                directionSymbol = "SE"; // south-east
+            } else if (course >= 157.5 && course < 202.5) {
+                directionSymbol = "S"; // south
+            } else if (course >= 202.5 && course < 247.5) {
+                directionSymbol = "SW"; // south-west
+            } else if (course >= 247.5 && course < 292.5) {
+                directionSymbol = "W"; // west
+            } else if (course >= 292.5 && course < 337.5) {
+                directionSymbol = "NW"; // north-west
+            } else {
+                directionSymbol = "N"; // north
+            }
+            setCourse("^ " + course + "\u00B0 " + directionSymbol);
+        } else {
+            setCourse(""); // clear data
+        }
 
         float speed = location.getSpeed();
-        setSpeed("v " + speed + " m/s");
+        if (speed != Float.NaN) {
+            setSpeed("v " + (speed * 3.6) + " km/h");
+        } else {
+            setSpeed("");
+        }
 
         String date = location.getDateString();
         setDate(date);
 
         String time = location.getTimeString();
-        setTime(time);
+        setTime(time + " UT");
 
         int satelliteCount = location.getSatelliteCount();
-        setSatelliteInfo(satelliteCount + " satellite(s)");
+        if (satelliteCount < 0) {
+            setSatelliteInfo("Satellite info unavailable");
+        } else {
+            setSatelliteInfo(satelliteCount + " satellite(s)");
+        }
 
 ///...
     }
@@ -256,24 +315,6 @@ try {
                     false);
     }
 
-///TMP:!!!
-    public void setX(String string) {
-        xString = string;
-    }
-
-    public void displayX() {
-
-        displayString(xString,
-                    getWidth() - smallFont.stringWidth(xString),
-                    getHeight() - smallFont.getHeight() * 5,
-                    smallFont.stringWidth(totalTimeString), smallFont.getHeight(),
-                    0xFFFFFFFF, 0x00000000, // white on black
-                    smallFont,
-                    false,
-                    false);
-    }
-///^^^
-
     void drawBackground(int x, int y, int width, int height,
                         boolean mustFlushGraphics) {
 
@@ -334,10 +375,6 @@ g.fillRect(x, y, width, height); // just fill/clear it...
         displayTripTime();
         displayTotalTime();
 
-///
-///displayX();
-///
-
         flushGraphics();
     }
 
@@ -347,6 +384,10 @@ g.fillRect(x, y, width, height); // just fill/clear it...
                          Font font,
                          boolean mustDrawBackground,
                          boolean mustFlushGraphics) {
+
+        if (string == null) {
+            return;
+        }
 
         if (!isShown() || string.equals("")) {
             return; // do not waste battery energy in vain
@@ -418,23 +459,3 @@ g.fillRect(x, y, width, height); // just fill/clear it...
         g.drawLine(centerX, centerY, x, y);
     }
 }
-
-/*
-            if (courseAngle >= 22.5 && courseAngle < 67.5) {
-                directionSymbol = "NE"; // north-east
-            } else if (courseAngle >= 67.5 && courseAngle < 112.5) {
-                directionSymbol = "E"; // east
-            } else if (courseAngle >= 112.5 && courseAngle < 157.5) {
-                directionSymbol = "SE"; // south-east
-            } else if (courseAngle >= 157.5 && courseAngle < 202.5) {
-                directionSymbol = "S"; // south
-            } else if (courseAngle >= 202.5 && courseAngle < 247.5) {
-                directionSymbol = "SW"; // south-west
-            } else if (courseAngle >= 247.5 && courseAngle < 292.5) {
-                directionSymbol = "W"; // west
-            } else if (courseAngle >= 292.5 && courseAngle < 337.5) {
-                directionSymbol = "NW"; // north-west
-            } else {
-                directionSymbol = "N"; // north
-            }
- */

@@ -39,6 +39,10 @@ public class JSR179GeoLocator
             locationProvider = null;
         }
 
+        if (locationProvider == null) {
+            return; // nothing to do here anymore
+        }
+
         // let's start a location polling thread
         isStarted = true;
         new Thread() {
@@ -48,6 +52,9 @@ public class JSR179GeoLocator
                 do {
                     GeoLocation location = getLocation();
                    
+                    if (location == null) { // avoid bad data
+                        continue;
+                    }
                     // make sure to only pass new data (check the timestamp),
                     // avoid clogging the bandwidth with duplicate points
                     
