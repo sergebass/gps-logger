@@ -19,8 +19,6 @@ public class GPSScreen
     
     GeoLocation location = null;
 
-    double courseAngle = 0.0; // degrees
-
     String latitudeString = "";
     String longitudeString = "";
     String altitudeString = "";
@@ -28,6 +26,8 @@ public class GPSScreen
     String dateString = "";
     String timeString = "";
     String satelliteInfoString = "";
+
+    float course = Float.NaN;
 
     String courseString = "";
     String speedString = "";
@@ -75,7 +75,7 @@ try {
         float altitude = location.getAltitude();
         setAltitude("A " + altitude + "m");
 
-        float course = location.getCourse();
+        this.course = location.getCourse();
         setCourse("^ " + course + "\u00B0");
 
         float speed = location.getSpeed();
@@ -192,8 +192,8 @@ try {
                     false);
     }
 
-    public void setCourse(double directionAngle) {
-        this.courseAngle = directionAngle;
+    public void setCourse(float course) {
+        this.course = course;
     }
 
     public void setCourse(String string) {
@@ -304,7 +304,7 @@ g.fillRect(x, y, width, height); // just fill/clear it...
         }
 
         // center the compass in the screen
-        drawCompass(courseAngle, getWidth() / 2, getHeight() / 2, 20);
+        drawCompass(course, getWidth() / 2, getHeight() / 2, 20);
 
         if (mustFlushGraphics) {
             flushGraphics(x, y, width, height);
@@ -408,7 +408,7 @@ g.fillRect(x, y, width, height); // just fill/clear it...
                   0, 360); // this is a full circle (0-360 degrees)
 
         // shift the angle as well, our 0 degrees direction points upwards
-        double angleInRadians = (90.0 - courseAngle) * Math.PI / 180.0;
+        double angleInRadians = (90.0 - angle) * Math.PI / 180.0;
 
         // besides, our Y axis is upside down
         int y = centerY - (int)(((double)radius) * Math.sin(angleInRadians));

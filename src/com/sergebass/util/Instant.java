@@ -193,36 +193,45 @@ public class Instant
               + (second < 10? "0" : "") + second;
     }
 
-    public String getDateTimeIdInISO8601() {
+    public String getISO8601DateId() {
 
-/// is GMT always equal to UTC?
-        
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT")); // GMT~=UTC
         calendar.setTime(this);
 
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1;
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
+        // return the full date in UTC, according to ISO-8601
+        // (yyyy-mm-dd)
+        return "" + year
+              + "-"
+              + (month < 10? "0" : "") + month
+              + "-"
+              + (day < 10? "0" : "") + day;
+    }
+    
+    public String getISO8601TimeId() {
+
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT")); // GMT~=UTC
+        calendar.setTime(this);
+
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
         int second = calendar.get(Calendar.SECOND);
 
-        // return the full date/time in UTC, according to ISO-8601
-        // (yyyy-mm-ddThh:mm:ssZ)
-        return "" + year
-              + "-"
-              + (month < 10? "0" : "") + month
-              + "-"
-              + (day < 10? "0" : "") + day
-              + "T"
-              + (hour < 10? "0" : "") + hour
+        // return the full time in UTC, according to ISO-8601
+        // (hh:mm:ssZ)
+        return (hour < 10? "0" : "") + hour
               + ":"
               + (minute < 10? "0" : "") + minute
               + ":"
-              + (second < 10? "0" : "") + second
-              + "Z";
+              + (second < 10? "0" : "") + second;
+    }
+
+    public String getISO8601DateTimeId() {
+        return getISO8601DateId() + "T" + getISO8601TimeId() + "Z";
     }
 
     /**

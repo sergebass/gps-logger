@@ -71,8 +71,8 @@ public class NMEA0183Parser
         location.setDateString(gpxDateString);
         location.setTimeString(gpxTimeString);
         location.setSatelliteCount(satelliteCount);
-
-///add the other fields ASAP!!!
+        location.setValid(isValidGPSData);
+///add the other fields...
         
         return location;
     }
@@ -330,7 +330,6 @@ public class NMEA0183Parser
             }
         }
 
-/// compute timestamp from gpxDate & gpxTime?
         timestamp = System.currentTimeMillis();
     }
 

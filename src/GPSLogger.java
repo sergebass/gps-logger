@@ -264,8 +264,8 @@ public class GPSLogger
                 switchDisplayable(null, getWaypointForm());
             }
         }
-    }//GEN-BEGIN:|7-commandAction|28|246-postAction
-    //</editor-fold>//GEN-END:|7-commandAction|28|246-postAction
+    }//GEN-BEGIN:|7-commandAction|28|
+    //</editor-fold>//GEN-END:|7-commandAction|28|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: exitCommand ">//GEN-BEGIN:|18-getter|0|18-preInit
     /**
@@ -980,63 +980,63 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|250-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Method: resetOdometer ">//GEN-BEGIN:|256-entry|0|257-preAction
-/**
- * Performs an action assigned to the resetOdometer entry-point.
- */
-public void resetOdometer() {//GEN-END:|256-entry|0|257-preAction
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: resetOdometer ">//GEN-BEGIN:|256-entry|0|257-preAction
+    /**
+     * Performs an action assigned to the resetOdometer entry-point.
+     */
+    public void resetOdometer() {//GEN-END:|256-entry|0|257-preAction
     if (geoLocator != null) {
 ///        locator.resetOdometer();
     }
 //GEN-LINE:|256-entry|1|257-postAction
  // write post-action user code here
-}//GEN-BEGIN:|256-entry|2|
-//</editor-fold>//GEN-END:|256-entry|2|
+    }//GEN-BEGIN:|256-entry|2|
+    //</editor-fold>//GEN-END:|256-entry|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: resetCommand ">//GEN-BEGIN:|254-getter|0|254-preInit
-/**
- * Returns an initiliazed instance of resetCommand component.
- * @return the initialized component instance
- */
-public Command getResetCommand() {
-    if (resetCommand == null) {//GEN-END:|254-getter|0|254-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: resetCommand ">//GEN-BEGIN:|254-getter|0|254-preInit
+    /**
+     * Returns an initiliazed instance of resetCommand component.
+     * @return the initialized component instance
+     */
+    public Command getResetCommand() {
+        if (resetCommand == null) {//GEN-END:|254-getter|0|254-preInit
  // write pre-init user code here
-        resetCommand = new Command("Reset", Command.OK, 0);//GEN-LINE:|254-getter|1|254-postInit
+            resetCommand = new Command("Reset", Command.OK, 0);//GEN-LINE:|254-getter|1|254-postInit
  // write post-init user code here
-    }//GEN-BEGIN:|254-getter|2|
-    return resetCommand;
-}
-//</editor-fold>//GEN-END:|254-getter|2|
+        }//GEN-BEGIN:|254-getter|2|
+        return resetCommand;
+    }
+    //</editor-fold>//GEN-END:|254-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: font ">//GEN-BEGIN:|260-getter|0|260-preInit
-/**
- * Returns an initiliazed instance of font component.
- * @return the initialized component instance
- */
-public Font getFont() {
-    if (font == null) {//GEN-END:|260-getter|0|260-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: font ">//GEN-BEGIN:|260-getter|0|260-preInit
+    /**
+     * Returns an initiliazed instance of font component.
+     * @return the initialized component instance
+     */
+    public Font getFont() {
+        if (font == null) {//GEN-END:|260-getter|0|260-preInit
         // write pre-init user code here
-        font = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_SMALL);//GEN-LINE:|260-getter|1|260-postInit
+            font = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_SMALL);//GEN-LINE:|260-getter|1|260-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|260-getter|2|
-    return font;
-}
-//</editor-fold>//GEN-END:|260-getter|2|
+        }//GEN-BEGIN:|260-getter|2|
+        return font;
+    }
+    //</editor-fold>//GEN-END:|260-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: boldFont ">//GEN-BEGIN:|261-getter|0|261-preInit
-/**
- * Returns an initiliazed instance of boldFont component.
- * @return the initialized component instance
- */
-public Font getBoldFont() {
-    if (boldFont == null) {//GEN-END:|261-getter|0|261-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: boldFont ">//GEN-BEGIN:|261-getter|0|261-preInit
+    /**
+     * Returns an initiliazed instance of boldFont component.
+     * @return the initialized component instance
+     */
+    public Font getBoldFont() {
+        if (boldFont == null) {//GEN-END:|261-getter|0|261-preInit
         // write pre-init user code here
-        boldFont = Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD, Font.SIZE_SMALL);//GEN-LINE:|261-getter|1|261-postInit
+            boldFont = Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD, Font.SIZE_SMALL);//GEN-LINE:|261-getter|1|261-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|261-getter|2|
-    return boldFont;
-}
-//</editor-fold>//GEN-END:|261-getter|2|
+        }//GEN-BEGIN:|261-getter|2|
+        return boldFont;
+    }
+    //</editor-fold>//GEN-END:|261-getter|2|
 
 //<editor-fold defaultstate="collapsed" desc=" Generated Getter: searchGPSStringItem ">//GEN-BEGIN:|268-getter|0|268-preInit
 /**
@@ -1163,46 +1163,35 @@ public Command getCancelWaypointCommand() {
 }
 //</editor-fold>//GEN-END:|281-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: submitWaypointCommand ">//GEN-BEGIN:|283-getter|0|283-preInit
-    /**
-     * Returns an initiliazed instance of submitWaypointCommand component.
-     * @return the initialized component instance
-     */
-    public Command getSubmitWaypointCommand() {
-        if (submitWaypointCommand == null) {//GEN-END:|283-getter|0|283-preInit
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: submitWaypointCommand ">//GEN-BEGIN:|283-getter|0|283-preInit
+/**
+ * Returns an initiliazed instance of submitWaypointCommand component.
+ * @return the initialized component instance
+ */
+public Command getSubmitWaypointCommand() {
+    if (submitWaypointCommand == null) {//GEN-END:|283-getter|0|283-preInit
         // write pre-init user code here
-            submitWaypointCommand = new Command("Save", Command.OK, 0);//GEN-LINE:|283-getter|1|283-postInit
+        submitWaypointCommand = new Command("Save", Command.OK, 0);//GEN-LINE:|283-getter|1|283-postInit
         // write post-init user code here
-        }//GEN-BEGIN:|283-getter|2|
-        return submitWaypointCommand;
-    }
-    //</editor-fold>//GEN-END:|283-getter|2|
+    }//GEN-BEGIN:|283-getter|2|
+    return submitWaypointCommand;
+}
+//</editor-fold>//GEN-END:|283-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: screenCommand ">//GEN-BEGIN:|289-getter|0|289-preInit
-    /**
-     * Returns an initiliazed instance of screenCommand component.
-     * @return the initialized component instance
-     */
-    public Command getScreenCommand() {
-        if (screenCommand == null) {//GEN-END:|289-getter|0|289-preInit
+//<editor-fold defaultstate="collapsed" desc=" Generated Getter: screenCommand ">//GEN-BEGIN:|289-getter|0|289-preInit
+/**
+ * Returns an initiliazed instance of screenCommand component.
+ * @return the initialized component instance
+ */
+public Command getScreenCommand() {
+    if (screenCommand == null) {//GEN-END:|289-getter|0|289-preInit
         // write pre-init user code here
-            screenCommand = new Command("Graphics Mode", Command.SCREEN, 0);//GEN-LINE:|289-getter|1|289-postInit
+        screenCommand = new Command("Graphics Mode", Command.SCREEN, 0);//GEN-LINE:|289-getter|1|289-postInit
         // write post-init user code here
-        }//GEN-BEGIN:|289-getter|2|
-        return screenCommand;
-    }
-    //</editor-fold>//GEN-END:|289-getter|2|
-
-        //<editor-fold defaultstate="collapsed" desc=" Generated Method: testGraphics ">//GEN-BEGIN:|291-entry|0|292-preAction
-        /**
-         * Performs an action assigned to the testGraphics entry-point.
-         */
-        public void testGraphics() {//GEN-END:|291-entry|0|292-preAction
-    switchDisplayable(null, dataScreen);
-//GEN-LINE:|291-entry|1|292-postAction
-    // write post-action user code here
-        }//GEN-BEGIN:|291-entry|2|
-        //</editor-fold>//GEN-END:|291-entry|2|
+    }//GEN-BEGIN:|289-getter|2|
+    return screenCommand;
+}
+//</editor-fold>//GEN-END:|289-getter|2|
 
     public FileBrowser getFileBrowser() {
         if (fileBrowser == null) {
@@ -1330,8 +1319,9 @@ public Command getCancelWaypointCommand() {
         if (connectionURLString != null) {
             gpsDeviceStringItem.setText(connectionURLString);
         } else { // null URL
-            gpsDeviceStringItem.setText("[not configured]");
-            mustConfigure = true;
+            gpsDeviceStringItem.setText("[use Location API (JSR-179)]");
+            //commented because will fall back to JSR-179 is BT device was not specified
+            //mustConfigure = true;
         }
 
         final String logPath = settings.getLogFolder();
@@ -1396,10 +1386,25 @@ public Command getCancelWaypointCommand() {
                 System.out.println(getCanvas().getTitle());
         
                 if (geoLocator == null) { // connect to the GPS if not connected yet
+                    boolean tryJSR179 = false;
                     if (connectionURLString != null) {
-                        geoLocator = new BluetoothGeoLocator(connectionURLString);
+                        if (!connectionURLString.trim().equals("")) {
+                            geoLocator = new BluetoothGeoLocator(connectionURLString);
+                        } else {
+                            tryJSR179 = true;
+                        }
                     } else { // no bluetooth device was specified: try Location API provider
-/// check JSR-179 availability here!
+                        tryJSR179 = true;
+                    }
+
+                    if (tryJSR179) {
+                    /// check JSR-179 availability here!
+
+///       Criteria criteria = new Criteria();
+//        criteria.setSpeedAndCourseRequired(true);
+//        criteria.setAltitudeRequired(true);
+//        criteria.setCostAllowed(true);
+
                         geoLocator = new JSR179GeoLocator();
                     }
 
@@ -1440,7 +1445,6 @@ public Command getCancelWaypointCommand() {
 
                 do {
                     Thread.sleep(200);
-
                 } while (!mustBeTerminated && !mustReconnectToGPS); // or until user decides to quit?
             
                 if (mustReconnectToGPS) {
@@ -1605,7 +1609,8 @@ public Command getCancelWaypointCommand() {
     public void locationChanged(GeoLocation location) {
 
 ///TMP!!!
-///getDisplay().vibrate(200);
+getDisplay().vibrate(200);
+System.out.println(location);
 ///
 
         if (trackLogWriter != null) {

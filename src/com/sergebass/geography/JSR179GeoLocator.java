@@ -13,62 +13,102 @@ import javax.microedition.location.*;
 public class JSR179GeoLocator
         implements GeoLocator {
 
-    static LocationProvider locationProvider = null;
-
-    static {
+    public static boolean isLocationAPISupported() {
         try {
             Class.forName("javax.microedition.location.LocationProvider");
-        } catch (ClassNotFoundException eee) { // no JSR-179 support on this device?
-            locationProvider = null;
+        } catch (ClassNotFoundException e) { // no JSR-179 support on this device?
+            return false;
         }
+        return true;
     }
 
-    public static boolean isLocationAPISupported() {
-        return (locationProvider != null);
-    }
+    LocationProvider locationProvider = null;
+    GeoLocationListener listener = null;
+
+    boolean isStarted = true;
 
     public JSR179GeoLocator() {
-        
-        if (locationProvider == null) {
-            return; // nothing to do here, the Location API is not supported
-        }
-        
-        Criteria criteria = new Criteria();
-//        criteria.setSpeedAndCourseRequired(true);
-//        criteria.setAltitudeRequired(true);
-//        criteria.setCostAllowed(true);
+        this(new Criteria()); // use defaults
+    }
 
+    public JSR179GeoLocator(Criteria criteria) {
+        System.out.println("Creating JSR170 Location API locator connection...");
         try {
             locationProvider = LocationProvider.getInstance(criteria);
         } catch (LocationException e) {
             locationProvider = null;
         }
+
+        // let's start a location polling thread
+        isStarted = true;
+        new Thread() {
+            public void run() {
+                String oldDateString = "";
+                String oldTimeString = "";
+                do {
+                    GeoLocation location = getLocation();
+                   
+                    // make sure to only pass new data (check the timestamp),
+                    // avoid clogging the bandwidth with duplicate points
+                    
+                    String dateString = location.getDateString();
+                    String timeString = location.getTimeString();
+                    
+                    if (!dateString.equals(oldDateString)
+                     || !timeString.equals(oldTimeString)) {
+                        if (listener != null) {
+                            listener.locationChanged(location);
+                        }
+                        
+                        oldDateString = dateString;
+                        oldTimeString = timeString;
+                    }
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        // ignore
+                    }
+                } while (isStarted);
+            }
+        }.start();
     }
 
     public void close() {
-/// just do nothing?
+        isStarted = false;
     }
 
     public void setLocationListener(GeoLocationListener listener) {
-///
+        this.listener = listener;
     }
 
     public GeoLocation getLocation() {
-///
-return null;
-///
-    }
 
-    private Location getLAPILocation() {
         if (locationProvider == null) {
             return null;
         }
 
+        Location lapiLocation;
+
         try {
-            return locationProvider.getLocation(-1); // default timeout
+            lapiLocation = locationProvider.getLocation(-1); // use default timeout
         } catch (Exception e) {
+            lapiLocation = null;
+        }
+
+        if (lapiLocation == null) {
             return null;
         }
-    }
 
+        QualifiedCoordinates coordinates = lapiLocation.getQualifiedCoordinates();
+        GeoLocation location = new GeoLocation
+                    (coordinates.getLatitude(), coordinates.getLongitude());
+        location.setAltitude(coordinates.getAltitude());
+        location.setCourse(lapiLocation.getCourse());
+        location.setSpeed(lapiLocation.getSpeed());
+        location.setTimestamp(lapiLocation.getTimestamp());
+        location.setValid(lapiLocation.isValid());
+///... add more fields?
+
+        return location;
+    }
 }

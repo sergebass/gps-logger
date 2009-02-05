@@ -5,12 +5,14 @@
 package com.sergebass.geography;
 
 import java.util.Hashtable;
-
+import com.sergebass.util.Instant;
 /**
  *
  * @author Serge Perinsky
  */
 public class GeoLocation {
+
+    boolean isDataValid = true;
 
     String name = null;
     String description = null;
@@ -36,6 +38,14 @@ public class GeoLocation {
         this.longitude = longitude;
 
         otherData = new Hashtable();
+    }
+
+    public boolean isValid() {
+        return isDataValid;
+    }
+
+    public void setValid(boolean isDataValid) {
+        this.isDataValid = isDataValid;
     }
 
     public String getName() {
@@ -116,6 +126,11 @@ public class GeoLocation {
     
     public void setTimestamp(long timestamp) {
         this.timeStamp = timestamp;
+
+        // make GPX/UTC date/time from the timestamp instant
+        Instant instant = new Instant(timestamp);
+        setDateString(instant.getISO8601DateId());
+        setTimeString(instant.getISO8601TimeId());
     }
 
     public int getSatelliteCount() {
@@ -190,6 +205,7 @@ public class GeoLocation {
             stringBuffer.append(" <fix>" + String.valueOf(fixTypeString) + "</fix>\n");
         }
 
+///TODO: <fix>
 ///TODO: <hdop>
 ///TODO: <vdop>
 ///TODO: <pdop>

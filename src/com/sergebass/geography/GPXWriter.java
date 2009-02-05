@@ -11,7 +11,7 @@ import java.io.UnsupportedEncodingException;
 
 /**
  *
- * @author sperinskiy
+ * @author Serge Perinsky
  */
 public class GPXWriter
         extends OutputStreamWriter {
@@ -23,6 +23,8 @@ public class GPXWriter
 
     public void writeHeader(String name)
             throws IOException {
+
+        System.out.println("Writing GPX header \"" + name + "\"...");
 
         // let's use GPX 1.0 as of now, then we'll see...
         write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -39,12 +41,14 @@ public class GPXWriter
     public void writeFooter()
             throws IOException {
 
+        System.out.println("Writing GPX footer...");
         write("</gpx>\n");
     }
 
     public void writeTrackHeader(String name)
             throws IOException {
 
+        System.out.println("Writing GPX track header \"" + name + "\"...");
         write("<trk>\n");
         
         if (name != null) {
@@ -55,18 +59,21 @@ public class GPXWriter
     public void writeTrackFooter()
             throws IOException {
 
+        System.out.println("Writing GPX track footer...");
         write("</trk>\n");
     }
 
     public void writeTrackSegmentHeader()
             throws IOException {
 
+        System.out.println("Writing GPX track segment header...");
         write("<trkseg>\n");
     }
 
     public void writeTrackSegmentFooter()
             throws IOException {
 
+        System.out.println("Writing GPX track segment footer...");
         write("</trkseg>\n");
     }
 
