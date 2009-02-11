@@ -45,8 +45,10 @@ Image bgImage = null;
         this.setFullScreenMode(false); /// actually, let user decide between full-screen and not
 
         addCommand(midlet.getMarkCommand());
-        addCommand(midlet.getResetCommand());
-        addCommand(new Command("Exit", Command.EXIT, 2));
+        addCommand(midlet.getStopCommand());
+///        addCommand(midlet.getResetCommand());
+///        addCommand(new Command("Exit", Command.EXIT, 2));
+///snapshot
         setCommandListener(midlet);
 
 /*///tmp:
@@ -80,9 +82,11 @@ try {
             // leave 6 digits after decimal point
             latitude = ((long)(latitude * 1000000.0)) / 1000000.0;
             if (latitude >= 0) { // northern hemisphere
-                setLatitude("N " + latitude + "\u00B0");
+                setLatitude(GPSLoggerLocalization.getMessage("latitudeN")
+                            + " " + latitude + "\u00B0");
             } else { // southern hemisphere
-                setLatitude("S " + (-latitude) + "\u00B0");
+                setLatitude(GPSLoggerLocalization.getMessage("latitudeS")
+                            + " " + (-latitude) + "\u00B0");
             }
         } else {
             setLatitude("");
@@ -93,9 +97,11 @@ try {
             // leave 6 digits after decimal point
             longitude = ((long)(longitude * 1000000.0)) / 1000000.0;
             if (longitude >= 0) { // eastern hemisphere
-                setLongitude("E " + longitude + "\u00B0");
+                setLongitude(GPSLoggerLocalization.getMessage("longitudeE")
+                            + " " + longitude + "\u00B0");
             } else { // western hemisphere
-                setLongitude("W " + (-longitude) + "\u00B0");
+                setLongitude(GPSLoggerLocalization.getMessage("longitudeW")
+                            + " " + (-longitude) + "\u00B0");
             }
         } else {
             setLongitude("");

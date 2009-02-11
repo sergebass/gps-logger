@@ -1,1 +1,6 @@
 suiteName = getAppProperty("MIDlet-Name"); // e.g. in .jad to pass generated key code
+photo snapshot (JPG writer?)
+add device info to the GPX header
+localize the application
+mobile tracking: sms
+web tracking

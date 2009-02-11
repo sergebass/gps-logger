@@ -12,6 +12,7 @@ import com.sergebass.util.Instant;
  */
 public class GeoLocation {
 
+///use this attribute!
     boolean isDataValid = true;
 
     String name = null;
@@ -133,8 +134,8 @@ public class GeoLocation {
 
         // make GPX/UTC date/time from the timestamp instant
         Instant instant = new Instant(timestamp);
-        setDateString(instant.getISO8601DateId());
-        setTimeString(instant.getISO8601TimeId());
+        setDateString(instant.getISO8601UTCDateId());
+        setTimeString(instant.getISO8601UTCTimeId());
     }
 
     public int getSatelliteCount() {

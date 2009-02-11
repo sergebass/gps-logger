@@ -193,7 +193,7 @@ public class Instant
               + (second < 10? "0" : "") + second;
     }
 
-    public String getISO8601DateId() {
+    public String getISO8601UTCDateId() {
 
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT")); // GMT~=UTC
         calendar.setTime(this);
@@ -211,7 +211,7 @@ public class Instant
               + (day < 10? "0" : "") + day;
     }
     
-    public String getISO8601TimeId() {
+    public String getISO8601UTCTimeId() {
 
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT")); // GMT~=UTC
         calendar.setTime(this);
@@ -230,8 +230,8 @@ public class Instant
               + (second < 10? "0" : "") + second;
     }
 
-    public String getISO8601DateTimeId() {
-        return getISO8601DateId() + "T" + getISO8601TimeId() + "Z";
+    public String getISO8601UTCDateTimeId() {
+        return getISO8601UTCDateId() + "T" + getISO8601UTCTimeId() + "Z";
     }
 
     /**

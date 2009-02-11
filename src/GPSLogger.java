@@ -44,15 +44,19 @@ public class GPSLogger
     
     GPSLogFile trackLogFile = null;
     GPXWriter trackLogWriter = null;
+    final Object trackLogLock = new Object();
     
     GPSLogFile waypointLogFile = null;
     GPXWriter waypointLogWriter = null;
+    final Object waypointLogLock = new Object();
     
+    Vector waypoints = null;
+
     FileBrowser fileBrowser;
         
     Player errorPlayer = null;
 
-    GPSScreen dataScreen = null;
+    GPSScreen mainScreen = null;
 
     long startTimeMillis = 0L;
 
@@ -61,7 +65,7 @@ public class GPSLogger
     private Command submitWaypointCommand;
     private Command cancelWaypointCommand;
     private Command exitCommand;
-    private Command screenCommand;
+    private Command takePhotoCommand;
     private Command searchCommand;
     private Command startCommand;
     private Command settingsCommand;
@@ -74,6 +78,7 @@ public class GPSLogger
     private Command sendEmailCommand;
     private Command resetCommand;
     private Command okCommand;
+    private Command stopCommand;
     private Form waypointForm;
     private TextField waypointNameTextField;
     private List deviceList;
@@ -222,7 +227,7 @@ public class GPSLogger
                 // write post-action user code here
             } else if (command == startCommand) {//GEN-LINE:|7-commandAction|15|143-preAction
                 // write pre-action user code here
-                start();//GEN-LINE:|7-commandAction|16|143-postAction
+                startTrack();//GEN-LINE:|7-commandAction|16|143-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|17|215-preAction
         } else if (displayable == settingsForm) {
@@ -230,24 +235,24 @@ public class GPSLogger
                 // write pre-action user code here
                 switchDisplayable(null, getIntroForm());//GEN-LINE:|7-commandAction|18|215-postAction
                 // write post-action user code here
-            } else if (command == exitCommand) {//GEN-LINE:|7-commandAction|19|246-preAction
+            } else if (command == saveSettingsCommand) {//GEN-LINE:|7-commandAction|19|202-preAction
                 // write pre-action user code here
-                exitMIDlet();//GEN-LINE:|7-commandAction|20|246-postAction
-                // write post-action user code here
-            } else if (command == saveSettingsCommand) {//GEN-LINE:|7-commandAction|21|202-preAction
-                // write pre-action user code here
-                saveSettings();//GEN-LINE:|7-commandAction|22|202-postAction
+                saveSettings();//GEN-LINE:|7-commandAction|20|202-postAction
                 showSettings();
                 switchDisplayable(null, getIntroForm());
-            }//GEN-BEGIN:|7-commandAction|23|282-preAction
+            }//GEN-BEGIN:|7-commandAction|21|282-preAction
         } else if (displayable == waypointForm) {
-            if (command == cancelWaypointCommand) {//GEN-END:|7-commandAction|23|282-preAction
+            if (command == cancelWaypointCommand) {//GEN-END:|7-commandAction|21|282-preAction
                 // write pre-action user code here
-//GEN-LINE:|7-commandAction|24|282-postAction
+//GEN-LINE:|7-commandAction|22|282-postAction
                 // write post-action user code here
-            } else if (command == submitWaypointCommand) {//GEN-LINE:|7-commandAction|25|284-preAction
+            } else if (command == submitWaypointCommand) {//GEN-LINE:|7-commandAction|23|284-preAction
                 // write pre-action user code here
-                markPoint();//GEN-LINE:|7-commandAction|26|284-postAction
+                markPoint();//GEN-LINE:|7-commandAction|24|284-postAction
+                // write post-action user code here
+            } else if (command == takePhotoCommand) {//GEN-LINE:|7-commandAction|25|291-preAction
+                // write pre-action user code here
+                takePhoto();//GEN-LINE:|7-commandAction|26|291-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|27|7-postCommandAction
         }//GEN-END:|7-commandAction|27|7-postCommandAction
@@ -262,6 +267,8 @@ public class GPSLogger
                 exitMIDlet();
             } else if (command.getCommandType() == Command.BACK) {
                 switchToPreviousDisplayable();
+            } else if (command == stopCommand) {
+                stopTrack();
             } else if (command == markCommand) {
                 switchDisplayable(null, getWaypointForm());
             } else if (command == resetCommand) {
@@ -271,6 +278,7 @@ public class GPSLogger
     }//GEN-BEGIN:|7-commandAction|28|
     //</editor-fold>//GEN-END:|7-commandAction|28|
 
+
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: exitCommand ">//GEN-BEGIN:|18-getter|0|18-preInit
     /**
      * Returns an initiliazed instance of exitCommand component.
@@ -279,7 +287,7 @@ public class GPSLogger
     public Command getExitCommand() {
         if (exitCommand == null) {//GEN-END:|18-getter|0|18-preInit
             // write pre-init user code here
-            exitCommand = new Command("Exit", Command.EXIT, 2);//GEN-LINE:|18-getter|1|18-postInit
+            exitCommand = new Command(GPSLoggerLocalization.getMessage("exitCommand"), Command.EXIT, 2);//GEN-LINE:|18-getter|1|18-postInit
             // write post-init user code here
         }//GEN-BEGIN:|18-getter|2|
         return exitCommand;
@@ -386,20 +394,21 @@ public class GPSLogger
     public Command getSearchCommand() {
         if (searchCommand == null) {//GEN-END:|101-getter|0|101-preInit
             // write pre-init user code here
-            searchCommand = new Command("Search", "Search GPS device", Command.OK, 3);//GEN-LINE:|101-getter|1|101-postInit
+            searchCommand = new Command(GPSLoggerLocalization.getMessage("searchCommand"), GPSLoggerLocalization.getMessage("searchCommand"), Command.OK, 3);//GEN-LINE:|101-getter|1|101-postInit
             // write post-init user code here
         }//GEN-BEGIN:|101-getter|2|
         return searchCommand;
     }
     //</editor-fold>//GEN-END:|101-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: start ">//GEN-BEGIN:|108-entry|0|109-preAction
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: startTrack ">//GEN-BEGIN:|108-entry|0|109-preAction
     /**
-     * Performs an action assigned to the start entry-point.
+     * Performs an action assigned to the startTrack entry-point.
      */
-    public void start() {//GEN-END:|108-entry|0|109-preAction
-        dataScreen = new GPSScreen(this);
-        go(dataScreen); /// or getMainForm() for text mode
+    public void startTrack() {//GEN-END:|108-entry|0|109-preAction
+        waypoints = new Vector(); // (re)initialize
+        mainScreen = new GPSScreen(this);
+        go(mainScreen); /// or getMainForm() for text mode
     }
 
     void go(final Displayable screen) {
@@ -445,7 +454,7 @@ public class GPSLogger
     public Command getStartCommand() {
         if (startCommand == null) {//GEN-END:|142-getter|0|142-preInit
             // write pre-init user code here
-            startCommand = new Command("Start", "Start/connect", Command.OK, 0);//GEN-LINE:|142-getter|1|142-postInit
+            startCommand = new Command(GPSLoggerLocalization.getMessage("startCommand"), GPSLoggerLocalization.getMessage("startCommand"), Command.OK, 0);//GEN-LINE:|142-getter|1|142-postInit
             // write post-init user code here
         }//GEN-BEGIN:|142-getter|2|
         return startCommand;
@@ -460,7 +469,7 @@ public class GPSLogger
     public Command getHelpCommand() {
         if (helpCommand == null) {//GEN-END:|145-getter|0|145-preInit
             // write pre-init user code here
-            helpCommand = new Command("Help", Command.HELP, 5);//GEN-LINE:|145-getter|1|145-postInit
+            helpCommand = new Command(GPSLoggerLocalization.getMessage("helpCommand"), Command.HELP, 5);//GEN-LINE:|145-getter|1|145-postInit
             // write post-init user code here
         }//GEN-BEGIN:|145-getter|2|
         return helpCommand;
@@ -475,7 +484,7 @@ public class GPSLogger
     public Command getBackCommand() {
         if (backCommand == null) {//GEN-END:|149-getter|0|149-preInit
             // write pre-init user code here
-            backCommand = new Command("Back", Command.BACK, 1);//GEN-LINE:|149-getter|1|149-postInit
+            backCommand = new Command(GPSLoggerLocalization.getMessage("backCommand"), Command.BACK, 1);//GEN-LINE:|149-getter|1|149-postInit
             // write post-init user code here
         }//GEN-BEGIN:|149-getter|2|
         return backCommand;
@@ -490,10 +499,9 @@ public class GPSLogger
     public Form getSettingsForm() {
         if (settingsForm == null) {//GEN-END:|141-getter|0|141-preInit
             // write pre-init user code here
-            settingsForm = new Form("Settings", new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getCoordinateChoiceGroup(), getAltitudeChoiceGroup(), getSpeedChoiceGroup(), getLanguageChoiceGroup() });//GEN-BEGIN:|141-getter|1|141-postInit
+            settingsForm = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getCoordinateChoiceGroup(), getAltitudeChoiceGroup(), getSpeedChoiceGroup(), getLanguageChoiceGroup() });//GEN-BEGIN:|141-getter|1|141-postInit
             settingsForm.addCommand(getSaveSettingsCommand());
             settingsForm.addCommand(getCancelCommand());
-            settingsForm.addCommand(getExitCommand());
             settingsForm.setCommandListener(this);//GEN-END:|141-getter|1|141-postInit
             // write post-init user code here
         }//GEN-BEGIN:|141-getter|2|
@@ -526,7 +534,7 @@ public class GPSLogger
     public Command getSettingsCommand() {
         if (settingsCommand == null) {//GEN-END:|152-getter|0|152-preInit
             // write pre-init user code here
-            settingsCommand = new Command("Settings", "Edit settings", Command.SCREEN, 1);//GEN-LINE:|152-getter|1|152-postInit
+            settingsCommand = new Command(GPSLoggerLocalization.getMessage("settingsCommand"), GPSLoggerLocalization.getMessage("settingsCommand"), Command.SCREEN, 1);//GEN-LINE:|152-getter|1|152-postInit
             // write post-init user code here
         }//GEN-BEGIN:|152-getter|2|
         return settingsCommand;
@@ -541,7 +549,7 @@ public class GPSLogger
     public ChoiceGroup getCoordinateChoiceGroup() {
         if (coordinateChoiceGroup == null) {//GEN-END:|157-getter|0|157-preInit
             // write pre-init user code here
-            coordinateChoiceGroup = new ChoiceGroup("Coordinates", Choice.EXCLUSIVE);//GEN-BEGIN:|157-getter|1|157-postInit
+            coordinateChoiceGroup = new ChoiceGroup(GPSLoggerLocalization.getMessage("Coordinates"), Choice.EXCLUSIVE);//GEN-BEGIN:|157-getter|1|157-postInit
             coordinateChoiceGroup.append("DD.dd\u00B0", null);
             coordinateChoiceGroup.append("DD\u00B0 MM.mm\'", null);
             coordinateChoiceGroup.append("DD\u00B0 MM\' SS.ss\"", null);
@@ -563,7 +571,7 @@ public class GPSLogger
     public TextField getLogFolderTextField() {
         if (logFolderTextField == null) {//GEN-END:|160-getter|0|160-preInit
             // write pre-init user code here
-            logFolderTextField = new TextField("Log folder", "", 4096, TextField.ANY);//GEN-BEGIN:|160-getter|1|160-postInit
+            logFolderTextField = new TextField(GPSLoggerLocalization.getMessage("LogFolder"), "", 4096, TextField.ANY);//GEN-BEGIN:|160-getter|1|160-postInit
             logFolderTextField.addCommand(getBrowseCommand());
             logFolderTextField.setItemCommandListener(this);
             logFolderTextField.setDefaultCommand(getBrowseCommand());//GEN-END:|160-getter|1|160-postInit
@@ -581,7 +589,7 @@ public class GPSLogger
     public TextField getGpsDeviceTextField() {
         if (gpsDeviceTextField == null) {//GEN-END:|161-getter|0|161-preInit
             // write pre-init user code here
-            gpsDeviceTextField = new TextField("GPS device", "", 4096, TextField.ANY);//GEN-BEGIN:|161-getter|1|161-postInit
+            gpsDeviceTextField = new TextField(GPSLoggerLocalization.getMessage("GPSDevice"), "", 4096, TextField.ANY);//GEN-BEGIN:|161-getter|1|161-postInit
             gpsDeviceTextField.addCommand(getSearchCommand());
             gpsDeviceTextField.setItemCommandListener(this);//GEN-END:|161-getter|1|161-postInit
             // write post-init user code here
@@ -640,7 +648,7 @@ public class GPSLogger
     public ChoiceGroup getSpeedChoiceGroup() {
         if (speedChoiceGroup == null) {//GEN-END:|163-getter|0|163-preInit
             // write pre-init user code here
-            speedChoiceGroup = new ChoiceGroup("Speed", Choice.EXCLUSIVE);//GEN-BEGIN:|163-getter|1|163-postInit
+            speedChoiceGroup = new ChoiceGroup(GPSLoggerLocalization.getMessage("Speed"), Choice.EXCLUSIVE);//GEN-BEGIN:|163-getter|1|163-postInit
             speedChoiceGroup.append("km/h", null);
             speedChoiceGroup.append("mph", null);
             speedChoiceGroup.append("knots", null);
@@ -662,7 +670,7 @@ public class GPSLogger
     public Command getBrowseCommand() {
         if (browseCommand == null) {//GEN-END:|178-getter|0|178-preInit
             // write pre-init user code here
-            browseCommand = new Command("Browse", Command.OK, 0);//GEN-LINE:|178-getter|1|178-postInit
+            browseCommand = new Command(GPSLoggerLocalization.getMessage("browseCommand"), Command.OK, 0);//GEN-LINE:|178-getter|1|178-postInit
             // write post-init user code here
         }//GEN-BEGIN:|178-getter|2|
         return browseCommand;
@@ -704,7 +712,7 @@ public class GPSLogger
             return;
         }
 //GEN-LINE:|188-entry|1|189-postAction
-        switchDisplayable(null, getCanvas());
+        switchDisplayable(null, getMainScreen());
     }//GEN-BEGIN:|188-entry|2|
     //</editor-fold>//GEN-END:|188-entry|2|
 
@@ -716,7 +724,7 @@ public class GPSLogger
     public Command getSaveSettingsCommand() {
         if (saveSettingsCommand == null) {//GEN-END:|186-getter|0|186-preInit
             // write pre-init user code here
-            saveSettingsCommand = new Command("Save", Command.OK, 0);//GEN-LINE:|186-getter|1|186-postInit
+            saveSettingsCommand = new Command(GPSLoggerLocalization.getMessage("saveSettingsCommand"), Command.OK, 0);//GEN-LINE:|186-getter|1|186-postInit
             // write post-init user code here
         }//GEN-BEGIN:|186-getter|2|
         return saveSettingsCommand;
@@ -731,7 +739,7 @@ public class GPSLogger
     public StringItem getStringItem1() {
         if (stringItem1 == null) {//GEN-END:|191-getter|0|191-preInit
             // write pre-init user code here
-            stringItem1 = new StringItem("", "This midlet was written by Serge Perinsky");//GEN-BEGIN:|191-getter|1|191-postInit
+            stringItem1 = new StringItem("(C) 2007-2009 ", "This midlet was written by Serge Perinsky");//GEN-BEGIN:|191-getter|1|191-postInit
             stringItem1.setLayout(ImageItem.LAYOUT_LEFT | Item.LAYOUT_TOP | Item.LAYOUT_VCENTER | ImageItem.LAYOUT_NEWLINE_BEFORE | ImageItem.LAYOUT_NEWLINE_AFTER | Item.LAYOUT_SHRINK);//GEN-END:|191-getter|1|191-postInit
             // write post-init user code here
         }//GEN-BEGIN:|191-getter|2|
@@ -745,12 +753,12 @@ public class GPSLogger
      */
     public void markPoint() {//GEN-END:|197-entry|0|198-preAction
 
-        switchDisplayable(null, getCanvas()); // go back to the main screen immediately anyway
+        switchDisplayable(null, getMainScreen()); // go back to the main screen immediately anyway
 
         try {
-            writeCurrentPointToMarksLog(getWaypointNameTextField().getString().trim());
+            saveCurrentWaypoint(getWaypointNameTextField().getString().trim());
         } catch (IOException e) {
-            handleException(e, getCanvas());
+            handleException(e, getMainScreen());
         }
 //GEN-LINE:|197-entry|1|198-postAction
     }//GEN-BEGIN:|197-entry|2|
@@ -764,7 +772,7 @@ public class GPSLogger
     public Command getMarkCommand() {
         if (markCommand == null) {//GEN-END:|195-getter|0|195-preInit
             // write pre-init user code here
-            markCommand = new Command("Mark", Command.OK, 0);//GEN-LINE:|195-getter|1|195-postInit
+            markCommand = new Command(GPSLoggerLocalization.getMessage("markCommand"), GPSLoggerLocalization.getMessage("markCommandLong"), Command.OK, 0);//GEN-LINE:|195-getter|1|195-postInit
             // write post-init user code here
         }//GEN-BEGIN:|195-getter|2|
         return markCommand;
@@ -795,7 +803,7 @@ public class GPSLogger
     public Command getSendEmailCommand() {
         if (sendEmailCommand == null) {//GEN-END:|209-getter|0|209-preInit
             // write pre-init user code here
-            sendEmailCommand = new Command("Email", "Send Email", Command.ITEM, 0);//GEN-LINE:|209-getter|1|209-postInit
+            sendEmailCommand = new Command(GPSLoggerLocalization.getMessage("sendEmailCommand"), GPSLoggerLocalization.getMessage("sendEmailCommand"), Command.ITEM, 0);//GEN-LINE:|209-getter|1|209-postInit
             // write post-init user code here
         }//GEN-BEGIN:|209-getter|2|
         return sendEmailCommand;
@@ -828,7 +836,7 @@ public class GPSLogger
     public Command getCancelCommand() {
         if (cancelCommand == null) {//GEN-END:|214-getter|0|214-preInit
             // write pre-init user code here
-            cancelCommand = new Command("Cancel", Command.CANCEL, 1);//GEN-LINE:|214-getter|1|214-postInit
+            cancelCommand = new Command(GPSLoggerLocalization.getMessage("cancelCommand"), Command.CANCEL, 1);//GEN-LINE:|214-getter|1|214-postInit
             // write post-init user code here
         }//GEN-BEGIN:|214-getter|2|
         return cancelCommand;
@@ -843,7 +851,7 @@ public class GPSLogger
     public ChoiceGroup getAltitudeChoiceGroup() {
         if (altitudeChoiceGroup == null) {//GEN-END:|220-getter|0|220-preInit
             // write pre-init user code here
-            altitudeChoiceGroup = new ChoiceGroup("Altitude", Choice.EXCLUSIVE);//GEN-BEGIN:|220-getter|1|220-postInit
+            altitudeChoiceGroup = new ChoiceGroup(GPSLoggerLocalization.getMessage("Altitude"), Choice.EXCLUSIVE);//GEN-BEGIN:|220-getter|1|220-postInit
             altitudeChoiceGroup.append("meters", null);
             altitudeChoiceGroup.append("feet", null);
             altitudeChoiceGroup.setSelectedFlags(new boolean[] { false, false });
@@ -863,7 +871,7 @@ public class GPSLogger
     public ChoiceGroup getLanguageChoiceGroup() {
         if (languageChoiceGroup == null) {//GEN-END:|223-getter|0|223-preInit
             // write pre-init user code here
-            languageChoiceGroup = new ChoiceGroup("Language", Choice.EXCLUSIVE);//GEN-BEGIN:|223-getter|1|223-postInit
+            languageChoiceGroup = new ChoiceGroup(GPSLoggerLocalization.getMessage("Language"), Choice.EXCLUSIVE);//GEN-BEGIN:|223-getter|1|223-postInit
             languageChoiceGroup.append("Default", null);
             languageChoiceGroup.append("English", null);
             languageChoiceGroup.append("\u0420\u0443\u0441\u0441\u043A\u0438\u0439", null);
@@ -991,7 +999,7 @@ public class GPSLogger
     public void resetOdometer() {//GEN-END:|256-entry|0|257-preAction
 
         startTimeMillis = System.currentTimeMillis();
-        getCanvas().setTotalTime("");
+        getMainScreen().setTotalTime("");
 //GEN-LINE:|256-entry|1|257-postAction
  // write post-action user code here
     }//GEN-BEGIN:|256-entry|2|
@@ -1005,7 +1013,7 @@ public class GPSLogger
     public Command getResetCommand() {
         if (resetCommand == null) {//GEN-END:|254-getter|0|254-preInit
  // write pre-init user code here
-            resetCommand = new Command("Reset", Command.OK, 0);//GEN-LINE:|254-getter|1|254-postInit
+            resetCommand = new Command(GPSLoggerLocalization.getMessage("resetCommand"), Command.OK, 0);//GEN-LINE:|254-getter|1|254-postInit
  // write post-init user code here
         }//GEN-BEGIN:|254-getter|2|
         return resetCommand;
@@ -1050,7 +1058,7 @@ public class GPSLogger
     public StringItem getSearchGPSStringItem() {
         if (searchGPSStringItem == null) {//GEN-END:|268-getter|0|268-preInit
         // write pre-init user code here
-            searchGPSStringItem = new StringItem("Search GPS...", "", Item.BUTTON);//GEN-BEGIN:|268-getter|1|268-postInit
+            searchGPSStringItem = new StringItem(GPSLoggerLocalization.getMessage("SearchGPS"), "", Item.BUTTON);//GEN-BEGIN:|268-getter|1|268-postInit
             searchGPSStringItem.addCommand(getSearchCommand());
             searchGPSStringItem.setItemCommandListener(this);
             searchGPSStringItem.setDefaultCommand(getSearchCommand());//GEN-END:|268-getter|1|268-postInit
@@ -1060,142 +1068,193 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|268-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: browseLogFolderStringItem ">//GEN-BEGIN:|270-getter|0|270-preInit
-/**
- * Returns an initiliazed instance of browseLogFolderStringItem component.
- * @return the initialized component instance
- */
-public StringItem getBrowseLogFolderStringItem() {
-    if (browseLogFolderStringItem == null) {//GEN-END:|270-getter|0|270-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: browseLogFolderStringItem ">//GEN-BEGIN:|270-getter|0|270-preInit
+    /**
+     * Returns an initiliazed instance of browseLogFolderStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getBrowseLogFolderStringItem() {
+        if (browseLogFolderStringItem == null) {//GEN-END:|270-getter|0|270-preInit
         // write pre-init user code here
-        browseLogFolderStringItem = new StringItem("Browse Folder...", "", Item.BUTTON);//GEN-BEGIN:|270-getter|1|270-postInit
-        browseLogFolderStringItem.addCommand(getBrowseCommand());
-        browseLogFolderStringItem.setItemCommandListener(this);
-        browseLogFolderStringItem.setDefaultCommand(getBrowseCommand());//GEN-END:|270-getter|1|270-postInit
+            browseLogFolderStringItem = new StringItem(GPSLoggerLocalization.getMessage("BrowseFolder"), "", Item.BUTTON);//GEN-BEGIN:|270-getter|1|270-postInit
+            browseLogFolderStringItem.addCommand(getBrowseCommand());
+            browseLogFolderStringItem.setItemCommandListener(this);
+            browseLogFolderStringItem.setDefaultCommand(getBrowseCommand());//GEN-END:|270-getter|1|270-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|270-getter|2|
-    return browseLogFolderStringItem;
-}
-//</editor-fold>//GEN-END:|270-getter|2|
+        }//GEN-BEGIN:|270-getter|2|
+        return browseLogFolderStringItem;
+    }
+    //</editor-fold>//GEN-END:|270-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: spacer ">//GEN-BEGIN:|271-getter|0|271-preInit
-/**
- * Returns an initiliazed instance of spacer component.
- * @return the initialized component instance
- */
-public Spacer getSpacer() {
-    if (spacer == null) {//GEN-END:|271-getter|0|271-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: spacer ">//GEN-BEGIN:|271-getter|0|271-preInit
+    /**
+     * Returns an initiliazed instance of spacer component.
+     * @return the initialized component instance
+     */
+    public Spacer getSpacer() {
+        if (spacer == null) {//GEN-END:|271-getter|0|271-preInit
         // write pre-init user code here
-        spacer = new Spacer(16, 1);//GEN-LINE:|271-getter|1|271-postInit
+            spacer = new Spacer(16, 1);//GEN-LINE:|271-getter|1|271-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|271-getter|2|
-    return spacer;
-}
-//</editor-fold>//GEN-END:|271-getter|2|
+        }//GEN-BEGIN:|271-getter|2|
+        return spacer;
+    }
+    //</editor-fold>//GEN-END:|271-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: spacer1 ">//GEN-BEGIN:|274-getter|0|274-preInit
-/**
- * Returns an initiliazed instance of spacer1 component.
- * @return the initialized component instance
- */
-public Spacer getSpacer1() {
-    if (spacer1 == null) {//GEN-END:|274-getter|0|274-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: spacer1 ">//GEN-BEGIN:|274-getter|0|274-preInit
+    /**
+     * Returns an initiliazed instance of spacer1 component.
+     * @return the initialized component instance
+     */
+    public Spacer getSpacer1() {
+        if (spacer1 == null) {//GEN-END:|274-getter|0|274-preInit
         // write pre-init user code here
-        spacer1 = new Spacer(16, 1);//GEN-LINE:|274-getter|1|274-postInit
+            spacer1 = new Spacer(16, 1);//GEN-LINE:|274-getter|1|274-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|274-getter|2|
-    return spacer1;
-}
-//</editor-fold>//GEN-END:|274-getter|2|
+        }//GEN-BEGIN:|274-getter|2|
+        return spacer1;
+    }
+    //</editor-fold>//GEN-END:|274-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Method: browseLogFolder ">//GEN-BEGIN:|275-entry|0|276-preAction
-/**
- * Performs an action assigned to the browseLogFolder entry-point.
- */
-public void browseLogFolder() {//GEN-END:|275-entry|0|276-preAction
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: browseLogFolder ">//GEN-BEGIN:|275-entry|0|276-preAction
+    /**
+     * Performs an action assigned to the browseLogFolder entry-point.
+     */
+    public void browseLogFolder() {//GEN-END:|275-entry|0|276-preAction
 
     switchDisplayable(null, getFileBrowser());
 //GEN-LINE:|275-entry|1|276-postAction
-}//GEN-BEGIN:|275-entry|2|
-//</editor-fold>//GEN-END:|275-entry|2|
+    }//GEN-BEGIN:|275-entry|2|
+    //</editor-fold>//GEN-END:|275-entry|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: waypointForm ">//GEN-BEGIN:|279-getter|0|279-preInit
-/**
- * Returns an initiliazed instance of waypointForm component.
- * @return the initialized component instance
- */
-public Form getWaypointForm() {
-    if (waypointForm == null) {//GEN-END:|279-getter|0|279-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: waypointForm ">//GEN-BEGIN:|279-getter|0|279-preInit
+    /**
+     * Returns an initiliazed instance of waypointForm component.
+     * @return the initialized component instance
+     */
+    public Form getWaypointForm() {
+        if (waypointForm == null) {//GEN-END:|279-getter|0|279-preInit
         // write pre-init user code here
-        waypointForm = new Form("Waypoint", new Item[] { getWaypointNameTextField() });//GEN-BEGIN:|279-getter|1|279-postInit
-        waypointForm.addCommand(getCancelWaypointCommand());
-        waypointForm.addCommand(getSubmitWaypointCommand());
-        waypointForm.setCommandListener(this);//GEN-END:|279-getter|1|279-postInit
+            waypointForm = new Form("Waypoint", new Item[] { getWaypointNameTextField() });//GEN-BEGIN:|279-getter|1|279-postInit
+            waypointForm.addCommand(getCancelWaypointCommand());
+            waypointForm.addCommand(getSubmitWaypointCommand());
+            waypointForm.addCommand(getTakePhotoCommand());
+            waypointForm.setCommandListener(this);//GEN-END:|279-getter|1|279-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|279-getter|2|
-    return waypointForm;
-}
-//</editor-fold>//GEN-END:|279-getter|2|
+        }//GEN-BEGIN:|279-getter|2|
+        return waypointForm;
+    }
+    //</editor-fold>//GEN-END:|279-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: waypointNameTextField ">//GEN-BEGIN:|280-getter|0|280-preInit
-/**
- * Returns an initiliazed instance of waypointNameTextField component.
- * @return the initialized component instance
- */
-public TextField getWaypointNameTextField() {
-    if (waypointNameTextField == null) {//GEN-END:|280-getter|0|280-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: waypointNameTextField ">//GEN-BEGIN:|280-getter|0|280-preInit
+    /**
+     * Returns an initiliazed instance of waypointNameTextField component.
+     * @return the initialized component instance
+     */
+    public TextField getWaypointNameTextField() {
+        if (waypointNameTextField == null) {//GEN-END:|280-getter|0|280-preInit
         // write pre-init user code here
-        waypointNameTextField = new TextField("Name:", "", 32, TextField.ANY);//GEN-LINE:|280-getter|1|280-postInit
+            waypointNameTextField = new TextField("Name:", "", 32, TextField.ANY);//GEN-LINE:|280-getter|1|280-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|280-getter|2|
-    return waypointNameTextField;
-}
-//</editor-fold>//GEN-END:|280-getter|2|
+        }//GEN-BEGIN:|280-getter|2|
+        return waypointNameTextField;
+    }
+    //</editor-fold>//GEN-END:|280-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelWaypointCommand ">//GEN-BEGIN:|281-getter|0|281-preInit
-/**
- * Returns an initiliazed instance of cancelWaypointCommand component.
- * @return the initialized component instance
- */
-public Command getCancelWaypointCommand() {
-    if (cancelWaypointCommand == null) {//GEN-END:|281-getter|0|281-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelWaypointCommand ">//GEN-BEGIN:|281-getter|0|281-preInit
+    /**
+     * Returns an initiliazed instance of cancelWaypointCommand component.
+     * @return the initialized component instance
+     */
+    public Command getCancelWaypointCommand() {
+        if (cancelWaypointCommand == null) {//GEN-END:|281-getter|0|281-preInit
         // write pre-init user code here
-        cancelWaypointCommand = new Command("Cancel", Command.BACK, 0);//GEN-LINE:|281-getter|1|281-postInit
+            cancelWaypointCommand = new Command("Cancel", Command.BACK, 0);//GEN-LINE:|281-getter|1|281-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|281-getter|2|
-    return cancelWaypointCommand;
-}
-//</editor-fold>//GEN-END:|281-getter|2|
+        }//GEN-BEGIN:|281-getter|2|
+        return cancelWaypointCommand;
+    }
+    //</editor-fold>//GEN-END:|281-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: submitWaypointCommand ">//GEN-BEGIN:|283-getter|0|283-preInit
-/**
- * Returns an initiliazed instance of submitWaypointCommand component.
- * @return the initialized component instance
- */
-public Command getSubmitWaypointCommand() {
-    if (submitWaypointCommand == null) {//GEN-END:|283-getter|0|283-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: submitWaypointCommand ">//GEN-BEGIN:|283-getter|0|283-preInit
+    /**
+     * Returns an initiliazed instance of submitWaypointCommand component.
+     * @return the initialized component instance
+     */
+    public Command getSubmitWaypointCommand() {
+        if (submitWaypointCommand == null) {//GEN-END:|283-getter|0|283-preInit
         // write pre-init user code here
-        submitWaypointCommand = new Command("Save", Command.OK, 0);//GEN-LINE:|283-getter|1|283-postInit
+            submitWaypointCommand = new Command(GPSLoggerLocalization.getMessage("submitWaypointCommand"), Command.OK, 0);//GEN-LINE:|283-getter|1|283-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|283-getter|2|
-    return submitWaypointCommand;
-}
-//</editor-fold>//GEN-END:|283-getter|2|
+        }//GEN-BEGIN:|283-getter|2|
+        return submitWaypointCommand;
+    }
+    //</editor-fold>//GEN-END:|283-getter|2|
 
-//<editor-fold defaultstate="collapsed" desc=" Generated Getter: screenCommand ">//GEN-BEGIN:|289-getter|0|289-preInit
-/**
- * Returns an initiliazed instance of screenCommand component.
- * @return the initialized component instance
- */
-public Command getScreenCommand() {
-    if (screenCommand == null) {//GEN-END:|289-getter|0|289-preInit
+
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: takePhoto ">//GEN-BEGIN:|292-entry|0|293-preAction
+    /**
+     * Performs an action assigned to the takePhoto entry-point.
+     */
+    public void takePhoto() {//GEN-END:|292-entry|0|293-preAction
+    ///take a photo here
+//GEN-LINE:|292-entry|1|293-postAction
+///tmp:
+Display.getDisplay(this).vibrate(200);
+///
+    }//GEN-BEGIN:|292-entry|2|
+    //</editor-fold>//GEN-END:|292-entry|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: takePhotoCommand ">//GEN-BEGIN:|290-getter|0|290-preInit
+    /**
+     * Returns an initiliazed instance of takePhotoCommand component.
+     * @return the initialized component instance
+     */
+    public Command getTakePhotoCommand() {
+        if (takePhotoCommand == null) {//GEN-END:|290-getter|0|290-preInit
         // write pre-init user code here
-        screenCommand = new Command("Graphics Mode", Command.SCREEN, 0);//GEN-LINE:|289-getter|1|289-postInit
+            takePhotoCommand = new Command(GPSLoggerLocalization.getMessage("takePhotoCommand"), Command.OK, 0);//GEN-LINE:|290-getter|1|290-postInit
         // write post-init user code here
-    }//GEN-BEGIN:|289-getter|2|
-    return screenCommand;
-}
-//</editor-fold>//GEN-END:|289-getter|2|
+        }//GEN-BEGIN:|290-getter|2|
+        return takePhotoCommand;
+    }
+    //</editor-fold>//GEN-END:|290-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: stopCommand ">//GEN-BEGIN:|295-getter|0|295-preInit
+    /**
+     * Returns an initiliazed instance of stopCommand component.
+     * @return the initialized component instance
+     */
+    public Command getStopCommand() {
+        if (stopCommand == null) {//GEN-END:|295-getter|0|295-preInit
+            // write pre-init user code here
+            stopCommand = new Command(GPSLoggerLocalization.getMessage("stopCommand"), GPSLoggerLocalization.getMessage("stopCommand"), Command.OK, 0);//GEN-LINE:|295-getter|1|295-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|295-getter|2|
+        return stopCommand;
+    }
+    //</editor-fold>//GEN-END:|295-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: stopTrack ">//GEN-BEGIN:|296-entry|0|297-preAction
+    /**
+     * Performs an action assigned to the stopTrack entry-point.
+     */
+    public void stopTrack() {//GEN-END:|296-entry|0|297-preAction
+        try {
+            closeIndividualWaypointLog();
+
+            finishTrackLog();
+            // (do not close the whole track log at this time!)
+
+            closeGeoLocator();
+        } catch (IOException e) {
+            handleException(e, introForm);
+        }
+//GEN-LINE:|296-entry|1|297-postAction
+        switchDisplayable(null, introForm);
+    }//GEN-BEGIN:|296-entry|2|
+    //</editor-fold>//GEN-END:|296-entry|2|
 
     public FileBrowser getFileBrowser() {
         if (fileBrowser == null) {
@@ -1227,23 +1286,14 @@ public Command getScreenCommand() {
      */
     public void exitMIDlet() {
 
-/// MAKE SURE THE LOG FILE IS PROPERLY CLOSED!!! NO MORE TRUNCATED DATA LOGS!!!
-/*
+        //exit gracefully, make sure all connections are closed
         try {
-            ///shutDown();
-            closeTrackLog();
-            closeWaypointLog();
+            shutDown();
         } catch (IOException e) {
-            // just ignore, no time to do anything more now
+            // too late to handle this now...
         }
-*/
+        
         mustBeTerminated = true;
-
-        try {
-            Thread.sleep(2000); // wait a little...
-        } catch (InterruptedException e) {
-            // ignore
-        }
 
         switchDisplayable(null, null);
         destroyApp(true);
@@ -1278,16 +1328,10 @@ public Command getScreenCommand() {
      * @param unconditional if true, then the MIDlet has to be unconditionally terminated and all resources has to be released.
      */
     public void destroyApp(boolean unconditional) {
-        //exit gracefully, make sure all connections are closed
-        try {
-            shutDown();
-        } catch (IOException e) {
-            // too late to handle this now...
-        }
     }
     
-    public GPSScreen getCanvas() {
-        return dataScreen;
+    public GPSScreen getMainScreen() {
+        return mainScreen;
     }
 
     void loadSettings() {
@@ -1386,7 +1430,7 @@ public Command getScreenCommand() {
                           "Restarting..."
                         : "Starting...");
                 
-                System.out.println(getCanvas().getTitle());
+                System.out.println(getMainScreen().getTitle());
         
                 if (geoLocator == null) { // connect to the GPS if not connected yet
                     boolean tryJSR179 = false;
@@ -1402,48 +1446,21 @@ public Command getScreenCommand() {
 
                     if (tryJSR179) {
 /// check JSR-179 availability here!
-
-///       Criteria criteria = new Criteria();
-//        criteria.setSpeedAndCourseRequired(true);
-//        criteria.setAltitudeRequired(true);
-//        criteria.setCostAllowed(true);
-
-                        geoLocator = new JSR179GeoLocator();
+                        geoLocator = new JSR179GeoLocator(); /// pass Criteria?
                     }
 
                     mustReconnectToGPS = false; // drop the flag
                 }
             
-                Instant now = new Instant(); // reflect the start time in the log file name
-                
-                if (trackLogFile == null) { // if no log file is being written, make a connection
-                    String logFolder = settings.getLogFolder();
-                    if (!logFolder.endsWith("/")) {
-                        logFolder = logFolder + "/"; // make sure we have the trailer here
-                    }
-            
-                    String logFilePath = logFolder
-                        + "GPSLogger-"
-                        + now.getDateId()
-                        + "-"
-                        + now.getTimeId()
-                        + ".gpx";
-                    trackLogFile = new GPSLogFile(logFilePath);
-                }
-            
-                OutputStream trackLogStream = trackLogFile.getOutputStream();
-                trackLogWriter = new GPXWriter(trackLogStream);
-                trackLogWriter.writeHeader("GPSLogger track log");
-                trackLogWriter.writeTrackHeader("GPSLogger track");
-                trackLogWriter.writeTrackSegmentHeader();
-            
+                startTrackLog();
+
                 screen.setTitle(null); // remove the title when started
 
                 resetOdometer();
                 
                 // show initial screen
-                getCanvas().setSatelliteInfo("Acquiring location, please wait...");
-                getCanvas().forceRepaint();
+                getMainScreen().setSatelliteInfo("Acquiring location, please wait...");
+                getMainScreen().forceRepaint();
 
                 // we will start receiving notifications after this call:
                 geoLocator.setLocationListener(this);
@@ -1453,7 +1470,6 @@ public Command getScreenCommand() {
                 } while (!mustBeTerminated && !mustReconnectToGPS); // or until user decides to quit?
             
                 if (mustReconnectToGPS) {
-///                    locator.wakeUp();
                     try {
                         geoLocator.close();
                     } catch (Exception e) {
@@ -1534,69 +1550,147 @@ public Command getScreenCommand() {
         }
     }
     
-    void writeCurrentPointToMarksLog(String comments)
+    void saveCurrentWaypoint(String comments)
                 throws IOException {
         
-        if (waypointLogFile == null) { // if no log file is being written, make a connection
-            String logFolder = settings.getLogFolder();
-            if (!logFolder.endsWith("/")) {
-                logFolder = logFolder + "/"; // make sure we have the trailer here
+        synchronized (waypointLogLock) {
+            if (waypointLogFile == null) { // if no log file is being written, make a connection
+                String logFolder = settings.getLogFolder();
+                if (!logFolder.endsWith("/")) {
+                    logFolder = logFolder + "/"; // make sure we have the trailer here
+                }
+
+                Instant now = new Instant(); // reflect the time in the log file name
+
+                String logFilePath = logFolder
+                    + "GPSLogger-"
+                    + now.getDateId()
+                    + "-"
+                    + now.getTimeId()
+                    + "-waypoints.gpx";
+                waypointLogFile = new GPSLogFile(logFilePath);
+                waypointLogWriter = new GPXWriter(waypointLogFile.getOutputStream());
+                waypointLogWriter.writeHeader("GPSLogger waypoints (" + now.getISO8601UTCDateTimeId() + ")");
+                waypointLogWriter.write("\n");
             }
 
-            Instant now = new Instant(); // reflect the time in the log file name
+            if (waypointLogWriter != null) {
+                GeoLocation waypoint = geoLocator.getLocation();
+                waypoint.setName(comments);
 
-            String logFilePath = logFolder
-                + "GPSLogger-"
-                + now.getDateId()
-                + "-"
-                + now.getTimeId()
-                + "-points.gpx";
-            waypointLogFile = new GPSLogFile(logFilePath);
-            waypointLogWriter = new GPXWriter(waypointLogFile.getOutputStream());
-            waypointLogWriter.writeHeader("GPSLogger waypoints");
-        }
-        
-        if (waypointLogWriter != null) {
-            GeoLocation waypoint = geoLocator.getLocation();
-            waypoint.setName(comments);
-            waypointLogWriter.writeWaypoint(waypoint);
+                // add this waypoint to our log (it will also be written out at the end of the track)
+                if (waypoints == null) {
+                    waypoints = new Vector();
+                }
+
+                waypoints.addElement(waypoint);
+
+                waypointLogWriter.writeWaypoint(waypoint);
+                waypointLogWriter.write("\n");
+            }
         }
     }
 
-    synchronized void closeWaypointLog()
-            throws IOException {
-        if (waypointLogWriter != null) {
-            waypointLogWriter.writeFooter();
-            waypointLogWriter.flush();
-        }
-
-        if (waypointLogFile != null) {
-            waypointLogFile.close();
-        }
-
-        waypointLogWriter = null;
-        waypointLogFile = null;
-    }
-    
-    synchronized void closeTrackLog()
+    void closeIndividualWaypointLog()
             throws IOException {
 
-        if (trackLogWriter != null) {
-            trackLogWriter.writeTrackSegmentFooter();
-            trackLogWriter.writeTrackFooter();
-            trackLogWriter.writeFooter();
-            trackLogWriter.flush();
-        }
+        synchronized (waypointLogLock) {
+            if (waypointLogWriter != null) {
+                waypointLogWriter.writeFooter();
+                waypointLogWriter.flush();
+                waypointLogWriter.close();
+                waypointLogWriter = null;
+            }
 
-        if (trackLogFile != null) {
-            trackLogFile.close();
+            if (waypointLogFile != null) {
+                waypointLogFile.close();
+                waypointLogFile = null;
+            }
         }
-
-        trackLogWriter = null;
-        trackLogFile = null;
     }
     
-    synchronized void closeGeoLocator()
+    void startTrackLog()
+            throws IOException {
+
+        synchronized (trackLogLock) {
+            Instant now = new Instant(); // reflect the start time in the log file name
+
+            if (trackLogFile == null) { // if no log file is being written, make a connection
+                String logFolder = settings.getLogFolder();
+                if (!logFolder.endsWith("/")) {
+                    logFolder = logFolder + "/"; // make sure we have the trailer here
+                }
+
+                String logFilePath = logFolder
+                    + "GPSLogger-"
+                    + now.getDateId()
+                    + "-"
+                    + now.getTimeId()
+                    + ".gpx";
+                trackLogFile = new GPSLogFile(logFilePath);
+            }
+
+            if (trackLogWriter == null) {
+                trackLogWriter = new GPXWriter(trackLogFile.getOutputStream());
+                trackLogWriter.writeHeader("GPSLogger track log (" + now.getISO8601UTCDateTimeId() + ")");
+                trackLogWriter.write("\n");
+            }
+
+            // either way, let's create a new track:
+            trackLogWriter.writeTrackHeader("GPSLogger track (" + now.getISO8601UTCDateTimeId() + ")");
+            trackLogWriter.write("\n");
+
+            trackLogWriter.writeTrackSegmentHeader();
+        }
+    }
+
+    void finishTrackLog()
+            throws IOException {
+
+        synchronized (trackLogLock) {
+            if (trackLogWriter != null) {
+                trackLogWriter.writeTrackSegmentFooter();
+                trackLogWriter.write("\n");
+
+                trackLogWriter.writeTrackFooter();
+                trackLogWriter.write("\n");
+
+                // save all of the remembered waypoints in the general track log,
+                // after the track data:
+                if (waypoints != null) {
+                    int waypointCount = waypoints.size();
+                    for (int i = 0; i < waypointCount; i++) {
+                        GeoLocation waypoint = (GeoLocation)(waypoints.elementAt(i));
+                        trackLogWriter.writeWaypoint(waypoint);
+                        trackLogWriter.write("\n");
+                    }
+                    waypoints.removeAllElements(); // clean it up, it's saved
+                }
+
+                trackLogWriter.flush();
+            }
+        }
+    }
+    
+    void closeTrackLogFile()
+            throws IOException {
+
+        synchronized (trackLogLock) {
+            if (trackLogWriter != null) {
+                trackLogWriter.writeFooter();
+                trackLogWriter.flush();
+                trackLogWriter.close();
+                trackLogWriter = null;
+            }
+
+            if (trackLogFile != null) {
+                trackLogFile.close();
+                trackLogFile = null;
+            }
+        }
+    }
+
+    void closeGeoLocator()
             throws IOException {
         if (geoLocator != null) {
             geoLocator.close();
@@ -1606,8 +1700,9 @@ public Command getScreenCommand() {
 
     synchronized void shutDown()
             throws IOException {
-        closeWaypointLog();
-        closeTrackLog();
+
+        closeIndividualWaypointLog();
+        closeTrackLogFile();
         closeGeoLocator();
     }
 
@@ -1615,25 +1710,32 @@ public Command getScreenCommand() {
 
         if (location == null) {
             System.out.println("Null location received!");
+/// update screen: alert user of wrong data somehow
+///... show data state attribute (validity?) on the screen
+getMainScreen().setSatelliteInfo("(Invalid location data)");
+getMainScreen().repaint();
+///
             return;
         }
 
         System.out.println(location);
 
-        if (trackLogWriter != null) {
-            try {
-                trackLogWriter.writeTrackpoint(location);
-            } catch (IOException e) {
-                handleException(e, getIntroForm());
+        synchronized (trackLogLock) {
+            if (trackLogWriter != null) {
+                try {
+                    trackLogWriter.writeTrackpoint(location);
+                } catch (IOException e) {
+                    handleException(e, getIntroForm());
+                }
             }
         }
 
-        getCanvas().setLocation(location);
+        getMainScreen().setLocation(location);
         long totalTimeMillis = System.currentTimeMillis() - startTimeMillis;
         Instant totalTime = new Instant(totalTimeMillis);
-        getCanvas().setTotalTime(totalTime.getISO8601TimeId());
+        getMainScreen().setTotalTime(totalTime.getISO8601UTCTimeId());
 
-        getCanvas().repaint();
+        getMainScreen().repaint();
     }
 
     public void handleLocatorException(Exception e) {

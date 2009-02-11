@@ -27,13 +27,18 @@
                     <Property name="start" typeID="C#EntryPointStartEventSource" value="R257"/>
                     <Component componentID="257" typeID="C#EntryPointStartEventSource"/>
                 </Component>
+                <Component componentID="292" typeID="C#EntryPoint">
+                    <Property name="methodName" typeID="Pjava.lang.String" value="VtakePhoto"/>
+                    <Property name="start" typeID="C#EntryPointStartEventSource" value="R293"/>
+                    <Component componentID="293" typeID="C#EntryPointStartEventSource"/>
+                </Component>
                 <Component componentID="82" typeID="C#EntryPoint">
                     <Property name="methodName" typeID="Pjava.lang.String" value="VsearchDevices"/>
                     <Property name="start" typeID="C#EntryPointStartEventSource" value="R83"/>
                     <Component componentID="83" typeID="C#EntryPointStartEventSource"/>
                 </Component>
                 <Component componentID="108" typeID="C#EntryPoint">
-                    <Property name="methodName" typeID="Pjava.lang.String" value="Vstart"/>
+                    <Property name="methodName" typeID="Pjava.lang.String" value="VstartTrack"/>
                     <Property name="start" typeID="C#EntryPointStartEventSource" value="R109"/>
                     <Component componentID="109" typeID="C#EntryPointStartEventSource"/>
                 </Component>
@@ -68,6 +73,11 @@
                         </Component>
                     </Component>
                 </Component>
+                <Component componentID="296" typeID="C#EntryPoint">
+                    <Property name="methodName" typeID="Pjava.lang.String" value="VstopTrack"/>
+                    <Property name="start" typeID="C#EntryPointStartEventSource" value="R297"/>
+                    <Component componentID="297" typeID="C#EntryPointStartEventSource"/>
+                </Component>
             </Component>
             <Component componentID="6" typeID="C#ControllersCategory">
                 <Component componentID="7" typeID="C#CommandListener"/>
@@ -77,7 +87,7 @@
             <Component componentID="8" typeID="C#CommandsCategory">
                 <Component componentID="283" typeID="Cjavax.microedition.lcdui.Command">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VsubmitWaypointCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VSave"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;submitWaypointCommand&quot;)"/>
                     <Property name="type" typeID="Pint" value="V4"/>
                 </Component>
                 <Component componentID="281" typeID="Cjavax.microedition.lcdui.Command">
@@ -87,7 +97,7 @@
                 </Component>
                 <Component componentID="18" typeID="Cjavax.microedition.lcdui.Command">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VexitCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VExit"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;exitCommand&quot;)"/>
                     <Property name="type" typeID="Pint" value="V7"/>
                     <Property name="priority" typeID="Pint" value="V2"/>
                 </Component>
@@ -109,10 +119,10 @@
                     <Property name="priority" typeID="Pint" value="V0"/>
                     <Property name="ordinary" typeID="Pboolean" value="Vfalse"/>
                 </Component>
-                <Component componentID="289" typeID="Cjavax.microedition.lcdui.Command">
-                    <Property name="instanceName" typeID="Pjava.lang.String" value="VscreenCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VGraphics Mode"/>
-                    <Property name="type" typeID="Pint" value="V1"/>
+                <Component componentID="290" typeID="Cjavax.microedition.lcdui.Command">
+                    <Property name="instanceName" typeID="Pjava.lang.String" value="VtakePhotoCommand"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;takePhotoCommand&quot;)"/>
+                    <Property name="type" typeID="Pint" value="V4"/>
                 </Component>
                 <Component componentID="53" typeID="C#SMSComposerSendCommand">
                     <Property name="label" typeID="Pjava.lang.String" value="VSend"/>
@@ -128,68 +138,69 @@
                 </Component>
                 <Component componentID="101" typeID="Cjavax.microedition.lcdui.Command">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VsearchCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VSearch"/>
-                    <Property name="longLabel" typeID="Pjava.lang.String" value="VSearch GPS device"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;searchCommand&quot;)"/>
+                    <Property name="longLabel" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;searchCommand&quot;)"/>
                     <Property name="type" typeID="Pint" value="V4"/>
                     <Property name="priority" typeID="Pint" value="V3"/>
                 </Component>
                 <Component componentID="142" typeID="Cjavax.microedition.lcdui.Command">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VstartCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VStart"/>
-                    <Property name="longLabel" typeID="Pjava.lang.String" value="VStart/connect"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;startCommand&quot;)"/>
+                    <Property name="longLabel" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;startCommand&quot;)"/>
                     <Property name="type" typeID="Pint" value="V4"/>
                     <Property name="priority" typeID="Pint" value="V0"/>
                 </Component>
                 <Component componentID="152" typeID="Cjavax.microedition.lcdui.Command">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VsettingsCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VSettings"/>
-                    <Property name="longLabel" typeID="Pjava.lang.String" value="VEdit settings"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;settingsCommand&quot;)"/>
+                    <Property name="longLabel" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;settingsCommand&quot;)"/>
                     <Property name="type" typeID="Pint" value="V1"/>
                     <Property name="priority" typeID="Pint" value="V1"/>
                 </Component>
                 <Component componentID="145" typeID="Cjavax.microedition.lcdui.Command">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VhelpCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VHelp"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;helpCommand&quot;)"/>
                     <Property name="type" typeID="Pint" value="V5"/>
                     <Property name="priority" typeID="Pint" value="V5"/>
                 </Component>
                 <Component componentID="149" typeID="Cjavax.microedition.lcdui.Command">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VbackCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VBack"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;backCommand&quot;)"/>
                     <Property name="type" typeID="Pint" value="V2"/>
                     <Property name="priority" typeID="Pint" value="V1"/>
                 </Component>
                 <Component componentID="186" typeID="Cjavax.microedition.lcdui.Command">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VsaveSettingsCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VSave"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;saveSettingsCommand&quot;)"/>
                     <Property name="type" typeID="Pint" value="V4"/>
                     <Property name="priority" typeID="Pint" value="V0"/>
                 </Component>
                 <Component componentID="178" typeID="Cjavax.microedition.lcdui.Command">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VbrowseCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VBrowse"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;browseCommand&quot;)"/>
                     <Property name="type" typeID="Pint" value="V4"/>
                 </Component>
                 <Component componentID="195" typeID="Cjavax.microedition.lcdui.Command">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VmarkCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VMark"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;markCommand&quot;)"/>
+                    <Property name="longLabel" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;markCommandLong&quot;)"/>
                     <Property name="type" typeID="Pint" value="V4"/>
                 </Component>
                 <Component componentID="214" typeID="Cjavax.microedition.lcdui.Command">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VcancelCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VCancel"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;cancelCommand&quot;)"/>
                     <Property name="type" typeID="Pint" value="V3"/>
                     <Property name="priority" typeID="Pint" value="V1"/>
                 </Component>
                 <Component componentID="209" typeID="Cjavax.microedition.lcdui.Command">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VsendEmailCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VEmail"/>
-                    <Property name="longLabel" typeID="Pjava.lang.String" value="VSend Email"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;sendEmailCommand&quot;)"/>
+                    <Property name="longLabel" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;sendEmailCommand&quot;)"/>
                     <Property name="type" typeID="Pint" value="V8"/>
                 </Component>
                 <Component componentID="254" typeID="Cjavax.microedition.lcdui.Command">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VresetCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="VReset"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;resetCommand&quot;)"/>
                     <Property name="type" typeID="Pint" value="V4"/>
                 </Component>
                 <Component componentID="242" typeID="Cjavax.microedition.lcdui.Command">
@@ -197,11 +208,17 @@
                     <Property name="label" typeID="Pjava.lang.String" value="VOk"/>
                     <Property name="type" typeID="Pint" value="V4"/>
                 </Component>
+                <Component componentID="295" typeID="Cjavax.microedition.lcdui.Command">
+                    <Property name="instanceName" typeID="Pjava.lang.String" value="VstopCommand"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;stopCommand&quot;)"/>
+                    <Property name="longLabel" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;stopCommand&quot;)"/>
+                    <Property name="type" typeID="Pint" value="V4"/>
+                </Component>
             </Component>
             <Component componentID="10" typeID="C#DisplayablesCategory">
                 <Component componentID="279" typeID="Cjavax.microedition.lcdui.Form">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VwaypointForm"/>
-                    <Property name="commands" typeID="1C#CommandEventSource" value="A2:4_R2824_R284"/>
+                    <Property name="commands" typeID="1C#CommandEventSource" value="A3:4_R2824_R2844_R291"/>
                     <Property name="title" typeID="Pjava.lang.String" value="VWaypoint"/>
                     <Property name="commandListener" typeID="C#CommandListener" value="R7"/>
                     <Property name="items" typeID="1Cjavax.microedition.lcdui.Item" value="A1:4_R280"/>
@@ -224,6 +241,15 @@
                         <Component componentID="287" typeID="C#MethodPointEventHandler">
                             <Property name="eventSource" typeID="C#EventSource" value="R284"/>
                             <Property name="methodPoint" typeID="C#MethodPoint" value="R197"/>
+                        </Component>
+                    </Component>
+                    <Component componentID="291" typeID="C#CommandEventSource">
+                        <Property name="eventHandler" typeID="C#EventHandler" value="R294"/>
+                        <Property name="displayable" typeID="Cjavax.microedition.lcdui.Displayable" value="R279"/>
+                        <Property name="command" typeID="Cjavax.microedition.lcdui.Command" value="R290"/>
+                        <Component componentID="294" typeID="C#MethodPointEventHandler">
+                            <Property name="eventSource" typeID="C#EventSource" value="R291"/>
+                            <Property name="methodPoint" typeID="C#MethodPoint" value="R292"/>
                         </Component>
                     </Component>
                 </Component>
@@ -326,8 +352,8 @@
                 </Component>
                 <Component componentID="141" typeID="Cjavax.microedition.lcdui.Form">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VsettingsForm"/>
-                    <Property name="commands" typeID="1C#CommandEventSource" value="A3:4_R2024_R2154_R246"/>
-                    <Property name="title" typeID="Pjava.lang.String" value="VSettings"/>
+                    <Property name="commands" typeID="1C#CommandEventSource" value="A2:4_R2024_R215"/>
+                    <Property name="title" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;Settings&quot;)"/>
                     <Property name="commandListener" typeID="C#CommandListener" value="R7"/>
                     <Property name="items" typeID="1Cjavax.microedition.lcdui.Item" value="A10:4_R1614_R2684_R2744_R1604_R2704_R2714_R1574_R2204_R1634_R223"/>
                     <Component componentID="274" typeID="Cjavax.microedition.lcdui.Spacer">
@@ -337,7 +363,7 @@
                     </Component>
                     <Component componentID="270" typeID="Cjavax.microedition.lcdui.StringItem">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="VbrowseLogFolderStringItem"/>
-                        <Property name="label" typeID="Pjava.lang.String" value="VBrowse Folder..."/>
+                        <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;BrowseFolder&quot;)"/>
                         <Property name="commands" typeID="1C#ItemCommandEventSource" value="A1:4_R272"/>
                         <Property name="defaultCommand" typeID="C#ItemCommandEventSource" value="R272"/>
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
@@ -360,7 +386,7 @@
                     </Component>
                     <Component componentID="268" typeID="Cjavax.microedition.lcdui.StringItem">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="VsearchGPSStringItem"/>
-                        <Property name="label" typeID="Pjava.lang.String" value="VSearch GPS..."/>
+                        <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;SearchGPS&quot;)"/>
                         <Property name="commands" typeID="1C#ItemCommandEventSource" value="A1:4_R269"/>
                         <Property name="defaultCommand" typeID="C#ItemCommandEventSource" value="R269"/>
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
@@ -378,7 +404,7 @@
                     </Component>
                     <Component componentID="157" typeID="Cjavax.microedition.lcdui.ChoiceGroup">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="VcoordinateChoiceGroup"/>
-                        <Property name="label" typeID="Pjava.lang.String" value="VCoordinates"/>
+                        <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;Coordinates&quot;)"/>
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
                         <Property name="choiceType" typeID="Pint" value="V1"/>
                         <Property name="elements" typeID="1C#ChoiceElement" value="A3:4_R2194_R1594_R158"/>
@@ -394,7 +420,7 @@
                     </Component>
                     <Component componentID="163" typeID="Cjavax.microedition.lcdui.ChoiceGroup">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="VspeedChoiceGroup"/>
-                        <Property name="label" typeID="Pjava.lang.String" value="VSpeed"/>
+                        <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;Speed&quot;)"/>
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
                         <Property name="choiceType" typeID="Pint" value="V1"/>
                         <Property name="elements" typeID="1C#ChoiceElement" value="A3:4_R1644_R1654_R166"/>
@@ -410,7 +436,7 @@
                     </Component>
                     <Component componentID="161" typeID="Cjavax.microedition.lcdui.TextField">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="VgpsDeviceTextField"/>
-                        <Property name="label" typeID="Pjava.lang.String" value="VGPS device"/>
+                        <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;GPSDevice&quot;)"/>
                         <Property name="commands" typeID="1C#ItemCommandEventSource" value="A1:4_R236"/>
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
                         <Property name="text" typeID="Pjava.lang.String" value="V"/>
@@ -428,7 +454,7 @@
                     </Component>
                     <Component componentID="160" typeID="Cjavax.microedition.lcdui.TextField">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="VlogFolderTextField"/>
-                        <Property name="label" typeID="Pjava.lang.String" value="VLog folder"/>
+                        <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;LogFolder&quot;)"/>
                         <Property name="commands" typeID="1C#ItemCommandEventSource" value="A1:4_R181"/>
                         <Property name="defaultCommand" typeID="C#ItemCommandEventSource" value="R181"/>
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
@@ -456,7 +482,7 @@
                     </Component>
                     <Component componentID="220" typeID="Cjavax.microedition.lcdui.ChoiceGroup">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="ValtitudeChoiceGroup"/>
-                        <Property name="label" typeID="Pjava.lang.String" value="VAltitude"/>
+                        <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;Altitude&quot;)"/>
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
                         <Property name="choiceType" typeID="Pint" value="V1"/>
                         <Property name="elements" typeID="1C#ChoiceElement" value="A2:4_R2214_R222"/>
@@ -469,7 +495,7 @@
                     </Component>
                     <Component componentID="223" typeID="Cjavax.microedition.lcdui.ChoiceGroup">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="VlanguageChoiceGroup"/>
-                        <Property name="label" typeID="Pjava.lang.String" value="VLanguage"/>
+                        <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;Language&quot;)"/>
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
                         <Property name="choiceType" typeID="Pint" value="V1"/>
                         <Property name="elements" typeID="1C#ChoiceElement" value="A3:4_R2244_R2254_R226"/>
@@ -492,15 +518,6 @@
                             <Property name="displayable" typeID="Cjavax.microedition.lcdui.Displayable" value="R125"/>
                         </Component>
                     </Component>
-                    <Component componentID="246" typeID="C#CommandEventSource">
-                        <Property name="eventHandler" typeID="C#EventHandler" value="R248"/>
-                        <Property name="displayable" typeID="Cjavax.microedition.lcdui.Displayable" value="R141"/>
-                        <Property name="command" typeID="Cjavax.microedition.lcdui.Command" value="R18"/>
-                        <Component componentID="248" typeID="C#ExitMidletEventHandler">
-                            <Property name="eventSource" typeID="C#EventSource" value="R246"/>
-                            <Property name="mobileDevice" typeID="C#MobileDevice" value="R2"/>
-                        </Component>
-                    </Component>
                 </Component>
                 <Component componentID="147" typeID="Cjavax.microedition.lcdui.Form">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VhelpForm"/>
@@ -518,7 +535,7 @@
                     </Component>
                     <Component componentID="191" typeID="Cjavax.microedition.lcdui.StringItem">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="VstringItem1"/>
-                        <Property name="label" typeID="Pjava.lang.String" value="V"/>
+                        <Property name="label" typeID="Pjava.lang.String" value="V(C) 2007-2009 "/>
                         <Property name="layout" typeID="Pint" value="V1809"/>
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
                         <Property name="text" typeID="Pjava.lang.String" value="VThis midlet was written by Serge Perinsky"/>
@@ -570,21 +587,23 @@
         </Component>
     </Document>
     <FlowScene version="1">
+        <Node componentID="256" descriptorID="componentNode256" x="1159" y="648"/>
+        <Node componentID="141" descriptorID="componentNode141" x="505" y="343"/>
+        <Node componentID="188" descriptorID="componentNode188" x="34" y="313"/>
+        <Node componentID="147" descriptorID="componentNode147" x="955" y="712"/>
         <Node componentID="183" descriptorID="componentNode183" x="34" y="712"/>
-        <Node componentID="227" descriptorID="componentNode227" x="266" y="24"/>
+        <Node componentID="211" descriptorID="componentNode211" x="514" y="104"/>
+        <Node componentID="292" descriptorID="componentNode292" x="47" y="622"/>
+        <Node componentID="296" descriptorID="componentNode296" x="40" y="178"/>
+        <Node componentID="125" descriptorID="componentNode125" x="744" y="500"/>
+        <Node componentID="2" descriptorID="componentNode2" x="955" y="313"/>
+        <Node componentID="233" descriptorID="componentNode233" x="159" y="100"/>
         <Node componentID="82" descriptorID="componentNode82" x="504" y="14"/>
         <Node componentID="275" descriptorID="componentNode275" x="64" y="470"/>
-        <Node componentID="197" descriptorID="componentNode197" x="772" y="66"/>
-        <Node componentID="141" descriptorID="componentNode141" x="505" y="343"/>
-        <Node componentID="85" descriptorID="componentNode85" x="272" y="154"/>
-        <Node componentID="256" descriptorID="componentNode256" x="1159" y="648"/>
-        <Node componentID="2" descriptorID="componentNode2" x="955" y="313"/>
-        <Node componentID="188" descriptorID="componentNode188" x="34" y="313"/>
         <Node componentID="108" descriptorID="componentNode108" x="34" y="32"/>
-        <Node componentID="125" descriptorID="componentNode125" x="744" y="500"/>
-        <Node componentID="233" descriptorID="componentNode233" x="159" y="100"/>
+        <Node componentID="85" descriptorID="componentNode85" x="272" y="154"/>
         <Node componentID="279" descriptorID="componentNode279" x="364" y="679"/>
-        <Node componentID="211" descriptorID="componentNode211" x="514" y="104"/>
-        <Node componentID="147" descriptorID="componentNode147" x="955" y="712"/>
+        <Node componentID="227" descriptorID="componentNode227" x="266" y="24"/>
+        <Node componentID="197" descriptorID="componentNode197" x="772" y="66"/>
     </FlowScene>
 </VisualDesign>
