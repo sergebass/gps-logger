@@ -35,6 +35,8 @@ public class GPSScreen
     String tripTimeString = "";
     String totalTimeString = "";
 
+    String messageString = null;
+
 ///tmp:
 Image bgImage = null;
 ///
@@ -44,11 +46,9 @@ Image bgImage = null;
         this.midlet = midlet;
         this.setFullScreenMode(false); /// actually, let user decide between full-screen and not
 
-        addCommand(midlet.getMarkCommand());
+        addCommand(midlet.getMarkWaypointCommand());
         addCommand(midlet.getStopCommand());
 ///        addCommand(midlet.getResetCommand());
-///        addCommand(new Command("Exit", Command.EXIT, 2));
-///snapshot
         setCommandListener(midlet);
 
 /*///tmp:
@@ -76,6 +76,8 @@ try {
 
             return;
         }
+
+/// use String.substring() to trim long values!!!
 
         double latitude = location.getLatitude();
         if (!Double.isNaN(latitude)) {
@@ -329,6 +331,29 @@ try {
                     false);
     }
 
+    public void setMessage(String string) {
+        messageString = string;
+    }
+
+    public void displayMessage() {
+
+        if (messageString == null) {
+            return;
+        }
+        
+/// CHECK IF THIS WORKS OK
+        
+        // make the information message centered on the screen
+        displayString(messageString,
+                    (getWidth() - smallFont.stringWidth(messageString)) / 2,
+                    (getHeight() - smallFont.getHeight()) / 2,
+                    smallFont.stringWidth(totalTimeString), smallFont.getHeight(),
+                    0xFFFF0000, 0xFF000000, // red on 100% black
+                    smallFont,
+                    false,
+                    false);
+    }
+
     void drawBackground(int x, int y, int width, int height,
                         boolean mustFlushGraphics) {
 
@@ -389,6 +414,8 @@ g.fillRect(x, y, width, height); // just fill/clear it...
         displayTripTime();
         displayTotalTime();
 
+        displayMessage();
+
         flushGraphics();
     }
 
@@ -405,6 +432,28 @@ g.fillRect(x, y, width, height); // just fill/clear it...
 
         if (!isShown() || string.equals("")) {
             return; // do not waste battery energy in vain
+        }
+
+        // check the value limits
+
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+
+        if (x < 0) {
+            x = 0;
+        }
+        
+        if (y < 0) {
+            y = 0;
+        }
+
+        if (width > getWidth()) {
+            width = getWidth();
+        }
+
+        if (height > getHeight()) {
+            height = getHeight();
         }
 
         boolean isFGTransparent = ((fgColor & 0xFF000000) != 0xFF000000);

@@ -46,6 +46,9 @@ public class GPSLogger
     GPXWriter trackLogWriter = null;
     final Object trackLogLock = new Object();
     
+    boolean isTrackStarted = false;
+    boolean isTrackSegmentStarted = false;
+
     GPSLogFile waypointLogFile = null;
     GPXWriter waypointLogWriter = null;
     final Object waypointLogLock = new Object();
@@ -62,10 +65,12 @@ public class GPSLogger
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Fields ">//GEN-BEGIN:|fields|0|
     private java.util.Hashtable __previousDisplayables = new java.util.Hashtable();
-    private Command submitWaypointCommand;
+    private Command saveWaypointCommand;
     private Command cancelWaypointCommand;
     private Command exitCommand;
     private Command takePhotoCommand;
+    private Command stopCommand;
+    private Command sendSMSCommand;
     private Command searchCommand;
     private Command startCommand;
     private Command settingsCommand;
@@ -73,12 +78,11 @@ public class GPSLogger
     private Command backCommand;
     private Command saveSettingsCommand;
     private Command browseCommand;
-    private Command markCommand;
+    private Command markWaypointCommand;
     private Command cancelCommand;
     private Command sendEmailCommand;
     private Command resetCommand;
     private Command okCommand;
-    private Command stopCommand;
     private Form waypointForm;
     private TextField waypointNameTextField;
     private List deviceList;
@@ -214,9 +218,11 @@ public class GPSLogger
             }//GEN-BEGIN:|7-commandAction|9|128-preAction
         } else if (displayable == introForm) {
             if (command == exitCommand) {//GEN-END:|7-commandAction|9|128-preAction
-                // write pre-action user code here
-                exitMIDlet();//GEN-LINE:|7-commandAction|10|128-postAction
-                // write post-action user code here
+                new Thread() {
+                    public void run() {
+                        exitMIDlet();//GEN-LINE:|7-commandAction|10|128-postAction
+                    }
+                }.start();
             } else if (command == helpCommand) {//GEN-LINE:|7-commandAction|11|146-preAction
                 // write pre-action user code here
                 switchDisplayable(null, getHelpForm());//GEN-LINE:|7-commandAction|12|146-postAction
@@ -246,16 +252,26 @@ public class GPSLogger
                 // write pre-action user code here
 //GEN-LINE:|7-commandAction|22|282-postAction
                 // write post-action user code here
-            } else if (command == submitWaypointCommand) {//GEN-LINE:|7-commandAction|23|284-preAction
-                // write pre-action user code here
-                markPoint();//GEN-LINE:|7-commandAction|24|284-postAction
-                // write post-action user code here
-            } else if (command == takePhotoCommand) {//GEN-LINE:|7-commandAction|25|291-preAction
-                // write pre-action user code here
-                takePhoto();//GEN-LINE:|7-commandAction|26|291-postAction
-                // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|27|7-postCommandAction
-        }//GEN-END:|7-commandAction|27|7-postCommandAction
+            } else if (command == saveWaypointCommand) {//GEN-LINE:|7-commandAction|23|284-preAction
+                new Thread() {
+                    public void run() {
+                        saveWaypoint();//GEN-LINE:|7-commandAction|24|284-postAction
+                    }
+                }.start();
+            } else if (command == sendSMSCommand) {//GEN-LINE:|7-commandAction|25|299-preAction
+                new Thread() {
+                    public void run() {
+                        sendSMS();//GEN-LINE:|7-commandAction|26|299-postAction
+                    }
+                }.start();
+            } else if (command == takePhotoCommand) {//GEN-LINE:|7-commandAction|27|291-preAction
+                new Thread() {
+                    public void run() {
+                        takePhoto();//GEN-LINE:|7-commandAction|28|291-postAction
+                    }
+                }.start();
+            }//GEN-BEGIN:|7-commandAction|29|7-postCommandAction
+        }//GEN-END:|7-commandAction|29|7-postCommandAction
         else if (displayable == fileBrowser) {
             if (command == FileBrowser.SELECT_ITEM_COMMAND) {
                 setLogFolder ();
@@ -264,19 +280,32 @@ public class GPSLogger
             }
         } else { // all other displayables
             if (command.getCommandType() == Command.EXIT) {
-                exitMIDlet();
+                new Thread() {
+                    public void run() {
+                        exitMIDlet();
+                    }
+                }.start();
             } else if (command.getCommandType() == Command.BACK) {
                 switchToPreviousDisplayable();
             } else if (command == stopCommand) {
-                stopTrack();
-            } else if (command == markCommand) {
-                switchDisplayable(null, getWaypointForm());
+                // do this in a separate thread - we have I/O there
+                new Thread() {
+                    public void run() {
+                        stopTrack();
+                    }
+                }.start();
+            } else if (command == markWaypointCommand) {
+                new Thread() {
+                    public void run() {
+                        markWaypoint();
+                    }
+                }.start();
             } else if (command == resetCommand) {
                 resetOdometer();
             }
         }
-    }//GEN-BEGIN:|7-commandAction|28|
-    //</editor-fold>//GEN-END:|7-commandAction|28|
+    }//GEN-BEGIN:|7-commandAction|30|
+    //</editor-fold>//GEN-END:|7-commandAction|30|
 
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: exitCommand ">//GEN-BEGIN:|18-getter|0|18-preInit
@@ -408,7 +437,7 @@ public class GPSLogger
     public void startTrack() {//GEN-END:|108-entry|0|109-preAction
         waypoints = new Vector(); // (re)initialize
         mainScreen = new GPSScreen(this);
-        go(mainScreen); /// or getMainForm() for text mode
+        go(mainScreen);
     }
 
     void go(final Displayable screen) {
@@ -746,12 +775,14 @@ public class GPSLogger
         return stringItem1;
     }
     //</editor-fold>//GEN-END:|191-getter|2|
+    //</editor-fold>
+    //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: markPoint ">//GEN-BEGIN:|197-entry|0|198-preAction
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: saveWaypoint ">//GEN-BEGIN:|197-entry|0|198-preAction
     /**
-     * Performs an action assigned to the markPoint entry-point.
+     * Performs an action assigned to the saveWaypoint entry-point.
      */
-    public void markPoint() {//GEN-END:|197-entry|0|198-preAction
+    public void saveWaypoint() {//GEN-END:|197-entry|0|198-preAction
 
         switchDisplayable(null, getMainScreen()); // go back to the main screen immediately anyway
 
@@ -764,18 +795,18 @@ public class GPSLogger
     }//GEN-BEGIN:|197-entry|2|
     //</editor-fold>//GEN-END:|197-entry|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: markCommand ">//GEN-BEGIN:|195-getter|0|195-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: markWaypointCommand ">//GEN-BEGIN:|195-getter|0|195-preInit
     /**
-     * Returns an initiliazed instance of markCommand component.
+     * Returns an initiliazed instance of markWaypointCommand component.
      * @return the initialized component instance
      */
-    public Command getMarkCommand() {
-        if (markCommand == null) {//GEN-END:|195-getter|0|195-preInit
+    public Command getMarkWaypointCommand() {
+        if (markWaypointCommand == null) {//GEN-END:|195-getter|0|195-preInit
             // write pre-init user code here
-            markCommand = new Command(GPSLoggerLocalization.getMessage("markCommand"), GPSLoggerLocalization.getMessage("markCommandLong"), Command.OK, 0);//GEN-LINE:|195-getter|1|195-postInit
+            markWaypointCommand = new Command(GPSLoggerLocalization.getMessage("markWaypointCommand"), GPSLoggerLocalization.getMessage("markWaypointCommandLong"), Command.OK, 0);//GEN-LINE:|195-getter|1|195-postInit
             // write post-init user code here
         }//GEN-BEGIN:|195-getter|2|
-        return markCommand;
+        return markWaypointCommand;
     }
     //</editor-fold>//GEN-END:|195-getter|2|
 
@@ -1137,8 +1168,9 @@ public class GPSLogger
         // write pre-init user code here
             waypointForm = new Form("Waypoint", new Item[] { getWaypointNameTextField() });//GEN-BEGIN:|279-getter|1|279-postInit
             waypointForm.addCommand(getCancelWaypointCommand());
-            waypointForm.addCommand(getSubmitWaypointCommand());
+            waypointForm.addCommand(getSaveWaypointCommand());
             waypointForm.addCommand(getTakePhotoCommand());
+            waypointForm.addCommand(getSendSMSCommand());
             waypointForm.setCommandListener(this);//GEN-END:|279-getter|1|279-postInit
         // write post-init user code here
         }//GEN-BEGIN:|279-getter|2|
@@ -1176,18 +1208,18 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|281-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: submitWaypointCommand ">//GEN-BEGIN:|283-getter|0|283-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: saveWaypointCommand ">//GEN-BEGIN:|283-getter|0|283-preInit
     /**
-     * Returns an initiliazed instance of submitWaypointCommand component.
+     * Returns an initiliazed instance of saveWaypointCommand component.
      * @return the initialized component instance
      */
-    public Command getSubmitWaypointCommand() {
-        if (submitWaypointCommand == null) {//GEN-END:|283-getter|0|283-preInit
+    public Command getSaveWaypointCommand() {
+        if (saveWaypointCommand == null) {//GEN-END:|283-getter|0|283-preInit
         // write pre-init user code here
-            submitWaypointCommand = new Command(GPSLoggerLocalization.getMessage("submitWaypointCommand"), Command.OK, 0);//GEN-LINE:|283-getter|1|283-postInit
+            saveWaypointCommand = new Command(GPSLoggerLocalization.getMessage("saveWaypointCommand"), Command.OK, 0);//GEN-LINE:|283-getter|1|283-postInit
         // write post-init user code here
         }//GEN-BEGIN:|283-getter|2|
-        return submitWaypointCommand;
+        return saveWaypointCommand;
     }
     //</editor-fold>//GEN-END:|283-getter|2|
 
@@ -1256,6 +1288,37 @@ Display.getDisplay(this).vibrate(200);
     }//GEN-BEGIN:|296-entry|2|
     //</editor-fold>//GEN-END:|296-entry|2|
 
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: sendSMSCommand ">//GEN-BEGIN:|298-getter|0|298-preInit
+    /**
+     * Returns an initiliazed instance of sendSMSCommand component.
+     * @return the initialized component instance
+     */
+    public Command getSendSMSCommand() {
+        if (sendSMSCommand == null) {//GEN-END:|298-getter|0|298-preInit
+            // write pre-init user code here
+            sendSMSCommand = new Command(GPSLoggerLocalization.getMessage("sendSMSCommand"), Command.OK, 0);//GEN-LINE:|298-getter|1|298-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|298-getter|2|
+        return sendSMSCommand;
+    }
+    //</editor-fold>//GEN-END:|298-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: sendSMS ">//GEN-BEGIN:|300-entry|0|301-preAction
+    /**
+     * Performs an action assigned to the sendSMS entry-point.
+     */
+    public void sendSMS() {//GEN-END:|300-entry|0|301-preAction
+/// send current location/waypoint in an SMS
+
+///tmp:
+Display.getDisplay(this).vibrate(200);
+///
+
+//GEN-LINE:|300-entry|1|301-postAction
+        // write post-action user code here
+    }//GEN-BEGIN:|300-entry|2|
+    //</editor-fold>//GEN-END:|300-entry|2|
+
     public FileBrowser getFileBrowser() {
         if (fileBrowser == null) {
             fileBrowser = new FileBrowser(getDisplay(), true, false); // folders only
@@ -1285,19 +1348,7 @@ Display.getDisplay(this).vibrate(200);
      * Exits MIDlet.
      */
     public void exitMIDlet() {
-
-        //exit gracefully, make sure all connections are closed
-        try {
-            shutDown();
-        } catch (IOException e) {
-            // too late to handle this now...
-        }
-        
-        mustBeTerminated = true;
-
-        switchDisplayable(null, null);
-        destroyApp(true);
-        notifyDestroyed();
+        destroyApp(false); // give a chance to prevent exit (by throwing MIDletStateChangeException)
     }
 
     /**
@@ -1328,6 +1379,19 @@ Display.getDisplay(this).vibrate(200);
      * @param unconditional if true, then the MIDlet has to be unconditionally terminated and all resources has to be released.
      */
     public void destroyApp(boolean unconditional) {
+
+        mustBeTerminated = true;
+
+        // try to exit gracefully, make sure all connections are closed
+        // and our precious data is not lost
+        try {
+            shutDown();
+        } catch (IOException e) {
+            // too late to handle this now...
+        }
+
+        switchDisplayable(null, null);
+        notifyDestroyed();
     }
     
     public GPSScreen getMainScreen() {
@@ -1459,7 +1523,7 @@ Display.getDisplay(this).vibrate(200);
                 resetOdometer();
                 
                 // show initial screen
-                getMainScreen().setSatelliteInfo("Acquiring location, please wait...");
+                getMainScreen().setMessage("Acquiring location, please wait...");
                 getMainScreen().forceRepaint();
 
                 // we will start receiving notifications after this call:
@@ -1527,32 +1591,52 @@ Display.getDisplay(this).vibrate(200);
                                   + e.getMessage());
        
         getDisplay().setCurrent(errorAlert, displayable);
-
-        ///waitUntilDisposed(errorAlert);
     }
     
-///FIX this, it doesn't work:
-    void waitUntilDisposed(Displayable displayable) {
-        
-        new Thread() {
-            public void run() {
-                while (getErrorAlert().isShown()) {}
-                waitingLock.notifyAll();
-            }
-        }.start();
-        
-        synchronized (waitingLock) {
-            try {
-                waitingLock.wait();
-            } catch (InterruptedException e) {
-                // do nothing
-            }
+    void markWaypoint() {
+        registerCurrentWaypoint(); // save the location immediately!
+        switchDisplayable(null, getWaypointForm()); // let the user edit it
+    }
+
+    void registerCurrentWaypoint() {
+        if (geoLocator != null) {
+            registerWaypoint(geoLocator.getLocation());
         }
     }
-    
+
+    void registerWaypoint(GeoLocation waypoint) {
+
+        if (waypoints == null) {
+            waypoints = new Vector(); // make sure the registry is there
+        }
+
+        // add this waypoint to our log (it will also be written out at the end of the track)
+        waypoints.addElement(waypoint);
+    }
+
+    GeoLocation getLastWaypoint() {
+        if (waypoints != null) {
+            if (waypoints.size() > 0) {
+                return (GeoLocation)waypoints.elementAt(waypoints.size() - 1);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
     void saveCurrentWaypoint(String comments)
                 throws IOException {
         
+        GeoLocation waypoint = getLastWaypoint(); // it was already registered
+
+        if (waypoint == null) {
+            return; // nothing to save
+        }
+
+        waypoint.setName(comments);
+
         synchronized (waypointLogLock) {
             if (waypointLogFile == null) { // if no log file is being written, make a connection
                 String logFolder = settings.getLogFolder();
@@ -1575,16 +1659,6 @@ Display.getDisplay(this).vibrate(200);
             }
 
             if (waypointLogWriter != null) {
-                GeoLocation waypoint = geoLocator.getLocation();
-                waypoint.setName(comments);
-
-                // add this waypoint to our log (it will also be written out at the end of the track)
-                if (waypoints == null) {
-                    waypoints = new Vector();
-                }
-
-                waypoints.addElement(waypoint);
-
                 waypointLogWriter.writeWaypoint(waypoint);
                 waypointLogWriter.write("\n");
             }
@@ -1639,8 +1713,10 @@ Display.getDisplay(this).vibrate(200);
             // either way, let's create a new track:
             trackLogWriter.writeTrackHeader("GPSLogger track (" + now.getISO8601UTCDateTimeId() + ")");
             trackLogWriter.write("\n");
+            isTrackStarted = true;
 
             trackLogWriter.writeTrackSegmentHeader();
+            isTrackSegmentStarted = true;
         }
     }
 
@@ -1649,11 +1725,17 @@ Display.getDisplay(this).vibrate(200);
 
         synchronized (trackLogLock) {
             if (trackLogWriter != null) {
-                trackLogWriter.writeTrackSegmentFooter();
-                trackLogWriter.write("\n");
+                if (isTrackSegmentStarted) {
+                    trackLogWriter.writeTrackSegmentFooter();
+                    trackLogWriter.write("\n");
+                    isTrackSegmentStarted = false;
+                }
 
-                trackLogWriter.writeTrackFooter();
-                trackLogWriter.write("\n");
+                if (isTrackStarted) {
+                    trackLogWriter.writeTrackFooter();
+                    trackLogWriter.write("\n");
+                    isTrackStarted = false;
+                }
 
                 // save all of the remembered waypoints in the general track log,
                 // after the track data:
@@ -1674,6 +1756,9 @@ Display.getDisplay(this).vibrate(200);
     
     void closeTrackLogFile()
             throws IOException {
+
+        // make sure our log is undamaged
+        finishTrackLog();
 
         synchronized (trackLogLock) {
             if (trackLogWriter != null) {
@@ -1709,33 +1794,36 @@ Display.getDisplay(this).vibrate(200);
     public void locationChanged(GeoLocation location) {
 
         if (location == null) {
+
             System.out.println("Null location received!");
-/// update screen: alert user of wrong data somehow
-///... show data state attribute (validity?) on the screen
-getMainScreen().setSatelliteInfo("(Invalid location data)");
-getMainScreen().repaint();
-///
-            return;
-        }
 
-        System.out.println(location);
+            getMainScreen().setLocation(null);
+            getMainScreen().setMessage("(Invalid location data)");
+            getMainScreen().repaint();
+            
+        } else { // non-null location
+            
+            System.out.println(location);
 
-        synchronized (trackLogLock) {
-            if (trackLogWriter != null) {
-                try {
-                    trackLogWriter.writeTrackpoint(location);
-                } catch (IOException e) {
-                    handleException(e, getIntroForm());
+            synchronized (trackLogLock) {
+                if (trackLogWriter != null) {
+                    try {
+                        trackLogWriter.writeTrackpoint(location);
+                    } catch (IOException e) {
+                        handleException(e, getIntroForm());
+                    }
                 }
             }
+
+            getMainScreen().setLocation(location);
+            getMainScreen().setMessage(null);
+            
+            long totalTimeMillis = System.currentTimeMillis() - startTimeMillis;
+            Instant totalTime = new Instant(totalTimeMillis);
+            getMainScreen().setTotalTime(totalTime.getISO8601UTCTimeId());
+            
+            getMainScreen().repaint();
         }
-
-        getMainScreen().setLocation(location);
-        long totalTimeMillis = System.currentTimeMillis() - startTimeMillis;
-        Instant totalTime = new Instant(totalTimeMillis);
-        getMainScreen().setTotalTime(totalTime.getISO8601UTCTimeId());
-
-        getMainScreen().repaint();
     }
 
     public void handleLocatorException(Exception e) {

@@ -32,6 +32,16 @@
                     <Property name="start" typeID="C#EntryPointStartEventSource" value="R293"/>
                     <Component componentID="293" typeID="C#EntryPointStartEventSource"/>
                 </Component>
+                <Component componentID="296" typeID="C#EntryPoint">
+                    <Property name="methodName" typeID="Pjava.lang.String" value="VstopTrack"/>
+                    <Property name="start" typeID="C#EntryPointStartEventSource" value="R297"/>
+                    <Component componentID="297" typeID="C#EntryPointStartEventSource"/>
+                </Component>
+                <Component componentID="300" typeID="C#EntryPoint">
+                    <Property name="methodName" typeID="Pjava.lang.String" value="VsendSMS"/>
+                    <Property name="start" typeID="C#EntryPointStartEventSource" value="R301"/>
+                    <Component componentID="301" typeID="C#EntryPointStartEventSource"/>
+                </Component>
                 <Component componentID="82" typeID="C#EntryPoint">
                     <Property name="methodName" typeID="Pjava.lang.String" value="VsearchDevices"/>
                     <Property name="start" typeID="C#EntryPointStartEventSource" value="R83"/>
@@ -53,7 +63,7 @@
                     <Component componentID="184" typeID="C#EntryPointStartEventSource"/>
                 </Component>
                 <Component componentID="197" typeID="C#EntryPoint">
-                    <Property name="methodName" typeID="Pjava.lang.String" value="VmarkPoint"/>
+                    <Property name="methodName" typeID="Pjava.lang.String" value="VsaveWaypoint"/>
                     <Property name="start" typeID="C#EntryPointStartEventSource" value="R198"/>
                     <Component componentID="198" typeID="C#EntryPointStartEventSource"/>
                 </Component>
@@ -73,11 +83,6 @@
                         </Component>
                     </Component>
                 </Component>
-                <Component componentID="296" typeID="C#EntryPoint">
-                    <Property name="methodName" typeID="Pjava.lang.String" value="VstopTrack"/>
-                    <Property name="start" typeID="C#EntryPointStartEventSource" value="R297"/>
-                    <Component componentID="297" typeID="C#EntryPointStartEventSource"/>
-                </Component>
             </Component>
             <Component componentID="6" typeID="C#ControllersCategory">
                 <Component componentID="7" typeID="C#CommandListener"/>
@@ -86,8 +91,8 @@
             </Component>
             <Component componentID="8" typeID="C#CommandsCategory">
                 <Component componentID="283" typeID="Cjavax.microedition.lcdui.Command">
-                    <Property name="instanceName" typeID="Pjava.lang.String" value="VsubmitWaypointCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;submitWaypointCommand&quot;)"/>
+                    <Property name="instanceName" typeID="Pjava.lang.String" value="VsaveWaypointCommand"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;saveWaypointCommand&quot;)"/>
                     <Property name="type" typeID="Pint" value="V4"/>
                 </Component>
                 <Component componentID="281" typeID="Cjavax.microedition.lcdui.Command">
@@ -129,6 +134,17 @@
                     <Property name="type" typeID="Pint" value="V4"/>
                     <Property name="priority" typeID="Pint" value="V0"/>
                     <Property name="ordinary" typeID="Pboolean" value="Vfalse"/>
+                </Component>
+                <Component componentID="295" typeID="Cjavax.microedition.lcdui.Command">
+                    <Property name="instanceName" typeID="Pjava.lang.String" value="VstopCommand"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;stopCommand&quot;)"/>
+                    <Property name="longLabel" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;stopCommand&quot;)"/>
+                    <Property name="type" typeID="Pint" value="V4"/>
+                </Component>
+                <Component componentID="298" typeID="Cjavax.microedition.lcdui.Command">
+                    <Property name="instanceName" typeID="Pjava.lang.String" value="VsendSMSCommand"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;sendSMSCommand&quot;)"/>
+                    <Property name="type" typeID="Pint" value="V4"/>
                 </Component>
                 <Component componentID="86" typeID="C#ListSelectCommand">
                     <Property name="label" typeID="Pjava.lang.String" value="V"/>
@@ -181,9 +197,9 @@
                     <Property name="type" typeID="Pint" value="V4"/>
                 </Component>
                 <Component componentID="195" typeID="Cjavax.microedition.lcdui.Command">
-                    <Property name="instanceName" typeID="Pjava.lang.String" value="VmarkCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;markCommand&quot;)"/>
-                    <Property name="longLabel" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;markCommandLong&quot;)"/>
+                    <Property name="instanceName" typeID="Pjava.lang.String" value="VmarkWaypointCommand"/>
+                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;markWaypointCommand&quot;)"/>
+                    <Property name="longLabel" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;markWaypointCommandLong&quot;)"/>
                     <Property name="type" typeID="Pint" value="V4"/>
                 </Component>
                 <Component componentID="214" typeID="Cjavax.microedition.lcdui.Command">
@@ -208,17 +224,11 @@
                     <Property name="label" typeID="Pjava.lang.String" value="VOk"/>
                     <Property name="type" typeID="Pint" value="V4"/>
                 </Component>
-                <Component componentID="295" typeID="Cjavax.microedition.lcdui.Command">
-                    <Property name="instanceName" typeID="Pjava.lang.String" value="VstopCommand"/>
-                    <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;stopCommand&quot;)"/>
-                    <Property name="longLabel" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;stopCommand&quot;)"/>
-                    <Property name="type" typeID="Pint" value="V4"/>
-                </Component>
             </Component>
             <Component componentID="10" typeID="C#DisplayablesCategory">
                 <Component componentID="279" typeID="Cjavax.microedition.lcdui.Form">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VwaypointForm"/>
-                    <Property name="commands" typeID="1C#CommandEventSource" value="A3:4_R2824_R2844_R291"/>
+                    <Property name="commands" typeID="1C#CommandEventSource" value="A4:4_R2824_R2844_R2914_R299"/>
                     <Property name="title" typeID="Pjava.lang.String" value="VWaypoint"/>
                     <Property name="commandListener" typeID="C#CommandListener" value="R7"/>
                     <Property name="items" typeID="1Cjavax.microedition.lcdui.Item" value="A1:4_R280"/>
@@ -250,6 +260,15 @@
                         <Component componentID="294" typeID="C#MethodPointEventHandler">
                             <Property name="eventSource" typeID="C#EventSource" value="R291"/>
                             <Property name="methodPoint" typeID="C#MethodPoint" value="R292"/>
+                        </Component>
+                    </Component>
+                    <Component componentID="299" typeID="C#CommandEventSource">
+                        <Property name="eventHandler" typeID="C#EventHandler" value="R302"/>
+                        <Property name="displayable" typeID="Cjavax.microedition.lcdui.Displayable" value="R279"/>
+                        <Property name="command" typeID="Cjavax.microedition.lcdui.Command" value="R298"/>
+                        <Component componentID="302" typeID="C#MethodPointEventHandler">
+                            <Property name="eventSource" typeID="C#EventSource" value="R299"/>
+                            <Property name="methodPoint" typeID="C#MethodPoint" value="R300"/>
                         </Component>
                     </Component>
                 </Component>
@@ -587,23 +606,24 @@
         </Component>
     </Document>
     <FlowScene version="1">
-        <Node componentID="256" descriptorID="componentNode256" x="1159" y="648"/>
+        <Node componentID="197" descriptorID="componentNode197" x="772" y="66"/>
         <Node componentID="141" descriptorID="componentNode141" x="505" y="343"/>
+        <Node componentID="279" descriptorID="componentNode279" x="364" y="679"/>
+        <Node componentID="85" descriptorID="componentNode85" x="272" y="154"/>
         <Node componentID="188" descriptorID="componentNode188" x="34" y="313"/>
         <Node componentID="147" descriptorID="componentNode147" x="955" y="712"/>
-        <Node componentID="183" descriptorID="componentNode183" x="34" y="712"/>
-        <Node componentID="211" descriptorID="componentNode211" x="514" y="104"/>
-        <Node componentID="292" descriptorID="componentNode292" x="47" y="622"/>
-        <Node componentID="296" descriptorID="componentNode296" x="40" y="178"/>
-        <Node componentID="125" descriptorID="componentNode125" x="744" y="500"/>
-        <Node componentID="2" descriptorID="componentNode2" x="955" y="313"/>
-        <Node componentID="233" descriptorID="componentNode233" x="159" y="100"/>
-        <Node componentID="82" descriptorID="componentNode82" x="504" y="14"/>
-        <Node componentID="275" descriptorID="componentNode275" x="64" y="470"/>
-        <Node componentID="108" descriptorID="componentNode108" x="34" y="32"/>
-        <Node componentID="85" descriptorID="componentNode85" x="272" y="154"/>
-        <Node componentID="279" descriptorID="componentNode279" x="364" y="679"/>
         <Node componentID="227" descriptorID="componentNode227" x="266" y="24"/>
-        <Node componentID="197" descriptorID="componentNode197" x="772" y="66"/>
+        <Node componentID="233" descriptorID="componentNode233" x="159" y="100"/>
+        <Node componentID="108" descriptorID="componentNode108" x="34" y="32"/>
+        <Node componentID="256" descriptorID="componentNode256" x="1159" y="648"/>
+        <Node componentID="296" descriptorID="componentNode296" x="40" y="178"/>
+        <Node componentID="2" descriptorID="componentNode2" x="955" y="313"/>
+        <Node componentID="275" descriptorID="componentNode275" x="64" y="470"/>
+        <Node componentID="125" descriptorID="componentNode125" x="744" y="500"/>
+        <Node componentID="183" descriptorID="componentNode183" x="34" y="712"/>
+        <Node componentID="292" descriptorID="componentNode292" x="400" y="566"/>
+        <Node componentID="82" descriptorID="componentNode82" x="504" y="14"/>
+        <Node componentID="211" descriptorID="componentNode211" x="514" y="104"/>
+        <Node componentID="300" descriptorID="componentNode300" x="230" y="569"/>
     </FlowScene>
 </VisualDesign>

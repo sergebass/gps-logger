@@ -32,7 +32,7 @@ public class JSR179GeoLocator
     }
 
     public JSR179GeoLocator(Criteria criteria) {
-        System.out.println("Creating JSR170 Location API locator connection...");
+        System.out.println("Creating JSR179 Location API locator connection...");
         try {
             locationProvider = LocationProvider.getInstance(criteria);
         } catch (LocationException e) {
@@ -129,6 +129,8 @@ public class JSR179GeoLocator
         location.setValid(lapiLocation.isValid());
         
 ///... add more fields?
+///lapiLocation.getExtraInfo("application/X-jsr179-location-nmea"); /// - save NMEA data
+///lapiLocation.get...()
 
         return location;
     }

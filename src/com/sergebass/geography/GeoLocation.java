@@ -12,7 +12,6 @@ import com.sergebass.util.Instant;
  */
 public class GeoLocation {
 
-///use this attribute!
     boolean isDataValid = true;
 
     String name = null;
@@ -194,6 +193,13 @@ public class GeoLocation {
 
         StringBuffer stringBuffer = new StringBuffer();
 
+        // comment out invalid trackpoints
+        // (who knows, maybe someone will need them anyway)
+        // this is the opening comment tag:
+        if (!isDataValid && pointTypeTag.equalsIgnoreCase("trkpt")) {
+            stringBuffer.append("<!-- invalid point\n"); // start comment section
+        }
+
         // opening tag with latitude and longitude of the point. Decimal degrees, WGS84 datum.
         stringBuffer.append("<" + pointTypeTag + " lat=\""
                     + String.valueOf(latitude)
@@ -266,6 +272,13 @@ public class GeoLocation {
 
         // point closing tag
         stringBuffer.append("</" + pointTypeTag + ">\n");
+
+        // comment out invalid trackpoints
+        // (who knows, maybe someone will need them anyway)
+        // this is the closing comment tag:
+        if (!isDataValid && pointTypeTag.equalsIgnoreCase("trkpt")) {
+            stringBuffer.append("-->\n"); // finish comment section
+        }
 
         return stringBuffer.toString();
     }
