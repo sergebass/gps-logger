@@ -13,10 +13,13 @@ import javax.microedition.io.*;
  * @author Serge Perinsky
  */
 public class BluetoothGeoLocator
-        implements GeoLocator {
+        implements GeoLocator,
+                   NMEA0183ParserListener {
 
     StreamConnection streamConnection = null;
     InputStream stream = null;
+
+    GeoLocationListener locationListener = null;
 
     NMEA0183Parser nmeaParser = null;
 
@@ -26,7 +29,8 @@ public class BluetoothGeoLocator
                          + connectionURLString + "...");
         
         try {
-            streamConnection = (StreamConnection)Connector.open(connectionURLString);
+            streamConnection = (StreamConnection)Connector.open
+                                (connectionURLString, Connector.READ, true);
         } catch (Exception e) {
             // strip the device URL string of parameters,
             // some devices have problems with this... (e.g. some Nokias)
@@ -34,20 +38,24 @@ public class BluetoothGeoLocator
             if (parameterStart > 0) {
                 connectionURLString = connectionURLString.substring(0, parameterStart);
             }
-            streamConnection = (StreamConnection)Connector.open(connectionURLString);
+
+            // try one more time...
+            streamConnection = (StreamConnection)Connector.open
+                                (connectionURLString, Connector.READ, true);
         }
         
         stream = streamConnection.openInputStream();
 
-        nmeaParser = new NMEA0183Parser(stream);
+        nmeaParser = new NMEA0183Parser(this, stream);
         nmeaParser.start();
         
         System.out.println(" Done.");
     }
     
-    public void setLocationListener(GeoLocationListener listener) {
+    public void setLocationListener(GeoLocationListener locationListener) {
+        this.locationListener = locationListener;
         if (nmeaParser != null) {
-            nmeaParser.setLocationListener(listener);
+            nmeaParser.setLocationListener(locationListener);
         }
     }
 
@@ -58,6 +66,7 @@ public class BluetoothGeoLocator
         
         if (nmeaParser != null) {
             nmeaParser.stop();
+            nmeaParser = null;
         }
 
         if (stream != null) {
@@ -75,5 +84,25 @@ public class BluetoothGeoLocator
 
     public GeoLocation getLocation() {
         return (nmeaParser != null)? nmeaParser.getLocation() : null;
+    }
+
+    public void handleParsingComplete() {
+
+/// distinguish between EOF and exit requested by user...
+        
+/*
+        try {
+            close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+/// handle disconnection errors here??
+
+if (locationListener != null) {
+    locationListener.handleLocatorException(new Exception("EOF/NMEA!!!"));
+}
+///
+*/
     }
 }

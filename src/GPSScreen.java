@@ -341,14 +341,12 @@ try {
             return;
         }
         
-/// CHECK IF THIS WORKS OK
-        
         // make the information message centered on the screen
         displayString(messageString,
                     (getWidth() - smallFont.stringWidth(messageString)) / 2,
                     (getHeight() - smallFont.getHeight()) / 2,
-                    smallFont.stringWidth(totalTimeString), smallFont.getHeight(),
-                    0xFFFF0000, 0xFF000000, // red on 100% black
+                    smallFont.stringWidth(messageString), smallFont.getHeight(),
+                    0xFFFF0000, 0xFF000000, // red on 100% opaque black
                     smallFont,
                     false,
                     false);

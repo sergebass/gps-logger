@@ -455,7 +455,7 @@ public class GPSLogger
         // run our tracking stuff in a separate thread
         new Thread() {
             public void run() {
-                startTracking(screen);
+                startLogging(screen);
             }
         }.start();
 //GEN-LINE:|108-entry|1|109-postAction
@@ -1240,7 +1240,7 @@ public class GPSLogger
     ///take a photo here
 //GEN-LINE:|292-entry|1|293-postAction
 ///tmp:
-Display.getDisplay(this).vibrate(200);
+new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
 ///
     }//GEN-BEGIN:|292-entry|2|
     //</editor-fold>//GEN-END:|292-entry|2|
@@ -1280,7 +1280,6 @@ Display.getDisplay(this).vibrate(200);
      * Performs an action assigned to the stopTrack entry-point.
      */
     public void stopTrack() {//GEN-END:|296-entry|0|297-preAction
-///!!!
         try {
             closeIndividualWaypointLog();
         } catch (IOException e) {
@@ -1327,7 +1326,7 @@ Display.getDisplay(this).vibrate(200);
 /// send current location/waypoint in an SMS
 
 ///tmp:
-Display.getDisplay(this).vibrate(200);
+new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
 ///
 
 //GEN-LINE:|300-entry|1|301-postAction
@@ -1510,7 +1509,7 @@ Display.getDisplay(this).vibrate(200);
         spaceCalculatorThread.start();
     }
 
-    void startTracking(Displayable screen) {
+    void startLogging(Displayable screen) {
         
         String connectionURLString = settings.getGPSDeviceURL();
         System.out.println("Starting tracking, connection URL = " + connectionURLString);
@@ -1545,6 +1544,12 @@ Display.getDisplay(this).vibrate(200);
                     mustReconnectToGPS = false; // drop the flag
                 }
             
+                if (geoLocator == null) { // still no location provider??
+/// HANDLE THIS ERROR!
+throw new Exception("No valid location source found!");
+///
+                }
+
                 startTrackLog();
 
                 screen.setTitle(null); // remove the title when started
@@ -1690,9 +1695,6 @@ Display.getDisplay(this).vibrate(200);
                 waypointLogWriter.write("\n");
             }
         } // synchronized (waypointLogLock)
-///TMP!!!
-vibrateSuccessRhythm(2);
-///
     }
 
     void closeIndividualWaypointLog()
@@ -1734,6 +1736,8 @@ vibrateSuccessRhythm(2);
                 trackLogFile = new GPSLogFile(logFilePath);
             }
 
+/// add phone model/some user info to the log (system properties?)
+            
             if (trackLogWriter == null) {
                 trackLogWriter = new GPXWriter(trackLogFile.getOutputStream());
                 trackLogWriter.writeHeader("GPSLogger track log (" + now.getISO8601UTCDateTimeId() + ")");

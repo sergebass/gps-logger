@@ -7,7 +7,6 @@ package com.sergebass.geography;
 import java.util.Vector;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
 
 /**
  * NMEA0183Parser.
@@ -61,14 +60,17 @@ public class NMEA0183Parser
     boolean isStarted = false;
     final Object sentenceLock = new Object();
     
-    GeoLocationListener listener = null;
+    NMEA0183ParserListener parserListener = null;
+    GeoLocationListener locationListener = null;
 
-    public NMEA0183Parser(InputStream inputStream) {
+    public NMEA0183Parser(NMEA0183ParserListener parserListener,
+                          InputStream inputStream) {
+        this.parserListener = parserListener;
         this.inputStream = inputStream;
     }
     
     public void setLocationListener(GeoLocationListener listener) {
-        this.listener = listener;
+        this.locationListener = listener;
     }
 
     public GeoLocation getLocation() {
@@ -106,7 +108,8 @@ public class NMEA0183Parser
         }
         
         location.setValid(isValidGPSData);
-///add the other fields...
+
+/// save NMEA data in the location object?
         
         return location;
     }
@@ -130,10 +133,7 @@ public class NMEA0183Parser
                     aWord = reader.read();
 
                     if (aWord == -1) { // end-of-file?
-/// signal error here!
-///???                mustReconnectToGPS = true;
-///getDisplay().vibrate(500);
-                        break;
+                        break; // Ok, let's quit
                     }
 
                     c = (char)aWord;
@@ -149,11 +149,14 @@ public class NMEA0183Parser
                 }
             } while (isStarted);
 
-        } catch (IOException e) {
+            if (parserListener != null) {
+                parserListener.handleParsingComplete();
+            }
+
+        } catch (Exception e) {
             e.printStackTrace();
-/// HOW DO WE REPORT EXCEPTIONS??
-            if (listener != null) {
-                listener.handleLocatorException(e);
+            if (locationListener != null) {
+                locationListener.handleLocatorException(e);
             }
         }
     }
@@ -179,8 +182,8 @@ public class NMEA0183Parser
             // let the GPRMC be the callback trigger sentence
             // as it is the most important one
             // (and supposedly supported by all NMEA-0183 compliant devices)
-            if (listener != null) {
-                listener.locationChanged(getLocation());
+            if (locationListener != null) {
+                locationListener.locationChanged(getLocation());
             }
             
         } else if (sentenceHeader.equals("$GPGGA,")) {

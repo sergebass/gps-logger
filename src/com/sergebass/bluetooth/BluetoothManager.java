@@ -28,9 +28,9 @@ public class BluetoothManager
     Vector /*<RemoteDevice>*/ devices;
     Vector /*<ServiceRecord>*/ services;
     
-    Object lock = new Object();
+    final Object lock = new Object();
 
-    public static boolean isJSR82Supported() {
+    public static boolean isBluetoothAPISupported() {
         String	bluetoothVersion = null;
         boolean	isJSR82SupportedHere  = true;
 
