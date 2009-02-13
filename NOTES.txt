@@ -5,3 +5,4 @@ localize the application
 mobile tracking: SMS (auto?)
 web tracking
 send current location as SMS
+remember multiple GPS units in settings

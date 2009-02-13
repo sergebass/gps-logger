@@ -7,6 +7,8 @@ import com.sergebass.bluetooth.BluetoothManager;
 import com.sergebass.ui.FileBrowser;
 import com.sergebass.util.Instant;
 
+import com.sergebass.util.MorseVibrator;
+import com.sergebass.util.Vibrator;
 import java.util.Vector;
 import java.io.*;
 
@@ -41,6 +43,7 @@ public class GPSLogger
     int number = 0;
 
     GeoLocator geoLocator = null;
+    final Object geoLocatorLock = new Object();
     
     GPSLogFile trackLogFile = null;
     GPXWriter trackLogWriter = null;
@@ -135,7 +138,8 @@ public class GPSLogger
             errorPlayer = Manager.createPlayer(getClass().getResourceAsStream(ERROR_AUDIO_FILE), "audio/x-wav");
             errorPlayer.prefetch();
         } catch (Exception e) {
-            ///ignore?
+            e.printStackTrace();
+            // ignore?
         }
 
 //GEN-LINE:|0-initialize|1|0-postInitialize
@@ -249,9 +253,12 @@ public class GPSLogger
             }//GEN-BEGIN:|7-commandAction|21|282-preAction
         } else if (displayable == waypointForm) {
             if (command == cancelWaypointCommand) {//GEN-END:|7-commandAction|21|282-preAction
-                // write pre-action user code here
-//GEN-LINE:|7-commandAction|22|282-postAction
-                // write post-action user code here
+                // remove the last added waypoint: it was cancelled
+                if (waypoints.size() > 1) {
+                    waypoints.removeElementAt(waypoints.size() - 1);
+                }
+                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|22|282-postAction
+
             } else if (command == saveWaypointCommand) {//GEN-LINE:|7-commandAction|23|284-preAction
                 new Thread() {
                     public void run() {
@@ -1201,7 +1208,7 @@ public class GPSLogger
     public Command getCancelWaypointCommand() {
         if (cancelWaypointCommand == null) {//GEN-END:|281-getter|0|281-preInit
         // write pre-init user code here
-            cancelWaypointCommand = new Command("Cancel", Command.BACK, 0);//GEN-LINE:|281-getter|1|281-postInit
+            cancelWaypointCommand = new Command(GPSLoggerLocalization.getMessage("cancelWaypointCommand"), Command.BACK, 0);//GEN-LINE:|281-getter|1|281-postInit
         // write post-init user code here
         }//GEN-BEGIN:|281-getter|2|
         return cancelWaypointCommand;
@@ -1273,12 +1280,21 @@ Display.getDisplay(this).vibrate(200);
      * Performs an action assigned to the stopTrack entry-point.
      */
     public void stopTrack() {//GEN-END:|296-entry|0|297-preAction
+///!!!
         try {
             closeIndividualWaypointLog();
+        } catch (IOException e) {
+            handleException(e, introForm);
+        }
 
+        try {
             finishTrackLog();
             // (do not close the whole track log at this time!)
+        } catch (IOException e) {
+            handleException(e, introForm);
+        }
 
+        try {
             closeGeoLocator();
         } catch (IOException e) {
             handleException(e, introForm);
@@ -1385,7 +1401,19 @@ Display.getDisplay(this).vibrate(200);
         // try to exit gracefully, make sure all connections are closed
         // and our precious data is not lost
         try {
-            shutDown();
+            closeIndividualWaypointLog();
+        } catch (IOException e) {
+            // too late to handle this now...
+        }
+
+        try {
+            closeTrackLogFile();
+        } catch (IOException e) {
+            // too late to handle this now...
+        }
+
+        try {
+            closeGeoLocator();
         } catch (IOException e) {
             // too late to handle this now...
         }
@@ -1406,9 +1434,9 @@ Display.getDisplay(this).vibrate(200);
         try {
             settings.load();
         } catch (Exception e) {
+            e.printStackTrace();
 ///???        handleException(e);
 /// just ignore?
-            e.printStackTrace();
         }
         
         // initialize the settings screen with data from the loaded configuration
@@ -1465,6 +1493,7 @@ Display.getDisplay(this).vibrate(200);
                         try {
                             fileConnection.close();
                         } catch (Exception e) {
+                            e.printStackTrace();
                             // just ignore?
                         }
                     }
@@ -1537,7 +1566,8 @@ Display.getDisplay(this).vibrate(200);
                     try {
                         geoLocator.close();
                     } catch (Exception e) {
-                        // ignore
+                        e.printStackTrace();
+                        // ignore?
                     } finally {
                         geoLocator = null;
                     }
@@ -1548,11 +1578,7 @@ Display.getDisplay(this).vibrate(200);
         } catch (Exception e) {
             handleException(e, introForm);
         } finally {
-            try {
-                shutDown();
-            } catch (Exception e) {
-                handleException(e, introForm);
-            }
+            ///???shutDown();
         }
     }
     
@@ -1562,12 +1588,13 @@ Display.getDisplay(this).vibrate(200);
 
         Instant errorInstant = new Instant();
         
-        getDisplay().vibrate(3000); // 3 seconds: enough to notice! ;-)
+        vibrateSOSRhythm(3);
         
         if (errorPlayer != null) {
             try {
                 errorPlayer.start();
             } catch (Exception ee) {
+                ee.printStackTrace();
                 ///ignore?
             }
         }
@@ -1577,7 +1604,7 @@ Display.getDisplay(this).vibrate(200);
                 // convert microseconds to milliseconds
                 Thread.sleep(errorPlayer.getDuration() / 1000L);
             } catch (InterruptedException ee) {
-                ///ignore?
+                ee.printStackTrace();
             }
         }
 
@@ -1662,7 +1689,10 @@ Display.getDisplay(this).vibrate(200);
                 waypointLogWriter.writeWaypoint(waypoint);
                 waypointLogWriter.write("\n");
             }
-        }
+        } // synchronized (waypointLogLock)
+///TMP!!!
+vibrateSuccessRhythm(2);
+///
     }
 
     void closeIndividualWaypointLog()
@@ -1680,7 +1710,7 @@ Display.getDisplay(this).vibrate(200);
                 waypointLogFile.close();
                 waypointLogFile = null;
             }
-        }
+        } // synchronized (waypointLogLock)
     }
     
     void startTrackLog()
@@ -1717,7 +1747,7 @@ Display.getDisplay(this).vibrate(200);
 
             trackLogWriter.writeTrackSegmentHeader();
             isTrackSegmentStarted = true;
-        }
+        } // synchronized (trackLogLock)
     }
 
     void finishTrackLog()
@@ -1751,7 +1781,7 @@ Display.getDisplay(this).vibrate(200);
 
                 trackLogWriter.flush();
             }
-        }
+        } // synchronized (trackLogLock)
     }
     
     void closeTrackLogFile()
@@ -1772,26 +1802,22 @@ Display.getDisplay(this).vibrate(200);
                 trackLogFile.close();
                 trackLogFile = null;
             }
-        }
+        } // synchronized (trackLogLock)
     }
 
     void closeGeoLocator()
             throws IOException {
-        if (geoLocator != null) {
-            geoLocator.close();
-            geoLocator = null;
-        }
-    }
-
-    synchronized void shutDown()
-            throws IOException {
-
-        closeIndividualWaypointLog();
-        closeTrackLogFile();
-        closeGeoLocator();
+        synchronized (geoLocatorLock) {
+            if (geoLocator != null) {
+                geoLocator.close();
+                geoLocator = null;
+            }
+        } // synchronized (geoLocatorLock)
     }
 
     public void locationChanged(GeoLocation location) {
+
+/// implement LocationListener from JSR-179 for JSR-179 connections!
 
         if (location == null) {
 
@@ -1829,5 +1855,27 @@ Display.getDisplay(this).vibrate(200);
     public void handleLocatorException(Exception e) {
 ///???
         handleException(e, getIntroForm());
+    }
+
+    public void vibrateSOSRhythm(final int times) {
+        // since Morse vibrator is blocking, invoke it in a separate thread
+        final Display thisDisplay = Display.getDisplay(this);
+        new Thread() {
+            public void run() {
+                MorseVibrator vibrator = new MorseVibrator(thisDisplay);
+                for (int i = 0; i < times; i++) {
+                    vibrator.vibrateMorseCode("SOS");
+                }
+            }
+        }.start();
+    }
+
+    public void vibrateSuccessRhythm(int times) {
+        new Vibrator(Display.getDisplay(this)).vibrate
+                (new int[] { 300, 100, 300, 100, 100, 100, 100, 100, 300, 300,
+                             100, 100, 100, 100, 100, 100, 100, 300,
+                             100, 100, 300, 700
+                            },
+                 times);
     }
 }

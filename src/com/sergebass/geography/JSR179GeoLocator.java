@@ -73,7 +73,7 @@ public class JSR179GeoLocator
                     try {
                         Thread.sleep(200);
                     } catch (InterruptedException e) {
-                        // ignore
+                        e.printStackTrace();
                     }
                 } while (isStarted);
             }

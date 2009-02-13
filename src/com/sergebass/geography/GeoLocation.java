@@ -277,7 +277,7 @@ public class GeoLocation {
         // (who knows, maybe someone will need them anyway)
         // this is the closing comment tag:
         if (!isDataValid && pointTypeTag.equalsIgnoreCase("trkpt")) {
-            stringBuffer.append("-->\n"); // finish comment section
+            stringBuffer.append("invalid point -->\n"); // finish comment section
         }
 
         return stringBuffer.toString();

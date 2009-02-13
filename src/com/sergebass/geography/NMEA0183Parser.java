@@ -150,6 +150,7 @@ public class NMEA0183Parser
             } while (isStarted);
 
         } catch (IOException e) {
+            e.printStackTrace();
 /// HOW DO WE REPORT EXCEPTIONS??
             if (listener != null) {
                 listener.handleLocatorException(e);
