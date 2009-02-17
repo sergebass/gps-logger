@@ -1,25 +1,13 @@
-package com.sergebass.util;
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-
-
-/**
- * Instant.
- *
- * @author Serge Perinsky
- */
 /*
  * Instant.java (C) Serge Perinsky
  */
 
+package com.sergebass.util;
+
 import java.util.*;
 
 /**
- * Момент во времени, с точностью до миллисекунды.
+ * An instant in time.
  *
  * @see java.util.Date
  *
@@ -35,7 +23,6 @@ public class Instant
      * time at which it was allocated measured to the nearest millisecond. 
      */
     public Instant() {
-
         super();
     }
 
@@ -47,7 +34,6 @@ public class Instant
      * @param  time  the number of milliseconds since "epoch"
      */
     public Instant(long time) {
-
         super(time);
     }
 
@@ -57,17 +43,14 @@ public class Instant
      * @param  date  the Date object
      */
     public Instant(Date date) {
-
         setTime(date.getTime());
     }
 
     public static void setTimeZone(TimeZone timeZone) {
-
         Instant.timeZone = timeZone;
     }
 
     public static TimeZone getTimeZone() {
-
         return timeZone;
     }
 
@@ -194,8 +177,12 @@ public class Instant
     }
 
     public String getISO8601UTCDateId() {
+        return getISO8601DateId(TimeZone.getTimeZone("GMT")); // GMT~=UTC)
+    }
 
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT")); // GMT~=UTC
+    public String getISO8601DateId(TimeZone timeZone) {
+
+        Calendar calendar = Calendar.getInstance(timeZone);
         calendar.setTime(this);
 
         int year = calendar.get(Calendar.YEAR);
@@ -212,8 +199,12 @@ public class Instant
     }
     
     public String getISO8601UTCTimeId() {
+        return getISO8601TimeId(TimeZone.getTimeZone("GMT")); // GMT~=UTC)
+    }
 
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT")); // GMT~=UTC
+    public String getISO8601TimeId(TimeZone timeZone) {
+
+        Calendar calendar = Calendar.getInstance(timeZone);
         calendar.setTime(this);
 
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -240,7 +231,6 @@ public class Instant
      * @return  the string representation
      */
     public String toString() {
-
         return getId();
     }
 

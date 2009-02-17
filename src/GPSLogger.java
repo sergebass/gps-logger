@@ -1736,13 +1736,20 @@ throw new Exception("No valid location source found!");
                 trackLogFile = new GPSLogFile(logFilePath);
             }
 
-/// add phone model/some user info to the log (system properties?)
-            
             if (trackLogWriter == null) {
                 trackLogWriter = new GPXWriter(trackLogFile.getOutputStream());
-                trackLogWriter.writeHeader("GPSLogger track log (" + now.getISO8601UTCDateTimeId() + ")");
-                trackLogWriter.write("\n");
+
+                // add platform name to the log, to make logs more easily identifiable
+                String platformName = System.getProperty("microedition.platform");
+                String deviceModel = System.getProperty("device.model"); // for Motorola phones?
+                
+                String trackLogHeader = "GPSLogger track log (" + now.getISO8601UTCDateTimeId() + ")"
+                        + (platformName != null? ", " + platformName : "")
+                        + (deviceModel != null? ", " + deviceModel : "");
+
+                trackLogWriter.writeHeader(trackLogHeader);
             }
+
 
             // either way, let's create a new track:
             trackLogWriter.writeTrackHeader("GPSLogger track (" + now.getISO8601UTCDateTimeId() + ")");
@@ -1820,8 +1827,6 @@ throw new Exception("No valid location source found!");
     }
 
     public void locationChanged(GeoLocation location) {
-
-/// implement LocationListener from JSR-179 for JSR-179 connections!
 
         if (location == null) {
 

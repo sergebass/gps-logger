@@ -3,6 +3,8 @@
  */
 
 import com.sergebass.geography.GeoLocation;
+import com.sergebass.util.Instant;
+import java.util.TimeZone;
 import javax.microedition.lcdui.*;
 import javax.microedition.lcdui.game.*;
 
@@ -18,15 +20,17 @@ public class GPSScreen
     Font smallFont = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL);
 
     GeoLocation location = null;
+    boolean isLocationValid = false;
 
     String latitudeString = "";
     String longitudeString = "";
     String altitudeString = "";
 
-    String dateString = "";
     String timeString = "";
-    String satelliteInfoString = "";
+    String dateString = "";
 
+    String satelliteInfoString = "";
+    
     float course = Float.NaN;
 
     String courseString = "";
@@ -156,16 +160,16 @@ try {
         setDate(date);
 
         String time = location.getTimeString();
-        setTime(time + " UT");
+        setTime(time + " UTC/GPS");
 
+        isLocationValid = location.isValid();
+        
         int satelliteCount = location.getSatelliteCount();
         if (satelliteCount < 0) {
             setSatelliteInfo("Satellite info unavailable");
         } else {
             setSatelliteInfo(satelliteCount + " satellite(s)");
         }
-
-///...
     }
 
     public void setLatitude(String string) {
@@ -210,15 +214,16 @@ try {
                     false);
     }
 
-    public void setSatelliteInfo(String string) {
-        satelliteInfoString = string;
-    }
-
-    public void displaySatelliteInfo() {
-        displayString(satelliteInfoString,
-                    0, getHeight() - smallFont.getHeight(),
-                    smallFont.stringWidth(satelliteInfoString), smallFont.getHeight(),
-                    0xFFFF8080, 0xA0000000, // pink on 60% black
+    public void displayLocalTime() {
+        Instant now = new Instant(System.currentTimeMillis());
+        TimeZone timeZone = TimeZone.getDefault();
+        String localTimeString = now.getISO8601TimeId(timeZone)
+                                    + " "
+                                    + timeZone.getID();
+        displayString(localTimeString,
+                    0, getHeight() - smallFont.getHeight() * 3,
+                    smallFont.stringWidth(localTimeString), smallFont.getHeight(),
+                    0xFF00FFFF, 0xA0000000, // cyan on 60% black
                     smallFont,
                     false,
                     false);
@@ -230,7 +235,7 @@ try {
 
     public void displayTime() {
         displayString(timeString,
-                    0, getHeight() - smallFont.getHeight() * 3,
+                    0, getHeight() - smallFont.getHeight() * 2,
                     smallFont.stringWidth(timeString), smallFont.getHeight(),
                     0xFF00FFFF, 0xA0000000, // cyan on 60% black
                     smallFont,
@@ -244,9 +249,25 @@ try {
 
     public void displayDate() {
         displayString(dateString,
-                    0, getHeight() - smallFont.getHeight() * 2,
+                    0, getHeight() - smallFont.getHeight() * 1,
                     smallFont.stringWidth(dateString), smallFont.getHeight(),
                     0xFF00FFFF, 0xA0000000, // cyan on 60% black
+                    smallFont,
+                    false,
+                    false);
+    }
+
+    public void setSatelliteInfo(String string) {
+        satelliteInfoString = string;
+    }
+
+    public void displaySatelliteInfo() {
+        displayString(satelliteInfoString,
+                    getWidth() - smallFont.stringWidth(satelliteInfoString),
+                    smallFont.getHeight() * 0,
+                    smallFont.stringWidth(satelliteInfoString), smallFont.getHeight(),
+                    isLocationValid? 0xFFFFB0B0 : 0xFFFF0000, // pinkish (valid) / red (invalid)
+                    0xA0000000, // 60% black
                     smallFont,
                     false,
                     false);
@@ -259,7 +280,7 @@ try {
     public void displaySpeed() {
         displayString(speedString,
                     getWidth() - smallFont.stringWidth(speedString),
-                    smallFont.getHeight() * 0,
+                    smallFont.getHeight() * 1,
                     smallFont.stringWidth(speedString), smallFont.getHeight(),
                     0xFFFFFF00, 0xA0000000, // yellow on 60% black
                     smallFont,
@@ -278,7 +299,7 @@ try {
     public void displayCourse() {
         displayString(courseString,
                     getWidth() - smallFont.stringWidth(courseString),
-                    smallFont.getHeight() * 1,
+                    smallFont.getHeight() * 2,
                     smallFont.stringWidth(courseString), smallFont.getHeight(),
                     0xFFFFFF00, 0xA0000000, // yellow on 60% black
                     smallFont,
@@ -401,10 +422,11 @@ g.fillRect(x, y, width, height); // just fill/clear it...
         displayLongitude();
         displayAltitude();
 
-        displayDate();
+        displayLocalTime();
         displayTime();
-        displaySatelliteInfo();
+        displayDate();
 
+        displaySatelliteInfo();
         displaySpeed();
         displayCourse();
 

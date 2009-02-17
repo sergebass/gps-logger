@@ -11,7 +11,8 @@ import javax.microedition.location.*;
  * @author Serge Perinsky
  */
 public class JSR179GeoLocator
-        implements GeoLocator {
+        implements GeoLocator,
+                   LocationListener {
 
     public static boolean isLocationAPISupported() {
         try {
@@ -23,7 +24,7 @@ public class JSR179GeoLocator
     }
 
     LocationProvider locationProvider = null;
-    GeoLocationListener listener = null;
+    GeoLocationListener locationListener = null;
 
     boolean isStarted = true;
 
@@ -43,41 +44,10 @@ public class JSR179GeoLocator
             return; // nothing to do here anymore
         }
 
-        // let's start a location polling thread
-        isStarted = true;
-        new Thread() {
-            public void run() {
-                String oldDateString = "";
-                String oldTimeString = "";
-                do {
-                    GeoLocation location = getLocation();
-                   
-                    if (location == null) { // avoid bad data
-                        continue;
-                    }
-                    // make sure to only pass new data (check the timestamp),
-                    // avoid clogging the bandwidth with duplicate points
-                    
-                    String dateString = location.getDateString();
-                    String timeString = location.getTimeString();
-                    
-                    if (!dateString.equals(oldDateString)
-                     || !timeString.equals(oldTimeString)) {
-                        if (listener != null) {
-                            listener.locationChanged(location);
-                        }
-                        
-                        oldDateString = dateString;
-                        oldTimeString = timeString;
-                    }
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                } while (isStarted);
-            }
-        }.start();
+        locationProvider.setLocationListener(this,
+                                             1,  // polling interval, seconds
+                                             -1,  // default timeout, seconds
+                                             -1); // default maximum age
     }
 
     public void close() {
@@ -85,26 +55,10 @@ public class JSR179GeoLocator
     }
 
     public void setLocationListener(GeoLocationListener listener) {
-        this.listener = listener;
+        this.locationListener = listener;
     }
 
-    public GeoLocation getLocation() {
-
-        if (locationProvider == null) {
-            return null;
-        }
-
-        Location lapiLocation;
-
-        try {
-            lapiLocation = locationProvider.getLocation(-1); // use default timeout
-        } catch (Exception e) {
-            lapiLocation = null;
-        }
-
-        if (lapiLocation == null) {
-            return null;
-        }
+    public GeoLocation getLocation(Location lapiLocation) {
 
         QualifiedCoordinates coordinates = lapiLocation.getQualifiedCoordinates();
         GeoLocation location = new GeoLocation
@@ -127,11 +81,47 @@ public class JSR179GeoLocator
 
         location.setTimestamp(lapiLocation.getTimestamp());
         location.setValid(lapiLocation.isValid());
-        
+
 ///... add more fields?
 ///lapiLocation.getExtraInfo("application/X-jsr179-location-nmea"); /// - save NMEA data
 ///lapiLocation.get...()
 
         return location;
+    }
+
+    public GeoLocation getLocation() {
+
+        if (locationProvider == null) {
+            return null;
+        }
+
+        Location lapiLocation;
+
+        try {
+            lapiLocation = locationProvider.getLocation(-1); // use default timeout
+        } catch (Exception e) {
+            lapiLocation = null;
+        }
+
+        if (lapiLocation == null) {
+            return null;
+        }
+
+        return getLocation(lapiLocation);
+    }
+
+    public void locationUpdated(LocationProvider locationProvider, Location lapiLocation) {
+
+///avoid duplicate timestamps/date/time values!!!
+
+        if (locationListener != null) {
+            locationListener.locationChanged(getLocation(lapiLocation));
+        }
+    }
+
+    public void providerStateChanged(LocationProvider locationProvider, int newState) {
+///
+System.out.println("*** newState=" + newState);
+///
     }
 }
