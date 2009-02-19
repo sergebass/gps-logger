@@ -18,6 +18,8 @@ public class NMEA0183Parser
     
     InputStream inputStream = null;
     
+    StringBuffer sentenceBuffer = null;
+
     boolean isValidGPSData = false;
     
     String gpxTimeString = "";
@@ -109,7 +111,10 @@ public class NMEA0183Parser
         
         location.setValid(isValidGPSData);
 
-/// save NMEA data in the location object?
+        // save NMEA 0183 data in the location object
+        if (sentenceBuffer != null) {
+            location.setNMEASentences(sentenceBuffer.toString());
+        }
         
         return location;
     }
@@ -163,6 +168,12 @@ public class NMEA0183Parser
 
     public void processSentence(String sentence) {
 
+        if (sentenceBuffer == null) {
+            sentenceBuffer = new StringBuffer();
+        }
+
+        sentenceBuffer.append(sentence + "\n"); // save for later, this may be recorded
+
         String strippedSentence = "";
         String sentenceHeader = "";
 
@@ -183,7 +194,10 @@ public class NMEA0183Parser
             // as it is the most important one
             // (and supposedly supported by all NMEA-0183 compliant devices)
             if (locationListener != null) {
-                locationListener.locationChanged(getLocation());
+                locationListener.locationUpdated(getLocation());
+
+                // mark for deletion, this will be recreated during next iteration
+                sentenceBuffer = null;
             }
             
         } else if (sentenceHeader.equals("$GPGGA,")) {

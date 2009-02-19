@@ -1826,7 +1826,7 @@ throw new Exception("No valid location source found!");
         } // synchronized (geoLocatorLock)
     }
 
-    public void locationChanged(GeoLocation location) {
+    public void locationUpdated(GeoLocation location) {
 
         if (location == null) {
 
@@ -1858,6 +1858,24 @@ throw new Exception("No valid location source found!");
             getMainScreen().setTotalTime(totalTime.getISO8601UTCTimeId());
             
             getMainScreen().repaint();
+        }
+    }
+
+    public void locatorStateChanged(int newState) {
+///
+System.out.println("*** newState=" + newState);
+///
+        switch (newState) {
+            case javax.microedition.location.LocationProvider.AVAILABLE:
+                break;
+            case javax.microedition.location.LocationProvider.OUT_OF_SERVICE:
+                getMainScreen().setLocationValid(false);
+                getMainScreen().repaint();
+                break;
+            case javax.microedition.location.LocationProvider.TEMPORARILY_UNAVAILABLE:
+                getMainScreen().setLocationValid(false);
+                getMainScreen().repaint();
+                break;
         }
     }
 

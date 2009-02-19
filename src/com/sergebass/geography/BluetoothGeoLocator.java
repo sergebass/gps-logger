@@ -70,7 +70,7 @@ public class BluetoothGeoLocator
         }
 
         if (stream != null) {
-            stream.close();
+///???            stream.close();
             stream = null;
         }
         

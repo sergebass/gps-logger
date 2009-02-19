@@ -4,7 +4,6 @@
 
 package com.sergebass.geography;
 
-import java.util.Hashtable;
 import com.sergebass.util.Instant;
 /**
  *
@@ -35,13 +34,14 @@ public class GeoLocation {
     float hdop = Float.NaN; // Horizontal dillution of precision
     float vdop = Float.NaN; // Vertical dillution of precision
 
-    Hashtable otherData;
+    String nmeaSentences = null;
+
+///set this flag from user settings
+    boolean saveNMEASentences = true;
 
     public GeoLocation(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
-
-        otherData = new Hashtable();
     }
 
     public boolean isValid() {
@@ -177,6 +177,14 @@ public class GeoLocation {
         this.vdop = vdop;
     }
 
+    public String getNMEASentences() {
+        return nmeaSentences;
+    }
+    
+    public void setNMEASentences(String sentences) {
+        nmeaSentences = sentences;
+    }
+
     public String toString() {
         return toGPXTrackpointString(); // let this be default
     }
@@ -278,6 +286,12 @@ public class GeoLocation {
         // this is the closing comment tag:
         if (!isDataValid && pointTypeTag.equalsIgnoreCase("trkpt")) {
             stringBuffer.append("invalid point -->\n"); // finish comment section
+        }
+
+        if (saveNMEASentences) {
+            if (nmeaSentences != null) {
+                stringBuffer.append("<!--\n" + nmeaSentences + "-->\n");
+            }
         }
 
         return stringBuffer.toString();

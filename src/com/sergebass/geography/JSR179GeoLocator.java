@@ -82,9 +82,10 @@ public class JSR179GeoLocator
         location.setTimestamp(lapiLocation.getTimestamp());
         location.setValid(lapiLocation.isValid());
 
-///... add more fields?
-///lapiLocation.getExtraInfo("application/X-jsr179-location-nmea"); /// - save NMEA data
-///lapiLocation.get...()
+        String nmeaSentences = lapiLocation.getExtraInfo("application/X-jsr179-location-nmea");
+        if (nmeaSentences != null) {
+            location.setNMEASentences(nmeaSentences);
+        }
 
         return location;
     }
@@ -115,13 +116,13 @@ public class JSR179GeoLocator
 ///avoid duplicate timestamps/date/time values!!!
 
         if (locationListener != null) {
-            locationListener.locationChanged(getLocation(lapiLocation));
+            locationListener.locationUpdated(getLocation(lapiLocation));
         }
     }
 
     public void providerStateChanged(LocationProvider locationProvider, int newState) {
-///
-System.out.println("*** newState=" + newState);
-///
+        if (locationListener != null) {
+            locationListener.locatorStateChanged(newState);
+        }
     }
 }

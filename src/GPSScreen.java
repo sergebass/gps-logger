@@ -64,6 +64,8 @@ try {
 *///
     }
 
+///!!! display location/fix method! (location.getLocationMethod())
+
     public void setLocation(GeoLocation location) {
         this.location = location;
 
@@ -81,7 +83,7 @@ try {
             return;
         }
 
-/// use String.substring() to trim long values!!!
+///!!! use String.substring() to trim long values!!!
 
         double latitude = location.getLatitude();
         if (!Double.isNaN(latitude)) {
@@ -162,7 +164,7 @@ try {
         String time = location.getTimeString();
         setTime(time + " UTC/GPS");
 
-        isLocationValid = location.isValid();
+        setLocationValid(location.isValid());
         
         int satelliteCount = location.getSatelliteCount();
         if (satelliteCount < 0) {
@@ -170,6 +172,10 @@ try {
         } else {
             setSatelliteInfo(satelliteCount + " satellite(s)");
         }
+    }
+
+    public void setLocationValid(boolean isValid) {
+        this.isLocationValid = isValid;
     }
 
     public void setLatitude(String string) {
@@ -180,7 +186,7 @@ try {
         displayString(latitudeString,
                     0, smallFont.getHeight() * 0,
                     smallFont.stringWidth(latitudeString), smallFont.getHeight(),
-                    0xFF00FF00, 0xA0000000, // green on 60% black
+                    isLocationValid? 0xFF00FF00 : 0xFF008000, 0xA0000000, // green on 60% black
                     smallFont,
                     false,
                     false);
@@ -194,7 +200,7 @@ try {
         displayString(longitudeString,
                     0, smallFont.getHeight() * 1,
                     smallFont.stringWidth(longitudeString), smallFont.getHeight(),
-                    0xFF00FF00, 0xA0000000, // green on 60% black
+                    isLocationValid? 0xFF00FF00 : 0xFF008000, 0xA0000000, // green on 60% black
                     smallFont,
                     false,
                     false);
@@ -208,7 +214,7 @@ try {
         displayString(altitudeString,
                     0, smallFont.getHeight() * 2,
                     smallFont.stringWidth(altitudeString), smallFont.getHeight(),
-                    0xFF00FF00, 0xA0000000, // green on 60% black
+                    isLocationValid? 0xFF00FF00 : 0xFF008000, 0xA0000000, // green on 60% black
                     smallFont,
                     false,
                     false);
@@ -282,7 +288,7 @@ try {
                     getWidth() - smallFont.stringWidth(speedString),
                     smallFont.getHeight() * 1,
                     smallFont.stringWidth(speedString), smallFont.getHeight(),
-                    0xFFFFFF00, 0xA0000000, // yellow on 60% black
+                    isLocationValid? 0xFFFFFF00 : 0xFF808000, 0xA0000000, // yellow on 60% black
                     smallFont,
                     false,
                     false);
@@ -301,7 +307,7 @@ try {
                     getWidth() - smallFont.stringWidth(courseString),
                     smallFont.getHeight() * 2,
                     smallFont.stringWidth(courseString), smallFont.getHeight(),
-                    0xFFFFFF00, 0xA0000000, // yellow on 60% black
+                    isLocationValid? 0xFFFFFF00 : 0xFF808000, 0xA0000000, // yellow on 60% black
                     smallFont,
                     false,
                     false);
