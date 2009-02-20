@@ -180,6 +180,10 @@ public class Instant
         return getISO8601DateId(TimeZone.getTimeZone("GMT")); // GMT~=UTC)
     }
 
+    public String getISO8601DateId() {
+        return getISO8601DateId(TimeZone.getDefault());
+    }
+
     public String getISO8601DateId(TimeZone timeZone) {
 
         Calendar calendar = Calendar.getInstance(timeZone);
@@ -200,6 +204,10 @@ public class Instant
     
     public String getISO8601UTCTimeId() {
         return getISO8601TimeId(TimeZone.getTimeZone("GMT")); // GMT~=UTC)
+    }
+
+    public String getISO8601TimeId() {
+        return getISO8601TimeId(TimeZone.getDefault());
     }
 
     public String getISO8601TimeId(TimeZone timeZone) {

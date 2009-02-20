@@ -116,9 +116,12 @@ public class NMEA0183Parser
         
         location.setValid(isValidGPSData);
 
+/// make sure waypoints contain _complete_ NMEA data, rather than what's left
+/// over from previous getLocation() request!!!
+
         // save NMEA 0183 data in the location object
         if (sentenceBuffer != null) {
-            location.setNMEASentences(sentenceBuffer.toString());
+            location.setNMEASentences(sentenceBuffer.toString().trim());
         }
         
         return location;
@@ -129,8 +132,8 @@ public class NMEA0183Parser
     }
 
     public void stop() {
-        watchdog.stop();
         isStarted = false;
+        watchdog.stop();
     }
     
     public void run() {
@@ -161,7 +164,8 @@ public class NMEA0183Parser
                     if (aWord == -1) { // end-of-file?
                         System.out.println("The end of NMEA stream has been reached\n");
                         isStarted = false;
-                        break; // Ok, let's quit
+                        onParsingComplete(false); // not requested by user
+                        return; // Ok, let's quit
                     }
 
                     c = (char)aWord;
@@ -177,11 +181,8 @@ public class NMEA0183Parser
                 }
             } while (isStarted);
 
-            System.out.println("Stopping NMEA parser\n");
-
-            watchdog.stop();
-            onParsingComplete();
-
+            onParsingComplete(true); // this stopping was requested by user
+            
         } catch (Exception e) {
             e.printStackTrace();
             if (locationListener != null) {
@@ -190,9 +191,14 @@ public class NMEA0183Parser
         }
     }
 
-    public void onParsingComplete() {
+    public void onParsingComplete(boolean isUserRequested) {
+        System.out.println("The NMEA stream parsing is finished");
+        watchdog.stop();
         if (parserListener != null) {
-            parserListener.handleParsingComplete();
+            parserListener.handleParsingComplete(isUserRequested);
+
+            // this was the last notification
+            parserListener = null;
         }
     }
 

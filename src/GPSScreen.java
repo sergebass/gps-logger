@@ -220,6 +220,8 @@ try {
                     false);
     }
 
+/// use java.util.Timer/TimerTask as a separate clock thread
+    
     public void displayLocalTime() {
         Instant now = new Instant(System.currentTimeMillis());
         TimeZone timeZone = TimeZone.getDefault();

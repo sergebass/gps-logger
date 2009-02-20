@@ -337,13 +337,13 @@ public class GPSLogger
      */
     public void searchDevices() {//GEN-END:|82-entry|0|83-preAction
 
+        getDeviceList().deleteAll();
+        
         // switch to the found device list
         switchDisplayable(null, getDeviceList());
 
         getDeviceList().setTitle("Searching GPS...");
         System.out.println("Searching GPS devices...");
-
-        getDeviceList().deleteAll();
 
         BluetoothManager deviceManager = new BluetoothManager(this);
 
@@ -1280,14 +1280,14 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
 
         synchronized (trackLock) {
             try {
-                closeIndividualWaypointLog();
+                // (only finish, do not close the whole track log at this time!)
+                finishTrackLog();
             } catch (IOException e) {
                 handleException(e, introForm);
             }
 
             try {
-                // (only finish, do not close the whole track log at this time!)
-                finishTrackLog();
+                closeIndividualWaypointLog();
             } catch (IOException e) {
                 handleException(e, introForm);
             }
@@ -1400,13 +1400,13 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
         // try to exit gracefully, make sure all connections are closed
         // and our precious data is not lost
         try {
-            closeIndividualWaypointLog();
+            closeTrackLogFile();
         } catch (IOException e) {
             // too late to handle this now...
         }
 
         try {
-            closeTrackLogFile();
+            closeIndividualWaypointLog();
         } catch (IOException e) {
             // too late to handle this now...
         }
@@ -1514,13 +1514,9 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
         String connectionURLString = settings.getGPSDeviceURL();
         System.out.println("Starting tracking, connection URL = " + connectionURLString);
         
-        boolean mustReconnectToGPS = false;
-            
         try {
             do { // (re)connect loop
-                screen.setTitle(mustReconnectToGPS?
-                          "Restarting..."
-                        : "Starting...");
+                screen.setTitle("Starting...");
                 
                 System.out.println(getMainScreen().getTitle());
         
@@ -1548,8 +1544,6 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
                                 e.printStackTrace();
                             }
                         }
-
-                        mustReconnectToGPS = false; // drop the flag
                     }
                 }
             
@@ -1572,20 +1566,9 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
 
                 do {
                     Thread.sleep(200);
-                } while (!mustBeTerminated && !mustReconnectToGPS); // or until user decides to quit?
-            
-                if (mustReconnectToGPS) {
-                    try {
-                        geoLocator.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        // ignore?
-                    } finally {
-                        geoLocator = null;
-                    }
-                }
+                } while (!mustBeTerminated); // or until user decides to quit?
                 
-            } while (mustReconnectToGPS);
+            } while (false); /// fix this: reconnect?
             
         } catch (Exception e) {
             handleException(e, introForm);
@@ -1605,7 +1588,7 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
                 errorPlayer.start();
             } catch (Exception ee) {
                 ee.printStackTrace();
-                ///ignore?
+                // ignore the rest
             }
         }
 
@@ -1619,13 +1602,12 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
         }
 
         getErrorAlert().setTitle("Error!");
-        getErrorAlert().setString(errorInstant.getDateId()
-                                  + " "
-                                  + errorInstant.getTimeId()
-                                  + ": "
+        getErrorAlert().setString(errorInstant.getISO8601TimeId()
+                                  + "\n"
+                                  + e.getMessage()
+                                  + "\n("
                                   + e.getClass().getName()
-                                  + ":\n"
-                                  + e.getMessage());
+                                  + ")");
        
         getDisplay().setCurrent(errorAlert, displayable);
     }
@@ -1825,6 +1807,7 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
             throws IOException {
         synchronized (geoLocatorLock) {
             if (geoLocator != null) {
+                geoLocator.setLocationListener(null);
                 geoLocator.close();
                 geoLocator = null;
             }
@@ -1890,9 +1873,9 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
     }
 
     public void onLocatorStateChanged(int newState) {
-///
-System.out.println("*** newState=" + newState);
-///
+
+        System.out.println("Locator state changed to " + newState);
+        
         switch (newState) {
             case javax.microedition.location.LocationProvider.AVAILABLE:
                 break;

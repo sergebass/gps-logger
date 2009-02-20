@@ -29,7 +29,7 @@ public class BluetoothGeoLocator
             throws IOException {
 
         synchronized (connectionLock) {
-            System.out.print("Creating GPS receiver connection to "
+            System.out.println("Creating GPS connection to "
                              + connectionURLString + "...");
 
             try {
@@ -49,12 +49,12 @@ public class BluetoothGeoLocator
             }
 
             stream = streamConnection.openInputStream();
+    
+            nmeaParser = new NMEA0183Parser(this, stream);
+            nmeaParser.start();
         } // synchronized (connectionLock)
 
-        nmeaParser = new NMEA0183Parser(this, stream);
-        nmeaParser.start();
-
-        System.out.println(" Connected.");
+        System.out.println("GPS connected.");
     }
     
     public void setLocationListener(GeoLocationListener locationListener) {
@@ -67,14 +67,14 @@ public class BluetoothGeoLocator
     public synchronized void close()
             throws IOException {
 
-        System.out.print("Closing GPS receiver connection...");
+        System.out.println("Closing GPS connection...");
         
-        if (nmeaParser != null) {
-            nmeaParser.stop();
-            nmeaParser = null;
-        }
-
         synchronized (connectionLock) {
+            if (nmeaParser != null) {
+                nmeaParser.stop();
+                nmeaParser = null;
+            }
+
             if (stream != null) {
                 stream.close();
                 stream = null;
@@ -86,14 +86,14 @@ public class BluetoothGeoLocator
             }
         }
         
-        System.out.println(" Disconnected.");
+        System.out.println("GPS disconnected.");
     }
 
     public GeoLocation getLocation() {
         return (nmeaParser != null)? nmeaParser.getLocation() : null;
     }
 
-    public void handleParsingComplete() {
+    public synchronized void handleParsingComplete(boolean isUserRequested) {
 
         try {
             close();
@@ -104,8 +104,12 @@ public class BluetoothGeoLocator
         // end-of-file for bluetooth connection means
         // that the connection was lost/broken; notify the interested party
 
-        if (locationListener != null) {
-            locationListener.onLocatorException(new GeoLocatorException("Lost Bluetooth GPS connection"));
+        if (locationListener != null && !isUserRequested) {
+            locationListener.onLocatorException
+                    (new GeoLocatorException("Lost connection with GPS"));
+
+            // this was the last notification
+            setLocationListener(null);
         }
     }
 }

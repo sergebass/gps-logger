@@ -26,7 +26,9 @@ public class JSR179GeoLocator
     LocationProvider locationProvider = null;
     GeoLocationListener locationListener = null;
 
-    boolean isStarted = true;
+    final Object connectionLock = new Object();
+
+    long lastLocationTimestamp = -1L;
 
     public JSR179GeoLocator() {
         this(new Criteria()); // use defaults
@@ -34,24 +36,30 @@ public class JSR179GeoLocator
 
     public JSR179GeoLocator(Criteria criteria) {
         System.out.println("Creating JSR179 Location API locator connection...");
-        try {
-            locationProvider = LocationProvider.getInstance(criteria);
-        } catch (LocationException e) {
-            locationProvider = null;
-        }
+        synchronized (connectionLock) {
+            try {
+                locationProvider = LocationProvider.getInstance(criteria);
+            } catch (LocationException e) {
+                locationProvider = null;
+            }
 
-        if (locationProvider == null) {
-            return; // nothing to do here anymore
-        }
+            if (locationProvider == null) {
+                return; // nothing to do here anymore
+            }
 
-        locationProvider.setLocationListener(this,
-                                             1,  // polling interval, seconds
-                                             -1,  // default timeout, seconds
-                                             -1); // default maximum age
+            locationProvider.setLocationListener(this,
+                                                 1,  // polling interval, seconds
+                                                 -1,  // default timeout, seconds
+                                                 -1); // default maximum age
+        } // synchronized (connectionLock)
     }
 
     public void close() {
-        isStarted = false;
+        synchronized (connectionLock) {
+            // cancel our registration for location/status updates
+            locationProvider.setLocationListener(null, -1, -1, -1);
+            locationProvider = null;
+        }
     }
 
     public void setLocationListener(GeoLocationListener listener) {
@@ -113,10 +121,12 @@ public class JSR179GeoLocator
 
     public void locationUpdated(LocationProvider locationProvider, Location lapiLocation) {
 
-///avoid duplicate timestamps/date/time values!!!
-
-        if (locationListener != null) {
+        long timestamp = lapiLocation.getTimestamp();
+        
+        if (locationListener != null
+            && lastLocationTimestamp != timestamp) { // avoid duplicate locations
             locationListener.onLocationUpdated(getLocation(lapiLocation));
+            lastLocationTimestamp = timestamp;
         }
     }
 

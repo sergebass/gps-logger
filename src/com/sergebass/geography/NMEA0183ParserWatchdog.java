@@ -22,11 +22,15 @@ public class NMEA0183ParserWatchdog
     }
 
     public void stop() {
-        isRunning = false;
+        if (isRunning) {
+            isRunning = false;
+            System.out.println("Stopping NMEA watchtog thread");
+        }
     }
 
     public void run() {
         isRunning = true;
+        System.out.println("Starting NMEA watchtog thread");
 
         while (isRunning) {
 
@@ -35,7 +39,7 @@ public class NMEA0183ParserWatchdog
 
             if (currentTime - lastSentenceTime > timeout) { // is it time to set alarm off?
                 parser.stop();
-                parser.onParsingComplete(); // notify as if the connection was lost
+                parser.onParsingComplete(false); // notify as if the connection was lost
             }
 
             if (isRunning) {
