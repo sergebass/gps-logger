@@ -741,7 +741,6 @@ public class GPSLogger
         } catch (RecordStoreException e) {
 ///handle UI
             handleException(e, introForm);
-
             return;
         }
 //GEN-LINE:|188-entry|1|189-postAction
@@ -1234,7 +1233,8 @@ public class GPSLogger
      * Performs an action assigned to the takePhoto entry-point.
      */
     public void takePhoto() {//GEN-END:|292-entry|0|293-preAction
-    ///take a photo here
+
+///take a photo here
 //GEN-LINE:|292-entry|1|293-postAction
 ///tmp:
 new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
@@ -1538,8 +1538,15 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
                         }
 
                         if (tryJSR179) {
-    /// check JSR-179 availability here!
-                            geoLocator = new JSR179GeoLocator(); /// pass Criteria?
+                            // check JSR-179 availability on this device
+                            try {
+                                Class.forName("javax.microedition.location.LocationProvider");
+
+                                // if we went as far as here, the JSR-179 is supported alright
+                                geoLocator = new JSR179GeoLocator(); /// pass Criteria?
+                            } catch (ClassNotFoundException e) { // no JSR-179 support on this device?
+                                e.printStackTrace();
+                            }
                         }
 
                         mustReconnectToGPS = false; // drop the flag
@@ -1547,9 +1554,7 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
                 }
             
                 if (geoLocator == null) { // still no location provider??
-/// HANDLE THIS ERROR!
-throw new Exception("No valid location source found!");
-///
+                    throw new Exception("No valid geolocation source found!");
                 }
 
                 startTrackLog();
@@ -1584,8 +1589,6 @@ throw new Exception("No valid location source found!");
             
         } catch (Exception e) {
             handleException(e, introForm);
-        } finally {
-            ///???shutDown();
         }
     }
     
@@ -1851,7 +1854,7 @@ throw new Exception("No valid location source found!");
                  times);
     }
     
-    public void locationUpdated(GeoLocation location) {
+    public void onLocationUpdated(GeoLocation location) {
 
         if (location == null) {
 
@@ -1886,7 +1889,7 @@ throw new Exception("No valid location source found!");
         }
     }
 
-    public void locatorStateChanged(int newState) {
+    public void onLocatorStateChanged(int newState) {
 ///
 System.out.println("*** newState=" + newState);
 ///
@@ -1904,8 +1907,15 @@ System.out.println("*** newState=" + newState);
         }
     }
 
-    public void handleLocatorException(Exception e) {
-///???
+    public void onLocatorException(Exception e) {
+
+        if (e.getClass().getName().equals(GeoLocatorException.class.getName())) {
+            System.out.println("*** YAHOOO!!! RE-CONNECT NEEDED!\n");
+            stopTrack();
+
+///??? should we reconnect here automatically??
+        }
+
         handleException(e, getIntroForm());
     }
 }

@@ -145,6 +145,8 @@ public class NMEA0183Parser
                     aWord = reader.read();
 
                     if (aWord == -1) { // end-of-file?
+                        System.out.println("The end of NMEA stream has been reached\n");
+                        isStarted = false;
                         break; // Ok, let's quit
                     }
 
@@ -161,6 +163,8 @@ public class NMEA0183Parser
                 }
             } while (isStarted);
 
+            System.out.println("Stopping NMEA parser\n");
+
             if (parserListener != null) {
                 parserListener.handleParsingComplete();
             }
@@ -168,7 +172,7 @@ public class NMEA0183Parser
         } catch (Exception e) {
             e.printStackTrace();
             if (locationListener != null) {
-                locationListener.handleLocatorException(e);
+                locationListener.onLocatorException(e);
             }
         }
     }
@@ -207,7 +211,7 @@ public class NMEA0183Parser
             sentenceBuffer = null;
 
             if (locationListener != null) {
-                locationListener.locationUpdated(currentLocation);
+                locationListener.onLocationUpdated(currentLocation);
             }
             
         } else if (sentenceHeader.equals("$GPGGA,")) {

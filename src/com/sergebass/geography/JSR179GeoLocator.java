@@ -116,13 +116,13 @@ public class JSR179GeoLocator
 ///avoid duplicate timestamps/date/time values!!!
 
         if (locationListener != null) {
-            locationListener.locationUpdated(getLocation(lapiLocation));
+            locationListener.onLocationUpdated(getLocation(lapiLocation));
         }
     }
 
     public void providerStateChanged(LocationProvider locationProvider, int newState) {
         if (locationListener != null) {
-            locationListener.locatorStateChanged(newState);
+            locationListener.onLocatorStateChanged(newState);
         }
     }
 }

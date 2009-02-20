@@ -95,21 +95,17 @@ public class BluetoothGeoLocator
 
     public void handleParsingComplete() {
 
-/// distinguish between EOF and exit requested by user...
-        
-/*
         try {
             close();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
 
-/// handle disconnection errors here??
+        // end-of-file for bluetooth connection means
+        // that the connection was lost/broken; notify the interested party
 
-if (locationListener != null) {
-    locationListener.handleLocatorException(new Exception("EOF/NMEA!!!"));
-}
-///
-*/
+        if (locationListener != null) {
+            locationListener.onLocatorException(new GeoLocatorException("Lost Bluetooth GPS connection"));
+        }
     }
 }

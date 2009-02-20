@@ -9,7 +9,7 @@ package com.sergebass.geography;
  * @author Serge Perinsky
  */
 public interface GeoLocationListener {
-    public void locationUpdated(GeoLocation location);
-    public void locatorStateChanged(int newState);
-    public void handleLocatorException(Exception e);
+    public void onLocationUpdated(GeoLocation location);
+    public void onLocatorStateChanged(int newState);
+    public void onLocatorException(Exception e);
 }
