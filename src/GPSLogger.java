@@ -51,6 +51,7 @@ public class GPSLogger
     
     boolean isTrackStarted = false;
     boolean isTrackSegmentStarted = false;
+    final Object trackLock = new Object();
 
     GPSLogFile waypointLogFile = null;
     GPXWriter waypointLogWriter = null;
@@ -323,7 +324,7 @@ public class GPSLogger
     public Command getExitCommand() {
         if (exitCommand == null) {//GEN-END:|18-getter|0|18-preInit
             // write pre-init user code here
-            exitCommand = new Command(GPSLoggerLocalization.getMessage("exitCommand"), Command.EXIT, 2);//GEN-LINE:|18-getter|1|18-postInit
+            exitCommand = new Command(GPSLoggerLocalization.getMessage("exitCommand"), Command.EXIT, 4);//GEN-LINE:|18-getter|1|18-postInit
             // write post-init user code here
         }//GEN-BEGIN:|18-getter|2|
         return exitCommand;
@@ -444,18 +445,14 @@ public class GPSLogger
     public void startTrack() {//GEN-END:|108-entry|0|109-preAction
         waypoints = new Vector(); // (re)initialize
         mainScreen = new GPSScreen(this);
-        go(mainScreen);
-    }
-
-    void go(final Displayable screen) {
-        switchDisplayable(null, screen);
-        screen.setTitle("Connecting to GPS...");
+        switchDisplayable(null, mainScreen);
+        mainScreen.setTitle("Connecting to GPS...");
         System.out.println("Connecting to GPS receiver...");
 
         // run our tracking stuff in a separate thread
         new Thread() {
             public void run() {
-                startLogging(screen);
+                startLogging(mainScreen);
             }
         }.start();
 //GEN-LINE:|108-entry|1|109-postAction
@@ -490,7 +487,7 @@ public class GPSLogger
     public Command getStartCommand() {
         if (startCommand == null) {//GEN-END:|142-getter|0|142-preInit
             // write pre-init user code here
-            startCommand = new Command(GPSLoggerLocalization.getMessage("startCommand"), GPSLoggerLocalization.getMessage("startCommand"), Command.OK, 0);//GEN-LINE:|142-getter|1|142-postInit
+            startCommand = new Command(GPSLoggerLocalization.getMessage("startCommand"), GPSLoggerLocalization.getMessage("startCommand"), Command.OK, 1);//GEN-LINE:|142-getter|1|142-postInit
             // write post-init user code here
         }//GEN-BEGIN:|142-getter|2|
         return startCommand;
@@ -505,7 +502,7 @@ public class GPSLogger
     public Command getHelpCommand() {
         if (helpCommand == null) {//GEN-END:|145-getter|0|145-preInit
             // write pre-init user code here
-            helpCommand = new Command(GPSLoggerLocalization.getMessage("helpCommand"), Command.HELP, 5);//GEN-LINE:|145-getter|1|145-postInit
+            helpCommand = new Command(GPSLoggerLocalization.getMessage("helpCommand"), Command.HELP, 3);//GEN-LINE:|145-getter|1|145-postInit
             // write post-init user code here
         }//GEN-BEGIN:|145-getter|2|
         return helpCommand;
@@ -570,7 +567,7 @@ public class GPSLogger
     public Command getSettingsCommand() {
         if (settingsCommand == null) {//GEN-END:|152-getter|0|152-preInit
             // write pre-init user code here
-            settingsCommand = new Command(GPSLoggerLocalization.getMessage("settingsCommand"), GPSLoggerLocalization.getMessage("settingsCommand"), Command.SCREEN, 1);//GEN-LINE:|152-getter|1|152-postInit
+            settingsCommand = new Command(GPSLoggerLocalization.getMessage("settingsCommand"), GPSLoggerLocalization.getMessage("settingsCommand"), Command.SCREEN, 2);//GEN-LINE:|152-getter|1|152-postInit
             // write post-init user code here
         }//GEN-BEGIN:|152-getter|2|
         return settingsCommand;
@@ -1280,23 +1277,26 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
      * Performs an action assigned to the stopTrack entry-point.
      */
     public void stopTrack() {//GEN-END:|296-entry|0|297-preAction
-        try {
-            closeIndividualWaypointLog();
-        } catch (IOException e) {
-            handleException(e, introForm);
-        }
 
-        try {
-            finishTrackLog();
-            // (do not close the whole track log at this time!)
-        } catch (IOException e) {
-            handleException(e, introForm);
-        }
+        synchronized (trackLock) {
+            try {
+                closeIndividualWaypointLog();
+            } catch (IOException e) {
+                handleException(e, introForm);
+            }
 
-        try {
-            closeGeoLocator();
-        } catch (IOException e) {
-            handleException(e, introForm);
+            try {
+                // (only finish, do not close the whole track log at this time!)
+                finishTrackLog();
+            } catch (IOException e) {
+                handleException(e, introForm);
+            }
+
+            try {
+                closeGeoLocator();
+            } catch (IOException e) {
+                handleException(e, introForm);
+            }
         }
 //GEN-LINE:|296-entry|1|297-postAction
         switchDisplayable(null, introForm);
@@ -1524,24 +1524,26 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
                 
                 System.out.println(getMainScreen().getTitle());
         
-                if (geoLocator == null) { // connect to the GPS if not connected yet
-                    boolean tryJSR179 = false;
-                    if (connectionURLString != null) {
-                        if (!connectionURLString.trim().equals("")) {
-                            geoLocator = new BluetoothGeoLocator(connectionURLString);
-                        } else {
+                synchronized (trackLock) {
+                    if (geoLocator == null) { // connect to the GPS if not connected yet
+                        boolean tryJSR179 = false;
+                        if (connectionURLString != null) {
+                            if (!connectionURLString.trim().equals("")) {
+                                geoLocator = new BluetoothGeoLocator(connectionURLString);
+                            } else {
+                                tryJSR179 = true;
+                            }
+                        } else { // no bluetooth device was specified: try Location API provider
                             tryJSR179 = true;
                         }
-                    } else { // no bluetooth device was specified: try Location API provider
-                        tryJSR179 = true;
-                    }
 
-                    if (tryJSR179) {
-/// check JSR-179 availability here!
-                        geoLocator = new JSR179GeoLocator(); /// pass Criteria?
-                    }
+                        if (tryJSR179) {
+    /// check JSR-179 availability here!
+                            geoLocator = new JSR179GeoLocator(); /// pass Criteria?
+                        }
 
-                    mustReconnectToGPS = false; // drop the flag
+                        mustReconnectToGPS = false; // drop the flag
+                    }
                 }
             
                 if (geoLocator == null) { // still no location provider??
@@ -1826,6 +1828,29 @@ throw new Exception("No valid location source found!");
         } // synchronized (geoLocatorLock)
     }
 
+
+    public void vibrateSOSRhythm(final int times) {
+        // since Morse vibrator is blocking, invoke it in a separate thread
+        final Display thisDisplay = Display.getDisplay(this);
+        new Thread() {
+            public void run() {
+                MorseVibrator vibrator = new MorseVibrator(thisDisplay);
+                for (int i = 0; i < times; i++) {
+                    vibrator.vibrateMorseCode("SOS");
+                }
+            }
+        }.start();
+    }
+
+    public void vibrateSuccessRhythm(int times) {
+        new Vibrator(Display.getDisplay(this)).vibrate
+                (new int[] { 300, 100, 300, 100, 100, 100, 100, 100, 300, 300,
+                             100, 100, 100, 100, 100, 100, 100, 300,
+                             100, 100, 300, 700
+                            },
+                 times);
+    }
+    
     public void locationUpdated(GeoLocation location) {
 
         if (location == null) {
@@ -1882,27 +1907,5 @@ System.out.println("*** newState=" + newState);
     public void handleLocatorException(Exception e) {
 ///???
         handleException(e, getIntroForm());
-    }
-
-    public void vibrateSOSRhythm(final int times) {
-        // since Morse vibrator is blocking, invoke it in a separate thread
-        final Display thisDisplay = Display.getDisplay(this);
-        new Thread() {
-            public void run() {
-                MorseVibrator vibrator = new MorseVibrator(thisDisplay);
-                for (int i = 0; i < times; i++) {
-                    vibrator.vibrateMorseCode("SOS");
-                }
-            }
-        }.start();
-    }
-
-    public void vibrateSuccessRhythm(int times) {
-        new Vibrator(Display.getDisplay(this)).vibrate
-                (new int[] { 300, 100, 300, 100, 100, 100, 100, 100, 300, 300,
-                             100, 100, 100, 100, 100, 100, 100, 300,
-                             100, 100, 300, 700
-                            },
-                 times);
     }
 }

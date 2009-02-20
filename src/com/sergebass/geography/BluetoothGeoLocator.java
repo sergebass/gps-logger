@@ -23,33 +23,38 @@ public class BluetoothGeoLocator
 
     NMEA0183Parser nmeaParser = null;
 
+    final Object connectionLock = new Object();
+
     public BluetoothGeoLocator(String connectionURLString)
             throws IOException {
-        System.out.print("Creating GPS receiver connection to "
-                         + connectionURLString + "...");
-        
-        try {
-            streamConnection = (StreamConnection)Connector.open
-                                (connectionURLString, Connector.READ, true);
-        } catch (Exception e) {
-            // strip the device URL string of parameters,
-            // some devices have problems with this... (e.g. some Nokias)
-            int parameterStart = connectionURLString.indexOf(";");
-            if (parameterStart > 0) {
-                connectionURLString = connectionURLString.substring(0, parameterStart);
+
+        synchronized (connectionLock) {
+            System.out.print("Creating GPS receiver connection to "
+                             + connectionURLString + "...");
+
+            try {
+                streamConnection = (StreamConnection)Connector.open
+                                    (connectionURLString, Connector.READ, true);
+            } catch (Exception e) {
+                // strip the device URL string of parameters,
+                // some devices have problems with this... (e.g. some Nokias)
+                int parameterStart = connectionURLString.indexOf(";");
+                if (parameterStart > 0) {
+                    connectionURLString = connectionURLString.substring(0, parameterStart);
+                }
+
+                // try one more time...
+                streamConnection = (StreamConnection)Connector.open
+                                    (connectionURLString, Connector.READ, true);
             }
 
-            // try one more time...
-            streamConnection = (StreamConnection)Connector.open
-                                (connectionURLString, Connector.READ, true);
-        }
-        
-        stream = streamConnection.openInputStream();
+            stream = streamConnection.openInputStream();
+        } // synchronized (connectionLock)
 
         nmeaParser = new NMEA0183Parser(this, stream);
         nmeaParser.start();
         
-        System.out.println(" Done.");
+        System.out.println(" Connected.");
     }
     
     public void setLocationListener(GeoLocationListener locationListener) {
@@ -69,17 +74,19 @@ public class BluetoothGeoLocator
             nmeaParser = null;
         }
 
-        if (stream != null) {
-            stream.close();
-            stream = null;
+        synchronized (connectionLock) {
+            if (stream != null) {
+                stream.close();
+                stream = null;
+            }
+
+            if (streamConnection != null) {
+                streamConnection.close();
+                streamConnection = null;
+            }
         }
         
-        if (streamConnection != null) {
-            streamConnection.close();
-            streamConnection = null;
-        }
-        
-        System.out.println(" Done.");
+        System.out.println(" Disconnected.");
     }
 
     public GeoLocation getLocation() {

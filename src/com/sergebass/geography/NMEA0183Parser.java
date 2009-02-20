@@ -135,6 +135,13 @@ public class NMEA0183Parser
                 int aWord;
 
                 do { // first, read a sentence, ended by a LF character
+
+                    // let's do an additional check in order
+                    // to react more quickly to a stop request
+                    if (!isStarted) {
+                        return;
+                    }
+
                     aWord = reader.read();
 
                     if (aWord == -1) { // end-of-file?
@@ -177,7 +184,7 @@ public class NMEA0183Parser
         String strippedSentence = "";
         String sentenceHeader = "";
 
-        // by stripping we also _copying_ the values at the same time,
+        // by stripping we are also _copying_ the values at the same time,
         // to release this resource as soon as possible
         // (to be used by the logging thread again, if necessary)
         synchronized (sentenceLock) {
@@ -193,11 +200,14 @@ public class NMEA0183Parser
             // let the GPRMC be the callback trigger sentence
             // as it is the most important one
             // (and supposedly supported by all NMEA-0183 compliant devices)
-            if (locationListener != null) {
-                locationListener.locationUpdated(getLocation());
+            
+            GeoLocation currentLocation = getLocation();
 
-                // mark for deletion, this will be recreated during next iteration
-                sentenceBuffer = null;
+            // mark for deletion, this will be recreated during the next iteration
+            sentenceBuffer = null;
+
+            if (locationListener != null) {
+                locationListener.locationUpdated(currentLocation);
             }
             
         } else if (sentenceHeader.equals("$GPGGA,")) {
