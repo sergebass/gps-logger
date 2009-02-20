@@ -53,7 +53,7 @@ public class BluetoothGeoLocator
 
         nmeaParser = new NMEA0183Parser(this, stream);
         nmeaParser.start();
-        
+
         System.out.println(" Connected.");
     }
     

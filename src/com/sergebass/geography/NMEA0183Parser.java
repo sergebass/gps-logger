@@ -16,9 +16,12 @@ import java.io.InputStreamReader;
 public class NMEA0183Parser
         extends Thread {
     
-    InputStream inputStream = null;
-    
+    final static long WATCHDOG_TIMEOUT_MILLIS = 10000L; // 10 seconds
+
+    long lastSentenceTimeMillis = System.currentTimeMillis();
     StringBuffer sentenceBuffer = null;
+
+    InputStream inputStream = null;
 
     boolean isValidGPSData = false;
     
@@ -64,6 +67,8 @@ public class NMEA0183Parser
     
     NMEA0183ParserListener parserListener = null;
     GeoLocationListener locationListener = null;
+
+    NMEA0183ParserWatchdog watchdog = null;
 
     public NMEA0183Parser(NMEA0183ParserListener parserListener,
                           InputStream inputStream) {
@@ -119,12 +124,21 @@ public class NMEA0183Parser
         return location;
     }
 
+    public long getLastSentenceTime() {
+        return lastSentenceTimeMillis;
+    }
+
     public void stop() {
+        watchdog.stop();
         isStarted = false;
     }
     
     public void run() {
         isStarted = true;
+
+        // add a watchdog thread to handle GPS receiver hang-ups!
+        watchdog = new NMEA0183ParserWatchdog(this, WATCHDOG_TIMEOUT_MILLIS);
+        watchdog.start();
 
         InputStreamReader reader = new InputStreamReader(inputStream);
 
@@ -165,9 +179,8 @@ public class NMEA0183Parser
 
             System.out.println("Stopping NMEA parser\n");
 
-            if (parserListener != null) {
-                parserListener.handleParsingComplete();
-            }
+            watchdog.stop();
+            onParsingComplete();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -177,7 +190,15 @@ public class NMEA0183Parser
         }
     }
 
+    public void onParsingComplete() {
+        if (parserListener != null) {
+            parserListener.handleParsingComplete();
+        }
+    }
+
     public void processSentence(String sentence) {
+
+        lastSentenceTimeMillis = System.currentTimeMillis(); // update timestamp
 
         if (sentenceBuffer == null) {
             sentenceBuffer = new StringBuffer();

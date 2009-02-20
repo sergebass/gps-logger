@@ -1909,10 +1909,9 @@ System.out.println("*** newState=" + newState);
 
     public void onLocatorException(Exception e) {
 
+        stopTrack();
+        
         if (e.getClass().getName().equals(GeoLocatorException.class.getName())) {
-            System.out.println("*** YAHOOO!!! RE-CONNECT NEEDED!\n");
-            stopTrack();
-
 ///??? should we reconnect here automatically??
         }
 
