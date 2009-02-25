@@ -246,7 +246,7 @@
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
                         <Property name="text" typeID="Pjava.lang.String" value="V"/>
                         <Property name="maxSize" typeID="Pint" value="V32"/>
-                        <Property name="constraints" typeID="Pint" value="V0"/>
+                        <Property name="constraints" typeID="Pint" value="V2097152"/>
                     </Component>
                     <Component componentID="284" typeID="C#CommandEventSource">
                         <Property name="eventHandler" typeID="C#EventHandler" value="R287"/>
@@ -378,7 +378,7 @@
                     <Property name="commands" typeID="1C#CommandEventSource" value="A2:4_R2024_R215"/>
                     <Property name="title" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;Settings&quot;)"/>
                     <Property name="commandListener" typeID="C#CommandListener" value="R7"/>
-                    <Property name="items" typeID="1Cjavax.microedition.lcdui.Item" value="A12:4_R1614_R2684_R2744_R1604_R2704_R2714_R3044_R3074_R1574_R2204_R1634_R223"/>
+                    <Property name="items" typeID="1Cjavax.microedition.lcdui.Item" value="A13:4_R1614_R2684_R2744_R1604_R2704_R2714_R3124_R3044_R3074_R1574_R2204_R1634_R223"/>
                     <Component componentID="274" typeID="Cjavax.microedition.lcdui.Spacer">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="Vspacer1"/>
                         <Property name="label" typeID="Pjava.lang.String" value="Vspacer1"/>
@@ -425,6 +425,45 @@
                             </Component>
                         </Component>
                     </Component>
+                    <Component componentID="304" typeID="Cjavax.microedition.lcdui.ChoiceGroup">
+                        <Property name="instanceName" typeID="Pjava.lang.String" value="VlogFormatChoiceGroup"/>
+                        <Property name="label" typeID="Pjava.lang.String" value="VLog format"/>
+                        <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
+                        <Property name="choiceType" typeID="Pint" value="V1"/>
+                        <Property name="elements" typeID="1C#ChoiceElement" value="A2:4_R3054_R306"/>
+                        <Component componentID="305" typeID="C#ChoiceElement">
+                            <Property name="string" typeID="Pjava.lang.String" value="VGPX"/>
+                            <Property name="selected" typeID="Pboolean" value="Vtrue"/>
+                        </Component>
+                        <Component componentID="306" typeID="C#ChoiceElement">
+                            <Property name="string" typeID="Pjava.lang.String" value="VKML"/>
+                        </Component>
+                    </Component>
+                    <Component componentID="307" typeID="Cjavax.microedition.lcdui.ChoiceGroup">
+                        <Property name="instanceName" typeID="Pjava.lang.String" value="VlogSettingsChoiceGroup"/>
+                        <Property name="label" typeID="Pjava.lang.String" value="VLog settings"/>
+                        <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
+                        <Property name="elements" typeID="1C#ChoiceElement" value="A3:4_R3084_R3094_R310"/>
+                        <Component componentID="309" typeID="C#ChoiceElement">
+                            <Property name="string" typeID="Pjava.lang.String" value="VSeparate NMEA log"/>
+                        </Component>
+                        <Component componentID="308" typeID="C#ChoiceElement">
+                            <Property name="string" typeID="Pjava.lang.String" value="VSave NMEA data (if available)"/>
+                            <Property name="selected" typeID="Pboolean" value="Vtrue"/>
+                        </Component>
+                        <Component componentID="310" typeID="C#ChoiceElement">
+                            <Property name="string" typeID="Pjava.lang.String" value="VSeparate Waypoint log"/>
+                        </Component>
+                    </Component>
+                    <Component componentID="312" typeID="Cjavax.microedition.lcdui.TextField">
+                        <Property name="instanceName" typeID="Pjava.lang.String" value="VlogUpdateFrequencyTextField"/>
+                        <Property name="label" typeID="Pjava.lang.String" value="VLog update frequency (seconds)"/>
+                        <Property name="layout" typeID="Pint" value="V0"/>
+                        <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
+                        <Property name="text" typeID="Pjava.lang.String" value="V1"/>
+                        <Property name="maxSize" typeID="Pint" value="V32"/>
+                        <Property name="constraints" typeID="Pint" value="V2"/>
+                    </Component>
                     <Component componentID="157" typeID="Cjavax.microedition.lcdui.ChoiceGroup">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="VcoordinateChoiceGroup"/>
                         <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;Coordinates&quot;)"/>
@@ -447,6 +486,9 @@
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
                         <Property name="choiceType" typeID="Pint" value="V1"/>
                         <Property name="elements" typeID="1C#ChoiceElement" value="A4:4_R1644_R1654_R1664_R311"/>
+                        <Component componentID="311" typeID="C#ChoiceElement">
+                            <Property name="string" typeID="Pjava.lang.String" value="Vm/sec"/>
+                        </Component>
                         <Component componentID="166" typeID="C#ChoiceElement">
                             <Property name="string" typeID="Pjava.lang.String" value="Vknots"/>
                         </Component>
@@ -456,9 +498,6 @@
                         <Component componentID="164" typeID="C#ChoiceElement">
                             <Property name="string" typeID="Pjava.lang.String" value="Vkm/h"/>
                         </Component>
-                        <Component componentID="311" typeID="C#ChoiceElement">
-                            <Property name="string" typeID="Pjava.lang.String" value="Vm/sec"/>
-                        </Component>
                     </Component>
                     <Component componentID="161" typeID="Cjavax.microedition.lcdui.TextField">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="VgpsDeviceTextField"/>
@@ -467,7 +506,7 @@
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
                         <Property name="text" typeID="Pjava.lang.String" value="V"/>
                         <Property name="maxSize" typeID="Pint" value="V4096"/>
-                        <Property name="constraints" typeID="Pint" value="V0"/>
+                        <Property name="constraints" typeID="Pint" value="V4"/>
                         <Component componentID="236" typeID="C#ItemCommandEventSource">
                             <Property name="eventHandler" typeID="C#EventHandler" value="R237"/>
                             <Property name="item" typeID="Cjavax.microedition.lcdui.Item" value="R161"/>
@@ -544,36 +583,6 @@
                             <Property name="displayable" typeID="Cjavax.microedition.lcdui.Displayable" value="R125"/>
                         </Component>
                     </Component>
-                    <Component componentID="304" typeID="Cjavax.microedition.lcdui.ChoiceGroup">
-                        <Property name="instanceName" typeID="Pjava.lang.String" value="VlogFormatChoiceGroup"/>
-                        <Property name="label" typeID="Pjava.lang.String" value="VLog format"/>
-                        <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
-                        <Property name="choiceType" typeID="Pint" value="V1"/>
-                        <Property name="elements" typeID="1C#ChoiceElement" value="A2:4_R3054_R306"/>
-                        <Component componentID="305" typeID="C#ChoiceElement">
-                            <Property name="string" typeID="Pjava.lang.String" value="VGPX"/>
-                            <Property name="selected" typeID="Pboolean" value="Vtrue"/>
-                        </Component>
-                        <Component componentID="306" typeID="C#ChoiceElement">
-                            <Property name="string" typeID="Pjava.lang.String" value="VKML"/>
-                        </Component>
-                    </Component>
-                    <Component componentID="307" typeID="Cjavax.microedition.lcdui.ChoiceGroup">
-                        <Property name="instanceName" typeID="Pjava.lang.String" value="VlogSettingsChoiceGroup"/>
-                        <Property name="label" typeID="Pjava.lang.String" value="VLog settings"/>
-                        <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
-                        <Property name="elements" typeID="1C#ChoiceElement" value="A3:4_R3084_R3094_R310"/>
-                        <Component componentID="308" typeID="C#ChoiceElement">
-                            <Property name="string" typeID="Pjava.lang.String" value="VSave NMEA data (if available)"/>
-                            <Property name="selected" typeID="Pboolean" value="Vtrue"/>
-                        </Component>
-                        <Component componentID="309" typeID="C#ChoiceElement">
-                            <Property name="string" typeID="Pjava.lang.String" value="VSeparate NMEA log"/>
-                        </Component>
-                        <Component componentID="310" typeID="C#ChoiceElement">
-                            <Property name="string" typeID="Pjava.lang.String" value="VSeparate Waypoint log"/>
-                        </Component>
-                    </Component>
                 </Component>
                 <Component componentID="147" typeID="Cjavax.microedition.lcdui.Form">
                     <Property name="instanceName" typeID="Pjava.lang.String" value="VhelpForm"/>
@@ -643,24 +652,24 @@
         </Component>
     </Document>
     <FlowScene version="1">
-        <Node componentID="300" descriptorID="componentNode300" x="230" y="569"/>
-        <Node componentID="125" descriptorID="componentNode125" x="744" y="500"/>
-        <Node componentID="296" descriptorID="componentNode296" x="40" y="178"/>
-        <Node componentID="227" descriptorID="componentNode227" x="266" y="24"/>
-        <Node componentID="2" descriptorID="componentNode2" x="955" y="313"/>
-        <Node componentID="233" descriptorID="componentNode233" x="159" y="100"/>
-        <Node componentID="82" descriptorID="componentNode82" x="504" y="14"/>
-        <Node componentID="197" descriptorID="componentNode197" x="772" y="66"/>
         <Node componentID="108" descriptorID="componentNode108" x="34" y="32"/>
-        <Node componentID="188" descriptorID="componentNode188" x="34" y="313"/>
-        <Node componentID="275" descriptorID="componentNode275" x="64" y="470"/>
         <Node componentID="256" descriptorID="componentNode256" x="1159" y="648"/>
-        <Node componentID="279" descriptorID="componentNode279" x="364" y="679"/>
-        <Node componentID="183" descriptorID="componentNode183" x="34" y="712"/>
+        <Node componentID="296" descriptorID="componentNode296" x="40" y="178"/>
+        <Node componentID="188" descriptorID="componentNode188" x="34" y="313"/>
         <Node componentID="147" descriptorID="componentNode147" x="955" y="712"/>
-        <Node componentID="211" descriptorID="componentNode211" x="514" y="104"/>
-        <Node componentID="292" descriptorID="componentNode292" x="400" y="566"/>
+        <Node componentID="300" descriptorID="componentNode300" x="230" y="569"/>
+        <Node componentID="183" descriptorID="componentNode183" x="34" y="712"/>
+        <Node componentID="227" descriptorID="componentNode227" x="266" y="24"/>
+        <Node componentID="82" descriptorID="componentNode82" x="504" y="14"/>
         <Node componentID="141" descriptorID="componentNode141" x="505" y="343"/>
+        <Node componentID="233" descriptorID="componentNode233" x="159" y="100"/>
+        <Node componentID="275" descriptorID="componentNode275" x="64" y="470"/>
+        <Node componentID="2" descriptorID="componentNode2" x="955" y="313"/>
+        <Node componentID="125" descriptorID="componentNode125" x="744" y="500"/>
+        <Node componentID="279" descriptorID="componentNode279" x="364" y="679"/>
+        <Node componentID="211" descriptorID="componentNode211" x="514" y="104"/>
+        <Node componentID="197" descriptorID="componentNode197" x="772" y="66"/>
+        <Node componentID="292" descriptorID="componentNode292" x="400" y="566"/>
         <Node componentID="85" descriptorID="componentNode85" x="272" y="154"/>
     </FlowScene>
 </VisualDesign>

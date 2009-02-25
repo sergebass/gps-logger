@@ -117,9 +117,6 @@ public class NMEA0183Parser
         
         location.setValid(isValidGPSData);
 
-/// make sure waypoints contain _complete_ NMEA data, rather than what's left
-/// over from previous getLocation() request!!!
-
         // save NMEA 0183 data in the location object
         if (lastSentencePack != null) {
             location.setNMEASentences(lastSentencePack);

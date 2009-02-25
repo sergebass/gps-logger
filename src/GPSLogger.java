@@ -99,14 +99,15 @@ public class GPSLogger
     private StringItem browseLogFolderStringItem;
     private Spacer spacer;
     private StringItem searchGPSStringItem;
+    private ChoiceGroup logFormatChoiceGroup;
+    private ChoiceGroup logSettingsChoiceGroup;
+    private TextField logUpdateFrequencyTextField;
     private ChoiceGroup coordinateChoiceGroup;
     private ChoiceGroup speedChoiceGroup;
     private TextField gpsDeviceTextField;
     private TextField logFolderTextField;
     private ChoiceGroup altitudeChoiceGroup;
     private ChoiceGroup languageChoiceGroup;
-    private ChoiceGroup logFormatChoiceGroup;
-    private ChoiceGroup logSettingsChoiceGroup;
     private Form helpForm;
     private StringItem stringItem1;
     private StringItem emailItem;
@@ -534,7 +535,7 @@ public class GPSLogger
     public Form getSettingsForm() {
         if (settingsForm == null) {//GEN-END:|141-getter|0|141-preInit
             // write pre-init user code here
-            settingsForm = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getLogFormatChoiceGroup(), getLogSettingsChoiceGroup(), getCoordinateChoiceGroup(), getAltitudeChoiceGroup(), getSpeedChoiceGroup(), getLanguageChoiceGroup() });//GEN-BEGIN:|141-getter|1|141-postInit
+            settingsForm = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getLogUpdateFrequencyTextField(), getLogFormatChoiceGroup(), getLogSettingsChoiceGroup(), getCoordinateChoiceGroup(), getAltitudeChoiceGroup(), getSpeedChoiceGroup(), getLanguageChoiceGroup() });//GEN-BEGIN:|141-getter|1|141-postInit
             settingsForm.addCommand(getSaveSettingsCommand());
             settingsForm.addCommand(getCancelCommand());
             settingsForm.setCommandListener(this);//GEN-END:|141-getter|1|141-postInit
@@ -624,7 +625,7 @@ public class GPSLogger
     public TextField getGpsDeviceTextField() {
         if (gpsDeviceTextField == null) {//GEN-END:|161-getter|0|161-preInit
             // write pre-init user code here
-            gpsDeviceTextField = new TextField(GPSLoggerLocalization.getMessage("GPSDevice"), "", 4096, TextField.ANY);//GEN-BEGIN:|161-getter|1|161-postInit
+            gpsDeviceTextField = new TextField(GPSLoggerLocalization.getMessage("GPSDevice"), "", 4096, TextField.URL);//GEN-BEGIN:|161-getter|1|161-postInit
             gpsDeviceTextField.addCommand(getSearchCommand());
             gpsDeviceTextField.setItemCommandListener(this);//GEN-END:|161-getter|1|161-postInit
             // write post-init user code here
@@ -1193,7 +1194,7 @@ public class GPSLogger
     public TextField getWaypointNameTextField() {
         if (waypointNameTextField == null) {//GEN-END:|280-getter|0|280-preInit
         // write pre-init user code here
-            waypointNameTextField = new TextField("Name:", "", 32, TextField.ANY);//GEN-LINE:|280-getter|1|280-postInit
+            waypointNameTextField = new TextField("Name:", "", 32, TextField.ANY | TextField.INITIAL_CAPS_SENTENCE);//GEN-LINE:|280-getter|1|280-postInit
         // write post-init user code here
         }//GEN-BEGIN:|280-getter|2|
         return waypointNameTextField;
@@ -1379,6 +1380,22 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
         return logSettingsChoiceGroup;
     }
     //</editor-fold>//GEN-END:|307-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: logUpdateFrequencyTextField ">//GEN-BEGIN:|312-getter|0|312-preInit
+    /**
+     * Returns an initiliazed instance of logUpdateFrequencyTextField component.
+     * @return the initialized component instance
+     */
+    public TextField getLogUpdateFrequencyTextField() {
+        if (logUpdateFrequencyTextField == null) {//GEN-END:|312-getter|0|312-preInit
+            // write pre-init user code here
+            logUpdateFrequencyTextField = new TextField("Log update frequency (seconds)", "1", 32, TextField.NUMERIC);//GEN-BEGIN:|312-getter|1|312-postInit
+            logUpdateFrequencyTextField.setLayout(ImageItem.LAYOUT_DEFAULT);//GEN-END:|312-getter|1|312-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|312-getter|2|
+        return logUpdateFrequencyTextField;
+    }
+    //</editor-fold>//GEN-END:|312-getter|2|
 
     public FileBrowser getFileBrowser() {
         if (fileBrowser == null) {
