@@ -19,6 +19,7 @@ public class NMEA0183Parser
     final static long WATCHDOG_TIMEOUT_MILLIS = 10000L; // 10 seconds
 
     long lastSentenceTimeMillis = System.currentTimeMillis();
+    String lastSentencePack = null;
     StringBuffer sentenceBuffer = null;
 
     InputStream inputStream = null;
@@ -120,8 +121,8 @@ public class NMEA0183Parser
 /// over from previous getLocation() request!!!
 
         // save NMEA 0183 data in the location object
-        if (sentenceBuffer != null) {
-            location.setNMEASentences(sentenceBuffer.toString().trim());
+        if (lastSentencePack != null) {
+            location.setNMEASentences(lastSentencePack);
         }
         
         return location;
@@ -231,6 +232,8 @@ public class NMEA0183Parser
             // let the GPRMC be the callback trigger sentence
             // as it is the most important one
             // (and supposedly supported by all NMEA-0183 compliant devices)
+            
+            lastSentencePack = sentenceBuffer.toString().trim(); // make a copy
             
             GeoLocation currentLocation = getLocation();
 

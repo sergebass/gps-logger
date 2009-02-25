@@ -290,7 +290,7 @@ public class GeoLocation {
 
         if (saveNMEASentences) {
             if (nmeaSentences != null) {
-                stringBuffer.append("<!-- ^^^\n" + nmeaSentences + "-->\n\n");
+                stringBuffer.append("<!--\n" + nmeaSentences + "\n-->\n\n");
             }
         }
 

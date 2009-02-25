@@ -1,8 +1,39 @@
-suiteName = getAppProperty("MIDlet-Name"); // e.g. in .jad to pass generated key code
-photo snapshot (JPG writer?)
-add device info to the GPX header
-localize the application
-mobile tracking: SMS (auto?)
-web tracking
-send current location as SMS
-remember multiple GPS units in settings
+export data formats:
+
+1. raw (NMEA-0183)
+2. gpx
+3. kml
+4. csv (lat, lon pairs)
+
+export data targets:
+
+1. file
+2. E-mail
+3. Bluetooth
+4. SMS
+5. Web
+
+functions:
+
+1. 3D coordinates (latitude, longitude, altitude)
+2. speed
+3. vertical speed (aka climbing rate)
+4. hill gradient (% + angle, degrees)
+5. satellite count (+ reception quality factor)
+6. time/date
+7. trip time
+8. average speed
+9. total climbing height (ft + m)
+
+Adjustable data acquisition frequency
+
+waypoint navigation + compass/azimuth
+1. distance to the next/chosen waypoint
+2. direction of the next/chosen waypoint
+
+Real-time web-tracking
+Real-time E-mail/Bluetooth/IM(XMPP) tracking (send selected data, like BOTH coordinates and a ready URL to GoogleMaps/FlashEarth)
+
+Log data:
+1. RMS
+2. Filesystem (JSR-)

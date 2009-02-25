@@ -105,6 +105,8 @@ public class GPSLogger
     private TextField logFolderTextField;
     private ChoiceGroup altitudeChoiceGroup;
     private ChoiceGroup languageChoiceGroup;
+    private ChoiceGroup logFormatChoiceGroup;
+    private ChoiceGroup logSettingsChoiceGroup;
     private Form helpForm;
     private StringItem stringItem1;
     private StringItem emailItem;
@@ -338,7 +340,7 @@ public class GPSLogger
     public void searchDevices() {//GEN-END:|82-entry|0|83-preAction
 
         getDeviceList().deleteAll();
-        
+
         // switch to the found device list
         switchDisplayable(null, getDeviceList());
 
@@ -532,7 +534,7 @@ public class GPSLogger
     public Form getSettingsForm() {
         if (settingsForm == null) {//GEN-END:|141-getter|0|141-preInit
             // write pre-init user code here
-            settingsForm = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getCoordinateChoiceGroup(), getAltitudeChoiceGroup(), getSpeedChoiceGroup(), getLanguageChoiceGroup() });//GEN-BEGIN:|141-getter|1|141-postInit
+            settingsForm = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getLogFormatChoiceGroup(), getLogSettingsChoiceGroup(), getCoordinateChoiceGroup(), getAltitudeChoiceGroup(), getSpeedChoiceGroup(), getLanguageChoiceGroup() });//GEN-BEGIN:|141-getter|1|141-postInit
             settingsForm.addCommand(getSaveSettingsCommand());
             settingsForm.addCommand(getCancelCommand());
             settingsForm.setCommandListener(this);//GEN-END:|141-getter|1|141-postInit
@@ -685,10 +687,12 @@ public class GPSLogger
             speedChoiceGroup.append("km/h", null);
             speedChoiceGroup.append("mph", null);
             speedChoiceGroup.append("knots", null);
-            speedChoiceGroup.setSelectedFlags(new boolean[] { false, false, false });
+            speedChoiceGroup.append("m/sec", null);
+            speedChoiceGroup.setSelectedFlags(new boolean[] { false, false, false, false });
             speedChoiceGroup.setFont(0, null);
             speedChoiceGroup.setFont(1, null);
-            speedChoiceGroup.setFont(2, null);//GEN-END:|163-getter|1|163-postInit
+            speedChoiceGroup.setFont(2, null);
+            speedChoiceGroup.setFont(3, null);//GEN-END:|163-getter|1|163-postInit
             // write post-init user code here
         }//GEN-BEGIN:|163-getter|2|
         return speedChoiceGroup;
@@ -1333,6 +1337,48 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
         // write post-action user code here
     }//GEN-BEGIN:|300-entry|2|
     //</editor-fold>//GEN-END:|300-entry|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: logFormatChoiceGroup ">//GEN-BEGIN:|304-getter|0|304-preInit
+    /**
+     * Returns an initiliazed instance of logFormatChoiceGroup component.
+     * @return the initialized component instance
+     */
+    public ChoiceGroup getLogFormatChoiceGroup() {
+        if (logFormatChoiceGroup == null) {//GEN-END:|304-getter|0|304-preInit
+            // write pre-init user code here
+            logFormatChoiceGroup = new ChoiceGroup("Log format", Choice.EXCLUSIVE);//GEN-BEGIN:|304-getter|1|304-postInit
+            logFormatChoiceGroup.append("GPX", null);
+            logFormatChoiceGroup.append("KML", null);
+            logFormatChoiceGroup.setSelectedFlags(new boolean[] { true, false });
+            logFormatChoiceGroup.setFont(0, null);
+            logFormatChoiceGroup.setFont(1, null);//GEN-END:|304-getter|1|304-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|304-getter|2|
+        return logFormatChoiceGroup;
+    }
+    //</editor-fold>//GEN-END:|304-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: logSettingsChoiceGroup ">//GEN-BEGIN:|307-getter|0|307-preInit
+    /**
+     * Returns an initiliazed instance of logSettingsChoiceGroup component.
+     * @return the initialized component instance
+     */
+    public ChoiceGroup getLogSettingsChoiceGroup() {
+        if (logSettingsChoiceGroup == null) {//GEN-END:|307-getter|0|307-preInit
+            // write pre-init user code here
+            logSettingsChoiceGroup = new ChoiceGroup("Log settings", Choice.MULTIPLE);//GEN-BEGIN:|307-getter|1|307-postInit
+            logSettingsChoiceGroup.append("Save NMEA data (if available)", null);
+            logSettingsChoiceGroup.append("Separate NMEA log", null);
+            logSettingsChoiceGroup.append("Separate Waypoint log", null);
+            logSettingsChoiceGroup.setSelectedFlags(new boolean[] { true, false, false });
+            logSettingsChoiceGroup.setFont(0, null);
+            logSettingsChoiceGroup.setFont(1, null);
+            logSettingsChoiceGroup.setFont(2, null);//GEN-END:|307-getter|1|307-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|307-getter|2|
+        return logSettingsChoiceGroup;
+    }
+    //</editor-fold>//GEN-END:|307-getter|2|
 
     public FileBrowser getFileBrowser() {
         if (fileBrowser == null) {
