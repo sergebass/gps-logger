@@ -19,6 +19,7 @@ import javax.microedition.midlet.MIDlet;
 public class BluetoothManager
         implements DiscoveryListener {
 
+/// decouple BluetoothManager from midlets?!:
     MIDlet midlet;
     
     // cached values

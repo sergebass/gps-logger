@@ -168,7 +168,7 @@ public class GPSLogger
      * Performs an action assigned to the Mobile Device - MIDlet Resumed point.
      */
     public void resumeMIDlet() {//GEN-END:|4-resumeMIDlet|0|4-preAction
-        // write pre-action user code here
+
 //GEN-LINE:|4-resumeMIDlet|1|4-postAction
         // write post-action user code here
     }//GEN-BEGIN:|4-resumeMIDlet|2|
@@ -1436,8 +1436,10 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
     public void startApp() {
         
         if (midletPaused) {
+            System.out.println("\nThe midlet was resumed\n");
             resumeMIDlet ();
         } else {
+            System.out.println("\nThe midlet was started\n");
             initialize ();
             startMIDlet ();
         }
@@ -1450,6 +1452,7 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
      */
     public void pauseApp() {
         midletPaused = true;
+        System.out.println("\nThe midlet was paused.\n");
     }
 
     /**
@@ -1600,9 +1603,15 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
                             // check JSR-179 availability on this device
                             try {
                                 Class.forName("javax.microedition.location.LocationProvider");
-
                                 // if we went as far as here, the JSR-179 is supported alright
-                                geoLocator = new JSR179GeoLocator(); /// pass Criteria?
+
+                                // next, try to instantiate our JSR-179 GeoLocator "on the fly",
+                                // to prevent some JVMs (e.g. Nokia 3610f) from crashing
+                                // when trying to reference the missing javax.microedition.location
+                                // classes
+                                geoLocator = (GeoLocator)
+                                        (Class.forName("com.sergebass.geography.JSR179GeoLocator")
+                                         .newInstance());
                             } catch (ClassNotFoundException e) { // no JSR-179 support on this device?
                                 e.printStackTrace();
                             }
@@ -1736,7 +1745,16 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
                     + "-waypoints.gpx";
                 waypointLogFile = new GPSLogFile(logFilePath);
                 waypointLogWriter = new GPXWriter(waypointLogFile.getOutputStream());
-                waypointLogWriter.writeHeader("GPSLogger waypoints (" + now.getISO8601UTCDateTimeId() + ")");
+
+                // add platform name to the log, to make logs more easily identifiable
+                String platformName = System.getProperty("microedition.platform");
+                String deviceModel = System.getProperty("device.model"); // for Motorola phones?
+
+                String waypointLogHeader = "GPSLogger waypoints (" + now.getISO8601UTCDateTimeId() + ")"
+                        + (platformName != null? ", " + platformName : "")
+                        + (deviceModel != null? ", " + deviceModel : "");
+
+                waypointLogWriter.writeHeader(waypointLogHeader);
                 waypointLogWriter.write("\n");
             }
 
@@ -1940,13 +1958,13 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
         System.out.println("Locator state changed to " + newState);
         
         switch (newState) {
-            case javax.microedition.location.LocationProvider.AVAILABLE:
+            case GeoLocator.STATE_AVAILABLE:
                 break;
-            case javax.microedition.location.LocationProvider.OUT_OF_SERVICE:
+            case GeoLocator.STATE_OUT_OF_SERVICE:
                 getMainScreen().setLocationValid(false);
                 getMainScreen().repaint();
                 break;
-            case javax.microedition.location.LocationProvider.TEMPORARILY_UNAVAILABLE:
+            case GeoLocator.STATE_TEMPORARILY_UNAVAILABLE:
                 getMainScreen().setLocationValid(false);
                 getMainScreen().repaint();
                 break;

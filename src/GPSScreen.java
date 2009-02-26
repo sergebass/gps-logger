@@ -231,7 +231,7 @@ try {
         displayString(localTimeString,
                     0, getHeight() - smallFont.getHeight() * 3,
                     smallFont.stringWidth(localTimeString), smallFont.getHeight(),
-                    0xFF00FFFF, 0xA0000000, // cyan on 60% black
+                    0xFFFFFFFF, 0xA0000000, // white on 60% black
                     smallFont,
                     false,
                     false);

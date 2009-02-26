@@ -28,7 +28,6 @@ public class GPXWriter
 
         // let's use GPX 1.0 as of now, then we'll see...
         write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-///FIX HEADER TEXT (pass a parameter?)
         write("<gpx version=\"1.0\" creator=\"GPSLogger (http://code.google.com/p/gps-logger)\"\n");
         write(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n");
         write(" xmlns=\"http://www.topografix.com/GPX/1/0\"\n");

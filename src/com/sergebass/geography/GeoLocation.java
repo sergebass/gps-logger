@@ -328,7 +328,7 @@ public class GeoLocation {
         stringBuffer.append(" </Point>\n");
         stringBuffer.append("</Placemark>\n");
 
-/// add all of the other necessary fields here...
+/// add all of the other necessary KML tags here...
 
         return stringBuffer.toString();
     }

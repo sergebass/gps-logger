@@ -132,7 +132,19 @@ public class JSR179GeoLocator
 
     public void providerStateChanged(LocationProvider locationProvider, int newState) {
         if (locationListener != null) {
-            locationListener.onLocatorStateChanged(newState);
+            // decouple constants (prevent looking for javax.microedition.location
+            // on devices lacking JSR-179 support)
+            switch (newState) {
+                case LocationProvider.AVAILABLE:
+                    locationListener.onLocatorStateChanged(GeoLocator.STATE_AVAILABLE);
+                    break;
+                case LocationProvider.OUT_OF_SERVICE:
+                    locationListener.onLocatorStateChanged(GeoLocator.STATE_OUT_OF_SERVICE);
+                    break;
+                case LocationProvider.TEMPORARILY_UNAVAILABLE:
+                    locationListener.onLocatorStateChanged(GeoLocator.STATE_TEMPORARILY_UNAVAILABLE);
+                break;
+            }
         }
     }
 }

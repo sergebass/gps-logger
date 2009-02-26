@@ -1,3 +1,14 @@
+Internal issues/bugs:
+
+1. Some phones did a preloading of all the classes: e.g. Nokia 3610f tries to load javax.media.location.* and fails:
+
+2. Sometimes, at least on SE W810i the midlet ceased to return from background (still works but blind)
+==> HINT: reboot the phone before important logging session! It seems to have helped in my case
+
+-------------
+Older stuff: (clean up ASAP):
+-------------
+
 export data formats:
 
 1. raw (NMEA-0183)
