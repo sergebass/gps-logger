@@ -41,7 +41,7 @@ public class GPSScreen
 
     String messageString = null;
 
-///tmp:
+/// tmp:
 Image bgImage = null;
 ///
 
@@ -64,7 +64,7 @@ try {
 *///
     }
 
-///!!! display location/fix method! (location.getLocationMethod())
+    ///!!! display location/fix method! (location.getLocationMethod())
 
     public void setLocation(GeoLocation location) {
         this.location = location;
@@ -83,80 +83,20 @@ try {
             return;
         }
 
-///!!! use String.substring() to trim long values!!!
-
         double latitude = location.getLatitude();
-        if (!Double.isNaN(latitude)) {
-            // leave 6 digits after decimal point
-            latitude = ((long)(latitude * 1000000.0)) / 1000000.0;
-            if (latitude >= 0) { // northern hemisphere
-                setLatitude(GPSLoggerLocalization.getMessage("latitudeN")
-                            + " " + latitude + "\u00B0");
-            } else { // southern hemisphere
-                setLatitude(GPSLoggerLocalization.getMessage("latitudeS")
-                            + " " + (-latitude) + "\u00B0");
-            }
-        } else {
-            setLatitude("");
-        }
+        setLatitude(GPSLoggerUtils.convertLatitudeToString(latitude));
 
         double longitude = location.getLongitude();
-        if (!Double.isNaN(longitude)) {
-            // leave 6 digits after decimal point
-            longitude = ((long)(longitude * 1000000.0)) / 1000000.0;
-            if (longitude >= 0) { // eastern hemisphere
-                setLongitude(GPSLoggerLocalization.getMessage("longitudeE")
-                            + " " + longitude + "\u00B0");
-            } else { // western hemisphere
-                setLongitude(GPSLoggerLocalization.getMessage("longitudeW")
-                            + " " + (-longitude) + "\u00B0");
-            }
-        } else {
-            setLongitude("");
-        }
+        setLongitude(GPSLoggerUtils.convertLongitudeToString(longitude));
 
         float altitude = location.getAltitude();
-        if (!Float.isNaN(altitude)) {
-            altitude = ((long)(altitude * 10.0f)) / 10.0f; // leave 1 digit after decimal point
-            setAltitude("A " + altitude + "m");
-        } else {
-            setAltitude("");
-        }
+        setAltitude(GPSLoggerUtils.convertAltitudeToString(altitude));
 
         this.course = location.getCourse();
-        if (!Float.isNaN(course)) {
-            course = ((long)(course * 10.0f)) / 10.0f; // leave 1 digit after decimal point
-            String directionSymbol = "";
-            if (course >= 22.5 && course < 67.5) {
-                directionSymbol = "NE"; // north-east
-            } else if (course >= 67.5 && course < 112.5) {
-                directionSymbol = "E"; // east
-            } else if (course >= 112.5 && course < 157.5) {
-                directionSymbol = "SE"; // south-east
-            } else if (course >= 157.5 && course < 202.5) {
-                directionSymbol = "S"; // south
-            } else if (course >= 202.5 && course < 247.5) {
-                directionSymbol = "SW"; // south-west
-            } else if (course >= 247.5 && course < 292.5) {
-                directionSymbol = "W"; // west
-            } else if (course >= 292.5 && course < 337.5) {
-                directionSymbol = "NW"; // north-west
-            } else {
-                directionSymbol = "N"; // north
-            }
-            setCourse("^ " + course + "\u00B0 " + directionSymbol);
-        } else {
-            setCourse(""); // clear data
-        }
+        setCourse(GPSLoggerUtils.convertCourseToString(course));
 
         float speed = location.getSpeed();
-        if (!Float.isNaN(speed)) {
-            // convert m/s to km/h at the same time
-            speed = ((long)(speed * 36.0f)) / 10.0f; // leave 1 digit after decimal point
-            setSpeed("v " + speed + " km/h");
-        } else {
-            setSpeed("");
-        }
+        setSpeed(GPSLoggerUtils.convertSpeedToString(speed));
 
         String date = location.getDateString();
         setDate(date);
@@ -405,7 +345,7 @@ g.fillRect(x, y, width, height); // just fill/clear it...
                     x, y, // destination area
                     0); // anchor
         } else { // no background image?
-///if the BG was cleared before, no need to do this again (remove if necessary):
+/// if the BG was cleared before, no need to do this again (remove if necessary):
             g.setColor(0x000000); // black
             g.fillRect(x, y, width, height); // just fill/clear it...
         }

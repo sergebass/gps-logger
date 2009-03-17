@@ -19,6 +19,8 @@ import javax.microedition.io.*;
 import javax.microedition.rms.RecordStoreException;
 import javax.microedition.media.*;
 import javax.bluetooth.*;
+import javax.wireless.messaging.MessageConnection;
+import javax.wireless.messaging.TextMessage;
 
 /**
  * @author Serge Perinsky
@@ -87,6 +89,10 @@ public class GPSLogger
     private Command sendEmailCommand;
     private Command resetCommand;
     private Command okCommand;
+    private Command okSMSEditCommand;
+    private Command cancelSMSEditCommand;
+    private Command okSendSMSCommand;
+    private Command cancelSendSMSCommand;
     private Form waypointForm;
     private TextField waypointNameTextField;
     private List deviceList;
@@ -108,10 +114,16 @@ public class GPSLogger
     private TextField logFolderTextField;
     private ChoiceGroup altitudeChoiceGroup;
     private ChoiceGroup languageChoiceGroup;
+    private TextField smsPhoneNumber;
     private Form helpForm;
     private StringItem stringItem1;
     private StringItem emailItem;
     private Alert errorAlert;
+    private Form smsForm;
+    private TextField phoneNumberTextField;
+    private StringItem smsLengthStringItem;
+    private StringItem smsTextStringItem;
+    private TextBox smsTextBox;
     private Font font;
     private Font boldFont;
     //</editor-fold>//GEN-END:|fields|0|
@@ -206,83 +218,102 @@ public class GPSLogger
         // write pre-action user code here
         if (displayable == deviceList) {//GEN-BEGIN:|7-commandAction|1|87-preAction
             if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|1|87-preAction
-                // write pre-action user code here
+                getDeviceList().setTitle("Wait...");
                 deviceListAction();//GEN-LINE:|7-commandAction|2|87-postAction
                 // write post-action user code here
             } else if (command == cancelCommand) {//GEN-LINE:|7-commandAction|3|217-preAction
                 // write pre-action user code here
                 switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|4|217-postAction
                 // write post-action user code here
-            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|5|243-preAction
-                getDeviceList().setTitle("Wait...");
-                selectGPSDevice();//GEN-LINE:|7-commandAction|6|243-postAction
-                // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|7|150-preAction
+            }//GEN-BEGIN:|7-commandAction|5|150-preAction
         } else if (displayable == helpForm) {
-            if (command == backCommand) {//GEN-END:|7-commandAction|7|150-preAction
+            if (command == backCommand) {//GEN-END:|7-commandAction|5|150-preAction
                 // write pre-action user code here
-                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|8|150-postAction
+                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|6|150-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|9|128-preAction
+            }//GEN-BEGIN:|7-commandAction|7|128-preAction
         } else if (displayable == introForm) {
-            if (command == exitCommand) {//GEN-END:|7-commandAction|9|128-preAction
+            if (command == exitCommand) {//GEN-END:|7-commandAction|7|128-preAction
                 new Thread() {
                     public void run() {
-                        exitMIDlet();//GEN-LINE:|7-commandAction|10|128-postAction
+                        exitMIDlet();//GEN-LINE:|7-commandAction|8|128-postAction
                     }
                 }.start();
-            } else if (command == helpCommand) {//GEN-LINE:|7-commandAction|11|146-preAction
+            } else if (command == helpCommand) {//GEN-LINE:|7-commandAction|9|146-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getHelpForm());//GEN-LINE:|7-commandAction|12|146-postAction
+                switchDisplayable(null, getHelpForm());//GEN-LINE:|7-commandAction|10|146-postAction
                 // write post-action user code here
-            } else if (command == settingsCommand) {//GEN-LINE:|7-commandAction|13|153-preAction
+            } else if (command == settingsCommand) {//GEN-LINE:|7-commandAction|11|153-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getSettingsForm());//GEN-LINE:|7-commandAction|14|153-postAction
+                switchDisplayable(null, getSettingsForm());//GEN-LINE:|7-commandAction|12|153-postAction
                 // write post-action user code here
-            } else if (command == startCommand) {//GEN-LINE:|7-commandAction|15|143-preAction
+            } else if (command == startCommand) {//GEN-LINE:|7-commandAction|13|143-preAction
                 // write pre-action user code here
-                startTrack();//GEN-LINE:|7-commandAction|16|143-postAction
+                startTrack();//GEN-LINE:|7-commandAction|14|143-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|17|215-preAction
+            }//GEN-BEGIN:|7-commandAction|15|215-preAction
         } else if (displayable == settingsForm) {
-            if (command == cancelCommand) {//GEN-END:|7-commandAction|17|215-preAction
+            if (command == cancelCommand) {//GEN-END:|7-commandAction|15|215-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getIntroForm());//GEN-LINE:|7-commandAction|18|215-postAction
+                switchDisplayable(null, getIntroForm());//GEN-LINE:|7-commandAction|16|215-postAction
                 // write post-action user code here
-            } else if (command == saveSettingsCommand) {//GEN-LINE:|7-commandAction|19|202-preAction
+            } else if (command == saveSettingsCommand) {//GEN-LINE:|7-commandAction|17|202-preAction
                 // write pre-action user code here
-                saveSettings();//GEN-LINE:|7-commandAction|20|202-postAction
+                saveSettings();//GEN-LINE:|7-commandAction|18|202-postAction
                 showSettings();
                 switchDisplayable(null, getIntroForm());
-            }//GEN-BEGIN:|7-commandAction|21|282-preAction
+            }//GEN-BEGIN:|7-commandAction|19|329-preAction
+        } else if (displayable == smsForm) {
+            if (command == cancelSendSMSCommand) {//GEN-END:|7-commandAction|19|329-preAction
+                // write pre-action user code here
+                switchDisplayable(null, getSmsTextBox());//GEN-LINE:|7-commandAction|20|329-postAction
+                // write post-action user code here
+            } else if (command == okSendSMSCommand) {//GEN-LINE:|7-commandAction|21|327-preAction
+                // write pre-action user code here
+                doSendSMS();//GEN-LINE:|7-commandAction|22|327-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|23|323-preAction
+        } else if (displayable == smsTextBox) {
+            if (command == cancelSMSEditCommand) {//GEN-END:|7-commandAction|23|323-preAction
+                // write pre-action user code here
+                switchDisplayable(null, getWaypointForm());//GEN-LINE:|7-commandAction|24|323-postAction
+                // write post-action user code here
+            } else if (command == okSMSEditCommand) {//GEN-LINE:|7-commandAction|25|321-preAction
+                String messageText = getSmsTextBox().getString();
+                getSmsLengthStringItem().setText(messageText.length() + " characters");
+                getSmsTextStringItem().setText(messageText);
+/// copy phone number from settings here (if the field is still empty)
+                switchDisplayable(null, getSmsForm());//GEN-LINE:|7-commandAction|26|321-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|27|282-preAction
         } else if (displayable == waypointForm) {
-            if (command == cancelWaypointCommand) {//GEN-END:|7-commandAction|21|282-preAction
+            if (command == cancelWaypointCommand) {//GEN-END:|7-commandAction|27|282-preAction
                 // remove the last added waypoint: it was cancelled
                 if (waypoints.size() > 1) {
                     waypoints.removeElementAt(waypoints.size() - 1);
                 }
-                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|22|282-postAction
+                switchToMainScreen();//GEN-LINE:|7-commandAction|28|282-postAction
 
-            } else if (command == saveWaypointCommand) {//GEN-LINE:|7-commandAction|23|284-preAction
+            } else if (command == saveWaypointCommand) {//GEN-LINE:|7-commandAction|29|284-preAction
                 new Thread() {
                     public void run() {
-                        saveWaypoint();//GEN-LINE:|7-commandAction|24|284-postAction
+                        saveWaypoint();//GEN-LINE:|7-commandAction|30|284-postAction
                     }
                 }.start();
-            } else if (command == sendSMSCommand) {//GEN-LINE:|7-commandAction|25|299-preAction
+            } else if (command == sendSMSCommand) {//GEN-LINE:|7-commandAction|31|299-preAction
                 new Thread() {
                     public void run() {
-                        sendSMS();//GEN-LINE:|7-commandAction|26|299-postAction
+                        sendSMS();//GEN-LINE:|7-commandAction|32|299-postAction
                     }
                 }.start();
-            } else if (command == takePhotoCommand) {//GEN-LINE:|7-commandAction|27|291-preAction
+            } else if (command == takePhotoCommand) {//GEN-LINE:|7-commandAction|33|291-preAction
                 new Thread() {
                     public void run() {
-                        takePhoto();//GEN-LINE:|7-commandAction|28|291-postAction
+                        takePhoto();//GEN-LINE:|7-commandAction|34|291-postAction
                     }
                 }.start();
-            }//GEN-BEGIN:|7-commandAction|29|7-postCommandAction
-        }//GEN-END:|7-commandAction|29|7-postCommandAction
+            }//GEN-BEGIN:|7-commandAction|35|7-postCommandAction
+        }//GEN-END:|7-commandAction|35|7-postCommandAction
         else if (displayable == fileBrowser) {
             if (command == FileBrowser.SELECT_ITEM_COMMAND) {
                 setLogFolder ();
@@ -315,9 +346,8 @@ public class GPSLogger
                 resetOdometer();
             }
         }
-    }//GEN-BEGIN:|7-commandAction|30|
-    //</editor-fold>//GEN-END:|7-commandAction|30|
-
+    }//GEN-BEGIN:|7-commandAction|36|
+    //</editor-fold>//GEN-END:|7-commandAction|36|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: exitCommand ">//GEN-BEGIN:|18-getter|0|18-preInit
     /**
@@ -341,11 +371,22 @@ public class GPSLogger
     public void searchDevices() {//GEN-END:|82-entry|0|83-preAction
 
         getDeviceList().deleteAll();
+        getDeviceList().setTitle("Searching GPS...");
 
         // switch to the found device list
         switchDisplayable(null, getDeviceList());
 
-        getDeviceList().setTitle("Searching GPS...");
+        new Thread() {
+            public void run() {
+                doSearchGPSDevices(); // CPU consuming thread
+            }
+        }.start();
+//GEN-LINE:|82-entry|1|83-postAction
+
+    }//GEN-BEGIN:|82-entry|2|
+    //</editor-fold>//GEN-END:|82-entry|2|
+
+    void doSearchGPSDevices() {
         System.out.println("Searching GPS devices...");
 
         BluetoothManager deviceManager = new BluetoothManager(this);
@@ -389,11 +430,10 @@ public class GPSLogger
                 }
             }
         }
-//GEN-LINE:|82-entry|1|83-postAction
-        getDeviceList().setTitle("Choose GPS device:");
         System.out.println("GPS device scan complete.");
-    }//GEN-BEGIN:|82-entry|2|
-    //</editor-fold>//GEN-END:|82-entry|2|
+        
+        getDeviceList().setTitle("Choose GPS device:");
+    }
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: deviceList ">//GEN-BEGIN:|85-getter|0|85-preInit
     /**
@@ -405,10 +445,9 @@ public class GPSLogger
             // write pre-init user code here
             deviceList = new List("GPS devices", Choice.IMPLICIT);//GEN-BEGIN:|85-getter|1|85-postInit
             deviceList.addCommand(getCancelCommand());
-            deviceList.addCommand(getOkCommand());
             deviceList.setCommandListener(this);
             deviceList.setFitPolicy(Choice.TEXT_WRAP_ON);
-            deviceList.setSelectCommand(getOkCommand());//GEN-END:|85-getter|1|85-postInit
+            deviceList.setSelectCommand(null);//GEN-END:|85-getter|1|85-postInit
             // write post-init user code here
         }//GEN-BEGIN:|85-getter|2|
         return deviceList;
@@ -535,7 +574,7 @@ public class GPSLogger
     public Form getSettingsForm() {
         if (settingsForm == null) {//GEN-END:|141-getter|0|141-preInit
             // write pre-init user code here
-            settingsForm = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getLogUpdateFrequencyTextField(), getLogFormatChoiceGroup(), getLogSettingsChoiceGroup(), getCoordinateChoiceGroup(), getAltitudeChoiceGroup(), getSpeedChoiceGroup(), getLanguageChoiceGroup() });//GEN-BEGIN:|141-getter|1|141-postInit
+            settingsForm = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getLogUpdateFrequencyTextField(), getLogFormatChoiceGroup(), getLogSettingsChoiceGroup(), getCoordinateChoiceGroup(), getAltitudeChoiceGroup(), getSpeedChoiceGroup(), getLanguageChoiceGroup(), getSmsPhoneNumber() });//GEN-BEGIN:|141-getter|1|141-postInit
             settingsForm.addCommand(getSaveSettingsCommand());
             settingsForm.addCommand(getCancelCommand());
             settingsForm.setCommandListener(this);//GEN-END:|141-getter|1|141-postInit
@@ -783,8 +822,6 @@ public class GPSLogger
         return stringItem1;
     }
     //</editor-fold>//GEN-END:|191-getter|2|
-    //</editor-fold>
-    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: saveWaypoint ">//GEN-BEGIN:|197-entry|0|198-preAction
     /**
@@ -811,7 +848,7 @@ public class GPSLogger
     public Command getMarkWaypointCommand() {
         if (markWaypointCommand == null) {//GEN-END:|195-getter|0|195-preInit
             // write pre-init user code here
-            markWaypointCommand = new Command(GPSLoggerLocalization.getMessage("markWaypointCommand"), GPSLoggerLocalization.getMessage("markWaypointCommandLong"), Command.OK, 0);//GEN-LINE:|195-getter|1|195-postInit
+            markWaypointCommand = new Command(GPSLoggerLocalization.getMessage("markWaypointCommand"), GPSLoggerLocalization.getMessage("markWaypointCommandLong"), Command.OK, 1);//GEN-LINE:|195-getter|1|195-postInit
             // write post-init user code here
         }//GEN-BEGIN:|195-getter|2|
         return markWaypointCommand;
@@ -1231,8 +1268,6 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|283-getter|2|
 
-
-
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: takePhoto ">//GEN-BEGIN:|292-entry|0|293-preAction
     /**
      * Performs an action assigned to the takePhoto entry-point.
@@ -1270,7 +1305,7 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
     public Command getStopCommand() {
         if (stopCommand == null) {//GEN-END:|295-getter|0|295-preInit
             // write pre-init user code here
-            stopCommand = new Command(GPSLoggerLocalization.getMessage("stopCommand"), GPSLoggerLocalization.getMessage("stopCommand"), Command.OK, 0);//GEN-LINE:|295-getter|1|295-postInit
+            stopCommand = new Command(GPSLoggerLocalization.getMessage("stopCommand"), GPSLoggerLocalization.getMessage("stopCommand"), Command.OK, 2);//GEN-LINE:|295-getter|1|295-postInit
             // write post-init user code here
         }//GEN-BEGIN:|295-getter|2|
         return stopCommand;
@@ -1328,12 +1363,37 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
      * Performs an action assigned to the sendSMS entry-point.
      */
     public void sendSMS() {//GEN-END:|300-entry|0|301-preAction
-/// send current location/waypoint in an SMS
+        GeoLocation waypoint = getLastWaypoint(); // it was already registered
 
-///tmp:
-new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
-///
+        if (waypoint == null) {
+            return; // nothing to send
+        }
 
+        double latitude = waypoint.getLatitude();
+        double longitude = waypoint.getLongitude();
+        float altitude = waypoint.getAltitude();
+        float course = waypoint.getCourse();
+        float speed = waypoint.getSpeed();
+
+        String message = waypoint.getTimeString() + " UTC\n"
+                + (Double.isNaN(latitude)?
+                      ""
+                    : (GPSLoggerUtils.convertLatitudeToString(latitude) + "\n"))
+                + (Double.isNaN(longitude)?
+                      ""
+                    : (GPSLoggerUtils.convertLongitudeToString(longitude) + "\n"))
+                + (Float.isNaN(altitude)?
+                      ""
+                    : (GPSLoggerUtils.convertAltitudeToString(altitude) + "\n"))
+                + (Float.isNaN(course)?
+                      ""
+                    : (GPSLoggerUtils.convertCourseToString(course) + "\n"))
+                + (Float.isNaN(speed)?
+                      ""
+                    : (GPSLoggerUtils.convertSpeedToString(speed) + "\n"));
+
+        getSmsTextBox().setString(message);
+        switchDisplayable(null, getSmsTextBox());
 //GEN-LINE:|300-entry|1|301-postAction
         // write post-action user code here
     }//GEN-BEGIN:|300-entry|2|
@@ -1396,6 +1456,211 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
         return logUpdateFrequencyTextField;
     }
     //</editor-fold>//GEN-END:|312-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: smsPhoneNumber ">//GEN-BEGIN:|313-getter|0|313-preInit
+    /**
+     * Returns an initiliazed instance of smsPhoneNumber component.
+     * @return the initialized component instance
+     */
+    public TextField getSmsPhoneNumber() {
+        if (smsPhoneNumber == null) {//GEN-END:|313-getter|0|313-preInit
+            // write pre-init user code here
+            smsPhoneNumber = new TextField("SMS phone number", "+1", 32, TextField.PHONENUMBER);//GEN-LINE:|313-getter|1|313-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|313-getter|2|
+        return smsPhoneNumber;
+    }
+    //</editor-fold>//GEN-END:|313-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: smsForm ">//GEN-BEGIN:|316-getter|0|316-preInit
+    /**
+     * Returns an initiliazed instance of smsForm component.
+     * @return the initialized component instance
+     */
+    public Form getSmsForm() {
+        if (smsForm == null) {//GEN-END:|316-getter|0|316-preInit
+            // write pre-init user code here
+            smsForm = new Form("Send SMS", new Item[] { getPhoneNumberTextField(), getSmsLengthStringItem(), getSmsTextStringItem() });//GEN-BEGIN:|316-getter|1|316-postInit
+            smsForm.addCommand(getOkSendSMSCommand());
+            smsForm.addCommand(getCancelSendSMSCommand());
+            smsForm.setCommandListener(this);//GEN-END:|316-getter|1|316-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|316-getter|2|
+        return smsForm;
+    }
+    //</editor-fold>//GEN-END:|316-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: phoneNumberTextField ">//GEN-BEGIN:|317-getter|0|317-preInit
+    /**
+     * Returns an initiliazed instance of phoneNumberTextField component.
+     * @return the initialized component instance
+     */
+    public TextField getPhoneNumberTextField() {
+        if (phoneNumberTextField == null) {//GEN-END:|317-getter|0|317-preInit
+            // write pre-init user code here
+            phoneNumberTextField = new TextField("Phone number", "+1", 32, TextField.PHONENUMBER);//GEN-LINE:|317-getter|1|317-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|317-getter|2|
+        return phoneNumberTextField;
+    }
+    //</editor-fold>//GEN-END:|317-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: smsTextBox ">//GEN-BEGIN:|319-getter|0|319-preInit
+    /**
+     * Returns an initiliazed instance of smsTextBox component.
+     * @return the initialized component instance
+     */
+    public TextBox getSmsTextBox() {
+        if (smsTextBox == null) {//GEN-END:|319-getter|0|319-preInit
+            // write pre-init user code here
+            smsTextBox = new TextBox("SMS Message", null, 160, TextField.ANY | TextField.INITIAL_CAPS_SENTENCE);//GEN-BEGIN:|319-getter|1|319-postInit
+            smsTextBox.addCommand(getOkSMSEditCommand());
+            smsTextBox.addCommand(getCancelSMSEditCommand());
+            smsTextBox.setCommandListener(this);//GEN-END:|319-getter|1|319-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|319-getter|2|
+        return smsTextBox;
+    }
+    //</editor-fold>//GEN-END:|319-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: okSMSEditCommand ">//GEN-BEGIN:|320-getter|0|320-preInit
+    /**
+     * Returns an initiliazed instance of okSMSEditCommand component.
+     * @return the initialized component instance
+     */
+    public Command getOkSMSEditCommand() {
+        if (okSMSEditCommand == null) {//GEN-END:|320-getter|0|320-preInit
+            // write pre-init user code here
+            okSMSEditCommand = new Command("Ok", Command.OK, 0);//GEN-LINE:|320-getter|1|320-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|320-getter|2|
+        return okSMSEditCommand;
+    }
+    //</editor-fold>//GEN-END:|320-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelSMSEditCommand ">//GEN-BEGIN:|322-getter|0|322-preInit
+    /**
+     * Returns an initiliazed instance of cancelSMSEditCommand component.
+     * @return the initialized component instance
+     */
+    public Command getCancelSMSEditCommand() {
+        if (cancelSMSEditCommand == null) {//GEN-END:|322-getter|0|322-preInit
+            // write pre-init user code here
+            cancelSMSEditCommand = new Command("Cancel", Command.CANCEL, 0);//GEN-LINE:|322-getter|1|322-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|322-getter|2|
+        return cancelSMSEditCommand;
+    }
+    //</editor-fold>//GEN-END:|322-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: okSendSMSCommand ">//GEN-BEGIN:|326-getter|0|326-preInit
+    /**
+     * Returns an initiliazed instance of okSendSMSCommand component.
+     * @return the initialized component instance
+     */
+    public Command getOkSendSMSCommand() {
+        if (okSendSMSCommand == null) {//GEN-END:|326-getter|0|326-preInit
+            // write pre-init user code here
+            okSendSMSCommand = new Command("Ok", Command.OK, 0);//GEN-LINE:|326-getter|1|326-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|326-getter|2|
+        return okSendSMSCommand;
+    }
+    //</editor-fold>//GEN-END:|326-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: cancelSendSMSCommand ">//GEN-BEGIN:|328-getter|0|328-preInit
+    /**
+     * Returns an initiliazed instance of cancelSendSMSCommand component.
+     * @return the initialized component instance
+     */
+    public Command getCancelSendSMSCommand() {
+        if (cancelSendSMSCommand == null) {//GEN-END:|328-getter|0|328-preInit
+            // write pre-init user code here
+            cancelSendSMSCommand = new Command("Cancel", Command.CANCEL, 0);//GEN-LINE:|328-getter|1|328-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|328-getter|2|
+        return cancelSendSMSCommand;
+    }
+    //</editor-fold>//GEN-END:|328-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: doSendSMS ">//GEN-BEGIN:|331-entry|0|332-preAction
+    /**
+     * Performs an action assigned to the doSendSMS entry-point.
+     */
+    public void doSendSMS() {//GEN-END:|331-entry|0|332-preAction
+
+        final String message = getSmsTextBox().getString();
+        final String phoneAddress = "sms://" + getPhoneNumberTextField().getString();
+
+        System.out.println("Sending message ("
+                + message.length()
+                + " characters) to "
+                + phoneAddress
+                + ":\n---\n"
+                + message
+                + "\n---\n");
+
+        // run blocking code (SMS sending) in a separate thread
+        new Thread() {
+            public void run() {
+                MessageConnection messageConnection = null;
+
+                try {
+                    messageConnection = (MessageConnection)Connector.open(phoneAddress);
+                    TextMessage textMessage = (TextMessage)messageConnection.newMessage(MessageConnection.TEXT_MESSAGE);
+                    textMessage.setPayloadText(message);
+                    messageConnection.send(textMessage);
+                    messageConnection.close();
+                } catch (Exception e) {
+                    handleException(e, getMainScreen());
+                }
+            }
+        }.start();
+//GEN-LINE:|331-entry|1|332-postAction
+        switchDisplayable(null, getWaypointForm());
+    }//GEN-BEGIN:|331-entry|2|
+    //</editor-fold>//GEN-END:|331-entry|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: smsLengthStringItem ">//GEN-BEGIN:|334-getter|0|334-preInit
+    /**
+     * Returns an initiliazed instance of smsLengthStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getSmsLengthStringItem() {
+        if (smsLengthStringItem == null) {//GEN-END:|334-getter|0|334-preInit
+            // write pre-init user code here
+            smsLengthStringItem = new StringItem("Message length: ", null);//GEN-LINE:|334-getter|1|334-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|334-getter|2|
+        return smsLengthStringItem;
+    }
+    //</editor-fold>//GEN-END:|334-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: smsTextStringItem ">//GEN-BEGIN:|335-getter|0|335-preInit
+    /**
+     * Returns an initiliazed instance of smsTextStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getSmsTextStringItem() {
+        if (smsTextStringItem == null) {//GEN-END:|335-getter|0|335-preInit
+            // write pre-init user code here
+            smsTextStringItem = new StringItem("Message text: ", null);//GEN-LINE:|335-getter|1|335-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|335-getter|2|
+        return smsTextStringItem;
+    }
+    //</editor-fold>//GEN-END:|335-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: switchToMainScreen ">//GEN-BEGIN:|338-entry|0|339-preAction
+    /**
+     * Performs an action assigned to the switchToMainScreen entry-point.
+     */
+    public void switchToMainScreen() {//GEN-END:|338-entry|0|339-preAction
+        switchDisplayable(null, getMainScreen());
+//GEN-LINE:|338-entry|1|339-postAction
+        // write post-action user code here
+    }//GEN-BEGIN:|338-entry|2|
+    //</editor-fold>//GEN-END:|338-entry|2|
 
     public FileBrowser getFileBrowser() {
         if (fileBrowser == null) {

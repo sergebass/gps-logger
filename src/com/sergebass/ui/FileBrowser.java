@@ -123,9 +123,8 @@ public class FileBrowser
         this.areFoldersSelectable = areFoldersSelectable;
 
         super.addCommand(OPEN_ITEM_COMMAND);
-
         super.setCommandListener(this);
-        setSelectCommand(SELECT_ITEM_COMMAND);
+        setSelectCommand(OPEN_ITEM_COMMAND);
         
         try {
             dirIcon = Image.createImage("/images/dir.png");
