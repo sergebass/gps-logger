@@ -20,17 +20,32 @@ public class Settings
     MIDlet midlet;
     String recordStoreName;
     
+    SettingsListener listener = null;
+
     public Settings(MIDlet midlet, String recordStoreName) {
-        
         this.midlet = midlet;
         this.recordStoreName = recordStoreName;
     }
 
     public String getRecordStoreName() {
-        
         return recordStoreName;
     }
     
+    public void setListener(SettingsListener listener) {
+        this.listener = listener;
+    }
+
+    public Object put(Object key, Object value) {
+        Object oldValue = get(key);
+        super.put(key, value);
+
+        if (listener != null) {
+            listener.settingsChanged(this, key, value);
+        }
+
+        return oldValue;
+    }
+
     public static Settings load(MIDlet midlet, String recordStoreName)
             throws RecordStoreException {
         
@@ -42,7 +57,6 @@ public class Settings
     
     public void load() 
             throws RecordStoreException {
-        
         load(recordStoreName);
     }
         
@@ -89,7 +103,6 @@ public class Settings
     
     public void save()
             throws RecordStoreException {
-        
         save(recordStoreName);
     }
     

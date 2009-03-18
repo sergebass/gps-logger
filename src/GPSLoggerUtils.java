@@ -8,42 +8,130 @@
  */
 public class GPSLoggerUtils {
 
-    public static String convertLatitudeToString(double latitude) {
-
-/// use settings data here:
-
-///!!! use String.substring() to trim long values!!!
+    public static String convertLatitudeToString(double latitude, int coordinatesMode) {
 
         if (!Double.isNaN(latitude)) {
-            // leave 6 digits after decimal point
-            latitude = ((long)(latitude * 1000000.0)) / 1000000.0;
-            if (latitude >= 0) { // northern hemisphere
-                return (GPSLoggerLocalization.getMessage("latitudeN")
-                            + " " + latitude + "\u00B0");
-            } else { // southern hemisphere
-                return (GPSLoggerLocalization.getMessage("latitudeS")
-                            + " " + (-latitude) + "\u00B0");
+            String hemisphereCode = (latitude >= 0)?
+                  GPSLoggerLocalization.getMessage("latitudeN")  // northern hemisphere
+                : GPSLoggerLocalization.getMessage("latitudeS"); // southern hemisphere
+
+            double degrees = Math.abs(latitude); // remove negative sign, if present
+            int intDegrees = 0;
+
+            double minutes = 0.0;
+            int intMinutes = 0;
+            
+            double seconds = 0.0;
+
+            int dotPosition = 0;
+            
+            switch (coordinatesMode) {
+                case GPSLoggerSettings.COORDINATES_MODE_D:
+                    String degreesString = String.valueOf(degrees);
+                    dotPosition = degreesString.indexOf('.');
+                    if (dotPosition >= 0) {
+                        int dataStringLength = degreesString.length();
+                        // leave at most 5 digits after decimal point
+                        if (dataStringLength - dotPosition > 6) {
+                            degreesString = degreesString.substring(0, dotPosition + 6);
+                        }
+                    }
+                    return degreesString + "\u00B0 " + hemisphereCode;
+                case GPSLoggerSettings.COORDINATES_MODE_DM:
+                    intDegrees = (int)degrees;
+                    minutes = (degrees - (double)intDegrees) * 60.0;
+                    String minutesString = String.valueOf(minutes);
+                    dotPosition = minutesString.indexOf('.');
+                    if (dotPosition >= 0) {
+                        int dataStringLength = minutesString.length();
+                        // leave at most 3 digits after decimal point
+                        if (dataStringLength - dotPosition > 4) {
+                            minutesString = minutesString.substring(0, dotPosition + 4);
+                        }
+                    }
+                    return intDegrees + "\u00B0" + minutesString + "\' " + hemisphereCode;
+                case GPSLoggerSettings.COORDINATES_MODE_DMS:
+                    intDegrees = (int)degrees;
+                    minutes = (degrees - (double)intDegrees) * 60.0;
+                    intMinutes = (int)minutes;
+                    seconds = (minutes - (double)intMinutes) * 60.0;
+                    String secondsString = String.valueOf(seconds);
+                    dotPosition = secondsString.indexOf('.');
+                    if (dotPosition >= 0) {
+                        int dataStringLength = secondsString.length();
+                        // leave at most 2 digits after decimal point
+                        if (dataStringLength - dotPosition > 3) {
+                            secondsString = secondsString.substring(0, dotPosition + 3);
+                        }
+                    }
+                    return intDegrees + "\u00B0" + intMinutes + "\'" + secondsString + "\" " + hemisphereCode;
+                default: // uknown mode
+                    return "";
             }
         } else { // NaN
             return ""; // invalid data
         }
     }
 
-    public static String convertLongitudeToString(double longitude) {
-
-/// use settings data here:
-
-///!!! use String.substring() to trim long values!!!
+    public static String convertLongitudeToString(double longitude, int coordinatesMode) {
 
         if (!Double.isNaN(longitude)) {
-            // leave 6 digits after decimal point
-            longitude = ((long)(longitude * 1000000.0)) / 1000000.0;
-            if (longitude >= 0) { // eastern hemisphere
-                return (GPSLoggerLocalization.getMessage("longitudeE")
-                            + " " + longitude + "\u00B0");
-            } else { // western hemisphere
-                return (GPSLoggerLocalization.getMessage("longitudeW")
-                            + " " + (-longitude) + "\u00B0");
+            String hemisphereCode = (longitude >= 0)?
+                  GPSLoggerLocalization.getMessage("longitudeE")  // eastern hemisphere
+                : GPSLoggerLocalization.getMessage("longitudeW"); // western hemisphere
+
+            double degrees = Math.abs(longitude); // remove negative sign, if present
+            int intDegrees = 0;
+
+            double minutes = 0.0;
+            int intMinutes = 0;
+
+            double seconds = 0.0;
+
+            int dotPosition = 0;
+
+            switch (coordinatesMode) {
+                case GPSLoggerSettings.COORDINATES_MODE_D:
+                    String degreesString = String.valueOf(degrees);
+                    dotPosition = degreesString.indexOf('.');
+                    if (dotPosition >= 0) {
+                        int dataStringLength = degreesString.length();
+                        // leave at most 5 digits after decimal point
+                        if (dataStringLength - dotPosition > 6) {
+                            degreesString = degreesString.substring(0, dotPosition + 6);
+                        }
+                    }
+                    return degreesString + "\u00B0 " + hemisphereCode;
+                case GPSLoggerSettings.COORDINATES_MODE_DM:
+                    intDegrees = (int)degrees;
+                    minutes = (degrees - (double)intDegrees) * 60.0;
+                    String minutesString = String.valueOf(minutes);
+                    dotPosition = minutesString.indexOf('.');
+                    if (dotPosition >= 0) {
+                        int dataStringLength = minutesString.length();
+                        // leave at most 3 digits after decimal point
+                        if (dataStringLength - dotPosition > 4) {
+                            minutesString = minutesString.substring(0, dotPosition + 4);
+                        }
+                    }
+                    return intDegrees + "\u00B0" + minutesString + "\' " + hemisphereCode;
+                case GPSLoggerSettings.COORDINATES_MODE_DMS:
+                    intDegrees = (int)degrees;
+                    minutes = (degrees - (double)intDegrees) * 60.0;
+                    intMinutes = (int)minutes;
+                    seconds = (minutes - (double)intMinutes) * 60.0;
+                    String secondsString = String.valueOf(seconds);
+                    dotPosition = secondsString.indexOf('.');
+                    if (dotPosition >= 0) {
+                        int dataStringLength = secondsString.length();
+                        // leave at most 2 digits after decimal point
+                        if (dataStringLength - dotPosition > 3) {
+                            secondsString = secondsString.substring(0, dotPosition + 3);
+                        }
+                    }
+                    return intDegrees + "\u00B0" + intMinutes + "\'" + secondsString + "\" " + hemisphereCode;
+                default: // uknown mode
+                    return "";
             }
         } else { // NaN
             return ""; // invalid data
@@ -51,15 +139,17 @@ public class GPSLoggerUtils {
     }
 
 
-    public static String convertAltitudeToString(float altitude) {
+    public static String convertAltitudeToString(float altitude, int altitudeUnits) {
 
-/// use settings data here:
-        
-///!!! use String.substring() to trim long values!!!
-        
         if (!Float.isNaN(altitude)) {
-            altitude = ((long)(altitude * 10.0f)) / 10.0f; // leave 1 digit after decimal point
-            return ("A " + altitude + "m");
+            switch (altitudeUnits) {
+                case GPSLoggerSettings.ALTITUDE_UNITS_METERS:
+                    return ((int)altitude + " m^");
+                case GPSLoggerSettings.ALTITUDE_UNITS_FEET:
+                    return ((int)(altitude / 0.3048)+ " ft^");
+                default: // uknown mode
+                    return "";
+            }
         } else { // NaN
             return ""; // invalid data
         }
@@ -67,12 +157,9 @@ public class GPSLoggerUtils {
 
     public static String convertCourseToString(float course) {
 
-/// use settings data here:
-
-///!!! use String.substring() to trim long values!!!
-
+/// localize course symbols
+        
         if (!Float.isNaN(course)) {
-            course = ((long)(course * 10.0f)) / 10.0f; // leave 1 digit after decimal point
             String directionSymbol = "";
             if (course >= 22.5 && course < 67.5) {
                 directionSymbol = "NE"; // north-east
@@ -91,22 +178,20 @@ public class GPSLoggerUtils {
             } else {
                 directionSymbol = "N"; // north
             }
-            return ("^ " + course + "\u00B0 " + directionSymbol);
+            return (">> " + (int)course + "\u00B0 " + directionSymbol);
         } else { // NaN
             return ""; // invalid data
         }
     }
 
-    public static String convertSpeedToString(float speed) {
+    public static String convertSpeedToString(float speed, int speedUnits) {
 
-/// use settings data here:
-
+/// use speedUnits data here:
 ///!!! use String.substring() to trim long values!!!
 
         if (!Float.isNaN(speed)) {
-            // convert m/s to km/h at the same time
-            speed = ((long)(speed * 36.0f)) / 10.0f; // leave 1 digit after decimal point
-            return ("v " + speed + " km/h");
+            // convert m/s to km/h
+            return "" + (int)(speed * 3.6f) + " km/h";
         } else { // NaN
             return ""; // invalid data
         }

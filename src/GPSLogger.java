@@ -5,10 +5,8 @@
 import com.sergebass.geography.*;
 import com.sergebass.bluetooth.BluetoothManager;
 import com.sergebass.ui.FileBrowser;
-import com.sergebass.util.Instant;
+import com.sergebass.util.*;
 
-import com.sergebass.util.MorseVibrator;
-import com.sergebass.util.Vibrator;
 import java.util.Vector;
 import java.io.*;
 
@@ -29,17 +27,19 @@ public class GPSLogger
         extends MIDlet
         implements CommandListener,
                    ItemCommandListener,
-                   GeoLocationListener {
+                   GeoLocationListener,
+                   SettingsListener {
 
     static final String ERROR_AUDIO_FILE = "sounds/error.wav";
     
     private boolean mustBeTerminated = false;
     private boolean midletPaused = false;
+    static GPSLogger midlet = null;
+
+    static GPSLoggerSettings settings = null;
 
     final Object waitingLock = new Object();
             
-    GPSLoggerSettings settings = null;
-    
     Vector deviceServiceRecords = new Vector(); /* <ServiceRecord> */
     
     int number = 0;
@@ -69,6 +69,10 @@ public class GPSLogger
 
     long startTimeMillis = 0L;
 
+    int coordinatesMode = 0;
+    int altitudeUnits = 0;
+    int speedUnits = 0;
+
     //<editor-fold defaultstate="collapsed" desc=" Generated Fields ">//GEN-BEGIN:|fields|0|
     private java.util.Hashtable __previousDisplayables = new java.util.Hashtable();
     private Command saveWaypointCommand;
@@ -77,6 +81,10 @@ public class GPSLogger
     private Command takePhotoCommand;
     private Command stopCommand;
     private Command sendSMSCommand;
+    private Command okSendSMSCommand;
+    private Command cancelSMSEditCommand;
+    private Command okSMSEditCommand;
+    private Command cancelSendSMSCommand;
     private Command searchCommand;
     private Command startCommand;
     private Command settingsCommand;
@@ -89,12 +97,13 @@ public class GPSLogger
     private Command sendEmailCommand;
     private Command resetCommand;
     private Command okCommand;
-    private Command okSMSEditCommand;
-    private Command cancelSMSEditCommand;
-    private Command okSendSMSCommand;
-    private Command cancelSendSMSCommand;
     private Form waypointForm;
     private TextField waypointNameTextField;
+    private Form smsForm;
+    private TextField phoneNumberTextField;
+    private StringItem smsLengthStringItem;
+    private StringItem smsTextStringItem;
+    private TextBox smsTextBox;
     private List deviceList;
     private Form introForm;
     private StringItem gpsDeviceStringItem;
@@ -107,23 +116,18 @@ public class GPSLogger
     private StringItem searchGPSStringItem;
     private ChoiceGroup logFormatChoiceGroup;
     private ChoiceGroup logSettingsChoiceGroup;
+    private TextField smsPhoneNumber;
     private TextField logUpdateFrequencyTextField;
-    private ChoiceGroup coordinateChoiceGroup;
-    private ChoiceGroup speedChoiceGroup;
+    private ChoiceGroup coordinatesModeChoiceGroup;
+    private ChoiceGroup speedUnitsChoiceGroup;
     private TextField gpsDeviceTextField;
     private TextField logFolderTextField;
-    private ChoiceGroup altitudeChoiceGroup;
+    private ChoiceGroup altitudeUnitsChoiceGroup;
     private ChoiceGroup languageChoiceGroup;
-    private TextField smsPhoneNumber;
     private Form helpForm;
     private StringItem stringItem1;
     private StringItem emailItem;
     private Alert errorAlert;
-    private Form smsForm;
-    private TextField phoneNumberTextField;
-    private StringItem smsLengthStringItem;
-    private StringItem smsTextStringItem;
-    private TextBox smsTextBox;
     private Font font;
     private Font boldFont;
     //</editor-fold>//GEN-END:|fields|0|
@@ -157,7 +161,6 @@ public class GPSLogger
             e.printStackTrace();
             // ignore?
         }
-
 //GEN-LINE:|0-initialize|1|0-postInitialize
         // write post-initialize user code here
     }//GEN-BEGIN:|0-initialize|2|
@@ -574,7 +577,7 @@ public class GPSLogger
     public Form getSettingsForm() {
         if (settingsForm == null) {//GEN-END:|141-getter|0|141-preInit
             // write pre-init user code here
-            settingsForm = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getLogUpdateFrequencyTextField(), getLogFormatChoiceGroup(), getLogSettingsChoiceGroup(), getCoordinateChoiceGroup(), getAltitudeChoiceGroup(), getSpeedChoiceGroup(), getLanguageChoiceGroup(), getSmsPhoneNumber() });//GEN-BEGIN:|141-getter|1|141-postInit
+            settingsForm = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getLogUpdateFrequencyTextField(), getLogFormatChoiceGroup(), getLogSettingsChoiceGroup(), getCoordinatesModeChoiceGroup(), getAltitudeUnitsChoiceGroup(), getSpeedUnitsChoiceGroup(), getLanguageChoiceGroup(), getSmsPhoneNumber() });//GEN-BEGIN:|141-getter|1|141-postInit
             settingsForm.addCommand(getSaveSettingsCommand());
             settingsForm.addCommand(getCancelCommand());
             settingsForm.setCommandListener(this);//GEN-END:|141-getter|1|141-postInit
@@ -615,26 +618,28 @@ public class GPSLogger
         return settingsCommand;
     }
     //</editor-fold>//GEN-END:|152-getter|2|
+    //</editor-fold>
+    //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: coordinateChoiceGroup ">//GEN-BEGIN:|157-getter|0|157-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: coordinatesModeChoiceGroup ">//GEN-BEGIN:|157-getter|0|157-preInit
     /**
-     * Returns an initiliazed instance of coordinateChoiceGroup component.
+     * Returns an initiliazed instance of coordinatesModeChoiceGroup component.
      * @return the initialized component instance
      */
-    public ChoiceGroup getCoordinateChoiceGroup() {
-        if (coordinateChoiceGroup == null) {//GEN-END:|157-getter|0|157-preInit
+    public ChoiceGroup getCoordinatesModeChoiceGroup() {
+        if (coordinatesModeChoiceGroup == null) {//GEN-END:|157-getter|0|157-preInit
             // write pre-init user code here
-            coordinateChoiceGroup = new ChoiceGroup(GPSLoggerLocalization.getMessage("Coordinates"), Choice.EXCLUSIVE);//GEN-BEGIN:|157-getter|1|157-postInit
-            coordinateChoiceGroup.append("DD.dd\u00B0", null);
-            coordinateChoiceGroup.append("DD\u00B0 MM.mm\'", null);
-            coordinateChoiceGroup.append("DD\u00B0 MM\' SS.ss\"", null);
-            coordinateChoiceGroup.setSelectedFlags(new boolean[] { false, false, false });
-            coordinateChoiceGroup.setFont(0, null);
-            coordinateChoiceGroup.setFont(1, null);
-            coordinateChoiceGroup.setFont(2, null);//GEN-END:|157-getter|1|157-postInit
+            coordinatesModeChoiceGroup = new ChoiceGroup(GPSLoggerLocalization.getMessage("Coordinates"), Choice.EXCLUSIVE);//GEN-BEGIN:|157-getter|1|157-postInit
+            coordinatesModeChoiceGroup.append("DD.dd\u00B0", null);
+            coordinatesModeChoiceGroup.append("DD\u00B0 MM.mm\'", null);
+            coordinatesModeChoiceGroup.append("DD\u00B0 MM\' SS.ss\"", null);
+            coordinatesModeChoiceGroup.setSelectedFlags(new boolean[] { false, false, false });
+            coordinatesModeChoiceGroup.setFont(0, null);
+            coordinatesModeChoiceGroup.setFont(1, null);
+            coordinatesModeChoiceGroup.setFont(2, null);//GEN-END:|157-getter|1|157-postInit
             // write post-init user code here
         }//GEN-BEGIN:|157-getter|2|
-        return coordinateChoiceGroup;
+        return coordinatesModeChoiceGroup;
     }
     //</editor-fold>//GEN-END:|157-getter|2|
 
@@ -714,28 +719,29 @@ public class GPSLogger
         // write post-action user code here
     }//GEN-BEGIN:|17-itemCommandAction|12|
     //</editor-fold>//GEN-END:|17-itemCommandAction|12|
+    //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: speedChoiceGroup ">//GEN-BEGIN:|163-getter|0|163-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: speedUnitsChoiceGroup ">//GEN-BEGIN:|163-getter|0|163-preInit
     /**
-     * Returns an initiliazed instance of speedChoiceGroup component.
+     * Returns an initiliazed instance of speedUnitsChoiceGroup component.
      * @return the initialized component instance
      */
-    public ChoiceGroup getSpeedChoiceGroup() {
-        if (speedChoiceGroup == null) {//GEN-END:|163-getter|0|163-preInit
+    public ChoiceGroup getSpeedUnitsChoiceGroup() {
+        if (speedUnitsChoiceGroup == null) {//GEN-END:|163-getter|0|163-preInit
             // write pre-init user code here
-            speedChoiceGroup = new ChoiceGroup(GPSLoggerLocalization.getMessage("Speed"), Choice.EXCLUSIVE);//GEN-BEGIN:|163-getter|1|163-postInit
-            speedChoiceGroup.append("km/h", null);
-            speedChoiceGroup.append("mph", null);
-            speedChoiceGroup.append("knots", null);
-            speedChoiceGroup.append("m/sec", null);
-            speedChoiceGroup.setSelectedFlags(new boolean[] { false, false, false, false });
-            speedChoiceGroup.setFont(0, null);
-            speedChoiceGroup.setFont(1, null);
-            speedChoiceGroup.setFont(2, null);
-            speedChoiceGroup.setFont(3, null);//GEN-END:|163-getter|1|163-postInit
+            speedUnitsChoiceGroup = new ChoiceGroup(GPSLoggerLocalization.getMessage("Speed"), Choice.EXCLUSIVE);//GEN-BEGIN:|163-getter|1|163-postInit
+            speedUnitsChoiceGroup.append("km/h", null);
+            speedUnitsChoiceGroup.append("mph", null);
+            speedUnitsChoiceGroup.append("knots", null);
+            speedUnitsChoiceGroup.append("m/sec", null);
+            speedUnitsChoiceGroup.setSelectedFlags(new boolean[] { false, false, false, false });
+            speedUnitsChoiceGroup.setFont(0, null);
+            speedUnitsChoiceGroup.setFont(1, null);
+            speedUnitsChoiceGroup.setFont(2, null);
+            speedUnitsChoiceGroup.setFont(3, null);//GEN-END:|163-getter|1|163-postInit
             // write post-init user code here
         }//GEN-BEGIN:|163-getter|2|
-        return speedChoiceGroup;
+        return speedUnitsChoiceGroup;
     }
     //</editor-fold>//GEN-END:|163-getter|2|
 
@@ -780,10 +786,13 @@ public class GPSLogger
         settings.setLogFolder(logPath);
         logPathStringItem.setText(logPath);
 
+        settings.setCoordinatesMode(getCoordinatesModeChoiceGroup().getSelectedIndex());
+        settings.setAltitudeUnits(getAltitudeUnitsChoiceGroup().getSelectedIndex());
+        settings.setSpeedUnits(getSpeedUnitsChoiceGroup().getSelectedIndex());
+
         try {
             settings.save();
         } catch (RecordStoreException e) {
-///handle UI
             handleException(e, introForm);
             return;
         }
@@ -918,24 +927,25 @@ public class GPSLogger
         return cancelCommand;
     }
     //</editor-fold>//GEN-END:|214-getter|2|
+    //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: altitudeChoiceGroup ">//GEN-BEGIN:|220-getter|0|220-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: altitudeUnitsChoiceGroup ">//GEN-BEGIN:|220-getter|0|220-preInit
     /**
-     * Returns an initiliazed instance of altitudeChoiceGroup component.
+     * Returns an initiliazed instance of altitudeUnitsChoiceGroup component.
      * @return the initialized component instance
      */
-    public ChoiceGroup getAltitudeChoiceGroup() {
-        if (altitudeChoiceGroup == null) {//GEN-END:|220-getter|0|220-preInit
+    public ChoiceGroup getAltitudeUnitsChoiceGroup() {
+        if (altitudeUnitsChoiceGroup == null) {//GEN-END:|220-getter|0|220-preInit
             // write pre-init user code here
-            altitudeChoiceGroup = new ChoiceGroup(GPSLoggerLocalization.getMessage("Altitude"), Choice.EXCLUSIVE);//GEN-BEGIN:|220-getter|1|220-postInit
-            altitudeChoiceGroup.append("meters", null);
-            altitudeChoiceGroup.append("feet", null);
-            altitudeChoiceGroup.setSelectedFlags(new boolean[] { false, false });
-            altitudeChoiceGroup.setFont(0, null);
-            altitudeChoiceGroup.setFont(1, null);//GEN-END:|220-getter|1|220-postInit
+            altitudeUnitsChoiceGroup = new ChoiceGroup(GPSLoggerLocalization.getMessage("Altitude"), Choice.EXCLUSIVE);//GEN-BEGIN:|220-getter|1|220-postInit
+            altitudeUnitsChoiceGroup.append("meters", null);
+            altitudeUnitsChoiceGroup.append("feet", null);
+            altitudeUnitsChoiceGroup.setSelectedFlags(new boolean[] { false, false });
+            altitudeUnitsChoiceGroup.setFont(0, null);
+            altitudeUnitsChoiceGroup.setFont(1, null);//GEN-END:|220-getter|1|220-postInit
             // write post-init user code here
         }//GEN-BEGIN:|220-getter|2|
-        return altitudeChoiceGroup;
+        return altitudeUnitsChoiceGroup;
     }
     //</editor-fold>//GEN-END:|220-getter|2|
 
@@ -1378,19 +1388,19 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
         String message = waypoint.getTimeString() + " UTC\n"
                 + (Double.isNaN(latitude)?
                       ""
-                    : (GPSLoggerUtils.convertLatitudeToString(latitude) + "\n"))
+                    : (GPSLoggerUtils.convertLatitudeToString(latitude, coordinatesMode) + "\n"))
                 + (Double.isNaN(longitude)?
                       ""
-                    : (GPSLoggerUtils.convertLongitudeToString(longitude) + "\n"))
+                    : (GPSLoggerUtils.convertLongitudeToString(longitude, coordinatesMode) + "\n"))
                 + (Float.isNaN(altitude)?
                       ""
-                    : (GPSLoggerUtils.convertAltitudeToString(altitude) + "\n"))
+                    : (GPSLoggerUtils.convertAltitudeToString(altitude, altitudeUnits) + "\n"))
                 + (Float.isNaN(course)?
                       ""
                     : (GPSLoggerUtils.convertCourseToString(course) + "\n"))
                 + (Float.isNaN(speed)?
                       ""
-                    : (GPSLoggerUtils.convertSpeedToString(speed) + "\n"));
+                    : (GPSLoggerUtils.convertSpeedToString(speed, speedUnits) + "\n"));
 
         getSmsTextBox().setString(message);
         switchDisplayable(null, getSmsTextBox());
@@ -1410,9 +1420,11 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
             logFormatChoiceGroup = new ChoiceGroup("Log format", Choice.EXCLUSIVE);//GEN-BEGIN:|304-getter|1|304-postInit
             logFormatChoiceGroup.append("GPX", null);
             logFormatChoiceGroup.append("KML", null);
-            logFormatChoiceGroup.setSelectedFlags(new boolean[] { true, false });
+            logFormatChoiceGroup.append("GPX+KML", null);
+            logFormatChoiceGroup.setSelectedFlags(new boolean[] { true, false, false });
             logFormatChoiceGroup.setFont(0, null);
-            logFormatChoiceGroup.setFont(1, null);//GEN-END:|304-getter|1|304-postInit
+            logFormatChoiceGroup.setFont(1, null);
+            logFormatChoiceGroup.setFont(2, null);//GEN-END:|304-getter|1|304-postInit
             // write post-init user code here
         }//GEN-BEGIN:|304-getter|2|
         return logFormatChoiceGroup;
@@ -1465,7 +1477,7 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
     public TextField getSmsPhoneNumber() {
         if (smsPhoneNumber == null) {//GEN-END:|313-getter|0|313-preInit
             // write pre-init user code here
-            smsPhoneNumber = new TextField("SMS phone number", "+1", 32, TextField.PHONENUMBER);//GEN-LINE:|313-getter|1|313-postInit
+            smsPhoneNumber = new TextField("default SMS phone number", "+1", 32, TextField.PHONENUMBER);//GEN-LINE:|313-getter|1|313-postInit
             // write post-init user code here
         }//GEN-BEGIN:|313-getter|2|
         return smsPhoneNumber;
@@ -1677,6 +1689,7 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
      * The GPSLogger constructor.
      */
     public GPSLogger() {
+        midlet = this;
     }
 
     /**
@@ -1752,8 +1765,27 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
         notifyDestroyed();
     }
     
+    public int getCoordinatesMode() {
+        return coordinatesMode;
+    }
+    
+    public int getAltitudeUnits() {
+        return altitudeUnits;
+    }
+
+    public int getSpeedUnits() {
+        return speedUnits;
+    }
+
     public GPSScreen getMainScreen() {
         return mainScreen;
+    }
+
+    public static GPSLoggerSettings getSettings() {
+        if (settings == null) {
+            settings = new GPSLoggerSettings(midlet);
+        }
+        return settings;
     }
 
     void loadSettings() {
@@ -1765,13 +1797,22 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
             settings.load();
         } catch (Exception e) {
             e.printStackTrace();
-///???        handleException(e);
-/// just ignore?
+
+            // just ignore this time
         }
         
         // initialize the settings screen with data from the loaded configuration
         getGpsDeviceTextField().setString(settings.getGPSDeviceURL());
         getLogFolderTextField().setString(settings.getLogFolder());
+
+        coordinatesMode = settings.getCoordinatesMode();
+        getCoordinatesModeChoiceGroup().setSelectedIndex(coordinatesMode, true);
+
+        altitudeUnits = settings.getAltitudeUnits();
+        getAltitudeUnitsChoiceGroup().setSelectedIndex(altitudeUnits, true);
+
+        speedUnits = settings.getSpeedUnits();
+        getSpeedUnitsChoiceGroup().setSelectedIndex(speedUnits, true);
     }
 
     void showSettings() {
@@ -2212,7 +2253,7 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
             
             long totalTimeMillis = System.currentTimeMillis() - startTimeMillis;
             Instant totalTime = new Instant(totalTimeMillis);
-            getMainScreen().setTotalTime(totalTime.getISO8601UTCTimeId());
+            getMainScreen().setTotalTime("+" + totalTime.getISO8601UTCTimeId());
             
             getMainScreen().repaint();
         }
@@ -2245,5 +2286,19 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
         }
 
         handleException(e, getIntroForm());
+    }
+
+    public void settingsChanged(Settings settings, Object key, Object newValue) {
+
+        String parameter = (String) key;
+        String value = (String)newValue;
+
+        if (parameter.equals(GPSLoggerSettings.COORDINATES_MODE)) {
+            coordinatesMode = Integer.parseInt(value);
+        } else if (parameter.equals(GPSLoggerSettings.ALTITUDE_UNITS)) {
+            altitudeUnits = Integer.parseInt(value);
+        } else if (parameter.equals(GPSLoggerSettings.SPEED_UNITS)) {
+            speedUnits = Integer.parseInt(value);
+        }
     }
 }

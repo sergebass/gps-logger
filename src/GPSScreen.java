@@ -64,12 +64,12 @@ try {
 *///
     }
 
-    ///!!! display location/fix method! (location.getLocationMethod())
+///!!! display location fix method! (location.getLocationMethod())
 
     public void setLocation(GeoLocation location) {
         this.location = location;
 
-        if (location == null) { // bad data, clear everything
+        if (location == null) { // invalid data, clear everything
 
             setLatitude("");
             setLongitude("");
@@ -84,19 +84,19 @@ try {
         }
 
         double latitude = location.getLatitude();
-        setLatitude(GPSLoggerUtils.convertLatitudeToString(latitude));
+        setLatitude(GPSLoggerUtils.convertLatitudeToString(latitude, midlet.getCoordinatesMode()));
 
         double longitude = location.getLongitude();
-        setLongitude(GPSLoggerUtils.convertLongitudeToString(longitude));
+        setLongitude(GPSLoggerUtils.convertLongitudeToString(longitude, midlet.getCoordinatesMode()));
 
         float altitude = location.getAltitude();
-        setAltitude(GPSLoggerUtils.convertAltitudeToString(altitude));
+        setAltitude(GPSLoggerUtils.convertAltitudeToString(altitude, midlet.getAltitudeUnits()));
 
         this.course = location.getCourse();
         setCourse(GPSLoggerUtils.convertCourseToString(course));
 
         float speed = location.getSpeed();
-        setSpeed(GPSLoggerUtils.convertSpeedToString(speed));
+        setSpeed(GPSLoggerUtils.convertSpeedToString(speed, midlet.getSpeedUnits()));
 
         String date = location.getDateString();
         setDate(date);
