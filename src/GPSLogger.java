@@ -221,102 +221,106 @@ public class GPSLogger
         // write pre-action user code here
         if (displayable == deviceList) {//GEN-BEGIN:|7-commandAction|1|87-preAction
             if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|1|87-preAction
-                getDeviceList().setTitle("Wait...");
+                
                 deviceListAction();//GEN-LINE:|7-commandAction|2|87-postAction
                 // write post-action user code here
             } else if (command == cancelCommand) {//GEN-LINE:|7-commandAction|3|217-preAction
                 // write pre-action user code here
                 switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|4|217-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|5|150-preAction
-        } else if (displayable == helpForm) {
-            if (command == backCommand) {//GEN-END:|7-commandAction|5|150-preAction
-                // write pre-action user code here
-                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|6|150-postAction
+            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|5|342-preAction
+                deviceListAction();
+//GEN-LINE:|7-commandAction|6|342-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|7|128-preAction
+            }//GEN-BEGIN:|7-commandAction|7|150-preAction
+        } else if (displayable == helpForm) {
+            if (command == backCommand) {//GEN-END:|7-commandAction|7|150-preAction
+                // write pre-action user code here
+                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|8|150-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|9|128-preAction
         } else if (displayable == introForm) {
-            if (command == exitCommand) {//GEN-END:|7-commandAction|7|128-preAction
+            if (command == exitCommand) {//GEN-END:|7-commandAction|9|128-preAction
                 new Thread() {
                     public void run() {
-                        exitMIDlet();//GEN-LINE:|7-commandAction|8|128-postAction
+                        exitMIDlet();//GEN-LINE:|7-commandAction|10|128-postAction
                     }
                 }.start();
-            } else if (command == helpCommand) {//GEN-LINE:|7-commandAction|9|146-preAction
+            } else if (command == helpCommand) {//GEN-LINE:|7-commandAction|11|146-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getHelpForm());//GEN-LINE:|7-commandAction|10|146-postAction
+                switchDisplayable(null, getHelpForm());//GEN-LINE:|7-commandAction|12|146-postAction
                 // write post-action user code here
-            } else if (command == settingsCommand) {//GEN-LINE:|7-commandAction|11|153-preAction
+            } else if (command == settingsCommand) {//GEN-LINE:|7-commandAction|13|153-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getSettingsForm());//GEN-LINE:|7-commandAction|12|153-postAction
+                switchDisplayable(null, getSettingsForm());//GEN-LINE:|7-commandAction|14|153-postAction
                 // write post-action user code here
-            } else if (command == startCommand) {//GEN-LINE:|7-commandAction|13|143-preAction
+            } else if (command == startCommand) {//GEN-LINE:|7-commandAction|15|143-preAction
                 // write pre-action user code here
-                startTrack();//GEN-LINE:|7-commandAction|14|143-postAction
+                startTrack();//GEN-LINE:|7-commandAction|16|143-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|15|215-preAction
+            }//GEN-BEGIN:|7-commandAction|17|215-preAction
         } else if (displayable == settingsForm) {
-            if (command == cancelCommand) {//GEN-END:|7-commandAction|15|215-preAction
+            if (command == cancelCommand) {//GEN-END:|7-commandAction|17|215-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getIntroForm());//GEN-LINE:|7-commandAction|16|215-postAction
+                switchDisplayable(null, getIntroForm());//GEN-LINE:|7-commandAction|18|215-postAction
                 // write post-action user code here
-            } else if (command == saveSettingsCommand) {//GEN-LINE:|7-commandAction|17|202-preAction
+            } else if (command == saveSettingsCommand) {//GEN-LINE:|7-commandAction|19|202-preAction
                 // write pre-action user code here
-                saveSettings();//GEN-LINE:|7-commandAction|18|202-postAction
+                saveSettings();//GEN-LINE:|7-commandAction|20|202-postAction
                 showSettings();
                 switchDisplayable(null, getIntroForm());
-            }//GEN-BEGIN:|7-commandAction|19|329-preAction
+            }//GEN-BEGIN:|7-commandAction|21|329-preAction
         } else if (displayable == smsForm) {
-            if (command == cancelSendSMSCommand) {//GEN-END:|7-commandAction|19|329-preAction
+            if (command == cancelSendSMSCommand) {//GEN-END:|7-commandAction|21|329-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getSmsTextBox());//GEN-LINE:|7-commandAction|20|329-postAction
+                switchDisplayable(null, getSmsTextBox());//GEN-LINE:|7-commandAction|22|329-postAction
                 // write post-action user code here
-            } else if (command == okSendSMSCommand) {//GEN-LINE:|7-commandAction|21|327-preAction
+            } else if (command == okSendSMSCommand) {//GEN-LINE:|7-commandAction|23|327-preAction
                 // write pre-action user code here
-                doSendSMS();//GEN-LINE:|7-commandAction|22|327-postAction
+                doSendSMS();//GEN-LINE:|7-commandAction|24|327-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|23|323-preAction
+            }//GEN-BEGIN:|7-commandAction|25|323-preAction
         } else if (displayable == smsTextBox) {
-            if (command == cancelSMSEditCommand) {//GEN-END:|7-commandAction|23|323-preAction
+            if (command == cancelSMSEditCommand) {//GEN-END:|7-commandAction|25|323-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getWaypointForm());//GEN-LINE:|7-commandAction|24|323-postAction
+                switchDisplayable(null, getWaypointForm());//GEN-LINE:|7-commandAction|26|323-postAction
                 // write post-action user code here
-            } else if (command == okSMSEditCommand) {//GEN-LINE:|7-commandAction|25|321-preAction
+            } else if (command == okSMSEditCommand) {//GEN-LINE:|7-commandAction|27|321-preAction
                 String messageText = getSmsTextBox().getString();
                 getSmsLengthStringItem().setText(messageText.length() + " characters");
                 getSmsTextStringItem().setText(messageText);
 /// copy phone number from settings here (if the field is still empty)
-                switchDisplayable(null, getSmsForm());//GEN-LINE:|7-commandAction|26|321-postAction
+                switchDisplayable(null, getSmsForm());//GEN-LINE:|7-commandAction|28|321-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|27|282-preAction
+            }//GEN-BEGIN:|7-commandAction|29|282-preAction
         } else if (displayable == waypointForm) {
-            if (command == cancelWaypointCommand) {//GEN-END:|7-commandAction|27|282-preAction
+            if (command == cancelWaypointCommand) {//GEN-END:|7-commandAction|29|282-preAction
                 // remove the last added waypoint: it was cancelled
                 if (waypoints.size() > 1) {
                     waypoints.removeElementAt(waypoints.size() - 1);
                 }
-                switchToMainScreen();//GEN-LINE:|7-commandAction|28|282-postAction
+                switchToMainScreen();//GEN-LINE:|7-commandAction|30|282-postAction
 
-            } else if (command == saveWaypointCommand) {//GEN-LINE:|7-commandAction|29|284-preAction
+            } else if (command == saveWaypointCommand) {//GEN-LINE:|7-commandAction|31|284-preAction
                 new Thread() {
                     public void run() {
-                        saveWaypoint();//GEN-LINE:|7-commandAction|30|284-postAction
+                        saveWaypoint();//GEN-LINE:|7-commandAction|32|284-postAction
                     }
                 }.start();
-            } else if (command == sendSMSCommand) {//GEN-LINE:|7-commandAction|31|299-preAction
+            } else if (command == sendSMSCommand) {//GEN-LINE:|7-commandAction|33|299-preAction
                 new Thread() {
                     public void run() {
-                        sendSMS();//GEN-LINE:|7-commandAction|32|299-postAction
+                        sendSMS();//GEN-LINE:|7-commandAction|34|299-postAction
                     }
                 }.start();
-            } else if (command == takePhotoCommand) {//GEN-LINE:|7-commandAction|33|291-preAction
+            } else if (command == takePhotoCommand) {//GEN-LINE:|7-commandAction|35|291-preAction
                 new Thread() {
                     public void run() {
-                        takePhoto();//GEN-LINE:|7-commandAction|34|291-postAction
+                        takePhoto();//GEN-LINE:|7-commandAction|36|291-postAction
                     }
                 }.start();
-            }//GEN-BEGIN:|7-commandAction|35|7-postCommandAction
-        }//GEN-END:|7-commandAction|35|7-postCommandAction
+            }//GEN-BEGIN:|7-commandAction|37|7-postCommandAction
+        }//GEN-END:|7-commandAction|37|7-postCommandAction
         else if (displayable == fileBrowser) {
             if (command == FileBrowser.SELECT_ITEM_COMMAND) {
                 setLogFolder ();
@@ -349,8 +353,8 @@ public class GPSLogger
                 resetOdometer();
             }
         }
-    }//GEN-BEGIN:|7-commandAction|36|
-    //</editor-fold>//GEN-END:|7-commandAction|36|
+    }//GEN-BEGIN:|7-commandAction|38|
+    //</editor-fold>//GEN-END:|7-commandAction|38|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: exitCommand ">//GEN-BEGIN:|18-getter|0|18-preInit
     /**
@@ -448,9 +452,10 @@ public class GPSLogger
             // write pre-init user code here
             deviceList = new List("GPS devices", Choice.IMPLICIT);//GEN-BEGIN:|85-getter|1|85-postInit
             deviceList.addCommand(getCancelCommand());
+            deviceList.addCommand(getOkCommand());
             deviceList.setCommandListener(this);
             deviceList.setFitPolicy(Choice.TEXT_WRAP_ON);
-            deviceList.setSelectCommand(null);//GEN-END:|85-getter|1|85-postInit
+            deviceList.setSelectCommand(getOkCommand());//GEN-END:|85-getter|1|85-postInit
             // write post-init user code here
         }//GEN-BEGIN:|85-getter|2|
         return deviceList;
@@ -462,7 +467,7 @@ public class GPSLogger
      * Performs an action assigned to the selected list element in the deviceList component.
      */
     public void deviceListAction() {//GEN-END:|85-action|0|85-preAction
-        // enter pre-action user code here
+        getDeviceList().setTitle("Wait...");
         String __selectedString = getDeviceList().getString(getDeviceList().getSelectedIndex());//GEN-LINE:|85-action|1|85-postAction
         selectGPSDevice();
     }//GEN-BEGIN:|85-action|2|
@@ -618,8 +623,6 @@ public class GPSLogger
         return settingsCommand;
     }
     //</editor-fold>//GEN-END:|152-getter|2|
-    //</editor-fold>
-    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: coordinatesModeChoiceGroup ">//GEN-BEGIN:|157-getter|0|157-preInit
     /**
@@ -719,7 +722,6 @@ public class GPSLogger
         // write post-action user code here
     }//GEN-BEGIN:|17-itemCommandAction|12|
     //</editor-fold>//GEN-END:|17-itemCommandAction|12|
-    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: speedUnitsChoiceGroup ">//GEN-BEGIN:|163-getter|0|163-preInit
     /**
@@ -927,7 +929,6 @@ public class GPSLogger
         return cancelCommand;
     }
     //</editor-fold>//GEN-END:|214-getter|2|
-    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: altitudeUnitsChoiceGroup ">//GEN-BEGIN:|220-getter|0|220-preInit
     /**
