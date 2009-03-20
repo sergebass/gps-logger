@@ -1,15 +1,11 @@
-package com.sergebass.bluetooth;
-
-
-
 /*
  * (C) Serge Perinsky, 2007, 2008
  */
 
+package com.sergebass.bluetooth;
+
 import java.util.Vector;
 import javax.bluetooth.*;
-import javax.microedition.lcdui.Display;
-import javax.microedition.midlet.MIDlet;
 
 /**
  * BluetoothManager.
@@ -19,11 +15,6 @@ import javax.microedition.midlet.MIDlet;
 public class BluetoothManager
         implements DiscoveryListener {
 
-/// decouple BluetoothManager from midlets?!:
-    MIDlet midlet;
-    
-    // cached values
-    
     DiscoveryAgent agent = null;
     
     Vector /*<RemoteDevice>*/ devices;
@@ -45,38 +36,25 @@ public class BluetoothManager
         return isJSR82SupportedHere;
     }
     
-    public BluetoothManager(MIDlet midlet) {
-        this.midlet = midlet;
+    public BluetoothManager() {
     }
     
-    public Vector /*<RemoteDevice>*/ searchDevices() {
+    public Vector /*<RemoteDevice>*/ searchDevices()
+                throws BluetoothStateException {
 
-        System.out.println("Searching for devices...");
+        System.out.println("Searching for Bluetooth devices...");
                 
         devices = new Vector(); /*<RemoteDevice>*/
+        agent = null; // serves also as a flag
         
-        LocalDevice localDevice = null;
-        agent = null;
-        
-        try {
-            localDevice = LocalDevice.getLocalDevice();
-            agent = localDevice.getDiscoveryAgent();
-        } catch (BluetoothStateException e) {
-///handle this
-            e.printStackTrace();
-        }
+        LocalDevice localDevice = LocalDevice.getLocalDevice();
+        agent = localDevice.getDiscoveryAgent();
 
         if (agent == null) {
             return devices;
         }
         
-        try {
-            if (!agent.startInquiry(DiscoveryAgent.GIAC, this)) {
-                return devices;
-            }
-        } catch (BluetoothStateException ex) {
-///handle this
-            ex.printStackTrace();
+        if (!agent.startInquiry(DiscoveryAgent.GIAC, this)) {
             return devices;
         }
 
@@ -87,25 +65,23 @@ public class BluetoothManager
                 lock.wait();
             }
         } catch (InterruptedException e) {
-///handle this?            
             e.printStackTrace();
         }
 
-        System.out.println("Returning the found devices.");
+        System.out.println("Returning discovered Bluetooth devices.");
         return devices;
     }
 
     public boolean cancelDeviceSearch() {
-        
-        return agent.cancelInquiry(this);
+        return agent != null? agent.cancelInquiry(this) : false;
     }
     
     public void deviceDiscovered(RemoteDevice device,
                                  DeviceClass deviceClass) {
         
-        System.out.println("deviceDiscovered: device="
+        System.out.println("Bluetooth device discovered: device="
                 + device
-                + ", deviceClass="
+                + ", class="
                 + deviceClass);
         
         devices.addElement(device);
@@ -123,7 +99,6 @@ public class BluetoothManager
                 System.out.println("INQUIRY_TERMINATED");
                 break;
             case DiscoveryListener.INQUIRY_ERROR :
-                Display.getDisplay(midlet).vibrate(1000);
                 System.out.println("INQUIRY_ERROR");
                 break;
             default :
@@ -137,23 +112,15 @@ public class BluetoothManager
     }
     
     public Vector /*<ServiceRecord>*/ searchServices(RemoteDevice device,
-                                                     UUID[] uuidServiceSet) {
+                                                     UUID[] uuidServiceSet)
+            throws BluetoothStateException {
         
-        System.out.println("Searching for services...");
+        System.out.println("Searching for Bluetooth services...");
                 
         services = new Vector(); /*<ServiceRecord>*/
         
-        LocalDevice localDevice = null;
-        agent = null;
-        
-        try {
-            localDevice = LocalDevice.getLocalDevice();
-            agent = localDevice.getDiscoveryAgent();
-        } catch (BluetoothStateException e) {
-///handle this
-            e.printStackTrace();
-            Display.getDisplay(midlet).vibrate(1000);
-        }
+        LocalDevice localDevice = LocalDevice.getLocalDevice();
+        agent = localDevice.getDiscoveryAgent();
 
         if (agent == null) {
             return services;
@@ -165,29 +132,23 @@ public class BluetoothManager
                 lock.wait(); // wait until all of the services are found...
             }
         } catch (InterruptedException e) {
-///handle this?
             e.printStackTrace();
-            Display.getDisplay(midlet).vibrate(1000);
-        } catch (BluetoothStateException ex) {
-///handle this
-            ex.printStackTrace();
-            Display.getDisplay(midlet).vibrate(1000);
-    }
+        }
         
         // Ok, the services must have been discovered by now
+        System.out.println("Returning discovered Bluetooth services.");
         return services;
     }
     
     public boolean cancelServiceSearch(int transID) {
-        
-        return agent.cancelServiceSearch(transID);
+        return agent != null? agent.cancelServiceSearch(transID) : false;
     }
         
     public void servicesDiscovered(int transID,
                                    ServiceRecord[] serviceRecords) {
         
         if (serviceRecords != null) {
-            System.out.println("servicesDiscovered: " + serviceRecords.length + " items");
+            System.out.println("Bluetooth services discovered: " + serviceRecords.length + " item(s)");
             for (int i = 0; i < serviceRecords.length; i++) {
                 services.addElement(serviceRecords[i]);
             }
@@ -197,7 +158,7 @@ public class BluetoothManager
     public void serviceSearchCompleted(int transID,
                                        int responseCode) {
         
-        System.out.println("serviceSearchCompleted: transID="
+        System.out.println("Bluetooth service search completed: transID="
                 + transID
                 + ", responseCode="
                 + responseCode

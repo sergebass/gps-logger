@@ -3,7 +3,6 @@
  */
 
 import com.sergebass.geography.*;
-import com.sergebass.bluetooth.BluetoothManager;
 import com.sergebass.ui.FileBrowser;
 import com.sergebass.util.*;
 
@@ -38,10 +37,10 @@ public class GPSLogger
 
     static GPSLoggerSettings settings = null;
 
+    GPSLoggerBTGPSEnumerator gpsDeviceEnumerator = null;
+
     final Object waitingLock = new Object();
             
-    Vector deviceServiceRecords = new Vector(); /* <ServiceRecord> */
-    
     int number = 0;
 
     GeoLocator geoLocator = null;
@@ -104,7 +103,7 @@ public class GPSLogger
     private StringItem smsLengthStringItem;
     private StringItem smsTextStringItem;
     private TextBox smsTextBox;
-    private List deviceList;
+    private List gpsDeviceList;
     private Form introForm;
     private StringItem gpsDeviceStringItem;
     private StringItem freeSpaceStringItem;
@@ -116,7 +115,7 @@ public class GPSLogger
     private StringItem searchGPSStringItem;
     private ChoiceGroup logFormatChoiceGroup;
     private ChoiceGroup logSettingsChoiceGroup;
-    private TextField smsPhoneNumber;
+    private TextField defaultSmsPhoneNumber;
     private TextField logUpdateFrequencyTextField;
     private ChoiceGroup coordinatesModeChoiceGroup;
     private ChoiceGroup speedUnitsChoiceGroup;
@@ -174,7 +173,7 @@ public class GPSLogger
 
         loadSettings();
         switchDisplayable(null, getIntroForm());//GEN-LINE:|3-startMIDlet|1|3-postAction
-        showSettings();
+        prepareSettingsSummary();
     }//GEN-BEGIN:|3-startMIDlet|2|
     //</editor-fold>//GEN-END:|3-startMIDlet|2|
     
@@ -219,18 +218,18 @@ public class GPSLogger
      */
     public void commandAction(Command command, Displayable displayable) {//GEN-END:|7-commandAction|0|7-preCommandAction
         // write pre-action user code here
-        if (displayable == deviceList) {//GEN-BEGIN:|7-commandAction|1|87-preAction
+        if (displayable == gpsDeviceList) {//GEN-BEGIN:|7-commandAction|1|87-preAction
             if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|1|87-preAction
-                
-                deviceListAction();//GEN-LINE:|7-commandAction|2|87-postAction
+                stopGPSDeviceSearch();
+                gpsDeviceListAction();//GEN-LINE:|7-commandAction|2|87-postAction
                 // write post-action user code here
             } else if (command == cancelCommand) {//GEN-LINE:|7-commandAction|3|217-preAction
-                // write pre-action user code here
-                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|4|217-postAction
-                // write post-action user code here
+                stopGPSDeviceSearch();
+//GEN-LINE:|7-commandAction|4|217-postAction
+                getDisplay().setCurrent(getSettingsForm()); // go back without history
             } else if (command == okCommand) {//GEN-LINE:|7-commandAction|5|342-preAction
-                deviceListAction();
-//GEN-LINE:|7-commandAction|6|342-postAction
+                stopGPSDeviceSearch();
+                gpsDeviceListAction();//GEN-LINE:|7-commandAction|6|342-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|7|150-preAction
         } else if (displayable == helpForm) {
@@ -261,14 +260,17 @@ public class GPSLogger
             }//GEN-BEGIN:|7-commandAction|17|215-preAction
         } else if (displayable == settingsForm) {
             if (command == cancelCommand) {//GEN-END:|7-commandAction|17|215-preAction
-                // write pre-action user code here
-                switchDisplayable(null, getIntroForm());//GEN-LINE:|7-commandAction|18|215-postAction
+
+                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|18|215-postAction
                 // write post-action user code here
             } else if (command == saveSettingsCommand) {//GEN-LINE:|7-commandAction|19|202-preAction
-                // write pre-action user code here
+
                 saveSettings();//GEN-LINE:|7-commandAction|20|202-postAction
-                showSettings();
-                switchDisplayable(null, getIntroForm());
+                // only show summary if the last (next) displayable is introForm
+                if (__previousDisplayables.get(getDisplay().getCurrent()) == introForm) {
+                    prepareSettingsSummary();
+                }
+                switchToPreviousDisplayable();
             }//GEN-BEGIN:|7-commandAction|21|329-preAction
         } else if (displayable == smsForm) {
             if (command == cancelSendSMSCommand) {//GEN-END:|7-commandAction|21|329-preAction
@@ -289,7 +291,10 @@ public class GPSLogger
                 String messageText = getSmsTextBox().getString();
                 getSmsLengthStringItem().setText(messageText.length() + " characters");
                 getSmsTextStringItem().setText(messageText);
-/// copy phone number from settings here (if the field is still empty)
+                // copy phone number from settings (if the field is (still) empty)
+                if (getPhoneNumberTextField().getString().trim().equals("")) {
+                    getPhoneNumberTextField().setString(settings.getDefaultSmsPhoneNumber());
+                }
                 switchDisplayable(null, getSmsForm());//GEN-LINE:|7-commandAction|28|321-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|29|282-preAction
@@ -325,7 +330,7 @@ public class GPSLogger
             if (command == FileBrowser.SELECT_ITEM_COMMAND) {
                 setLogFolder ();
             } else if (command == backCommand) {
-                switchToPreviousDisplayable ();
+                getDisplay().setCurrent(getSettingsForm()); // without history
             }
         } else { // all other displayables
             if (command.getCommandType() == Command.EXIT) {
@@ -349,6 +354,8 @@ public class GPSLogger
                         markWaypoint();
                     }
                 }.start();
+            } else if (command == settingsCommand) {
+                switchDisplayable(null, getSettingsForm());
             } else if (command == resetCommand) {
                 resetOdometer();
             }
@@ -376,100 +383,84 @@ public class GPSLogger
      * Performs an action assigned to the searchDevices entry-point.
      */
     public void searchDevices() {//GEN-END:|82-entry|0|83-preAction
-
-        getDeviceList().deleteAll();
-        getDeviceList().setTitle("Searching GPS...");
-
-        // switch to the found device list
-        switchDisplayable(null, getDeviceList());
-
-        new Thread() {
-            public void run() {
-                doSearchGPSDevices(); // CPU consuming thread
-            }
-        }.start();
+        getGpsDeviceList().deleteAll();
+        gpsDeviceEnumerator = new GPSLoggerBTGPSEnumerator(this, getGpsDeviceList());
+        gpsDeviceEnumerator.start();
 //GEN-LINE:|82-entry|1|83-postAction
-
+        // jump to the discovered bluetooth device list (without history)
+        getDisplay().setCurrent(getGpsDeviceList());
     }//GEN-BEGIN:|82-entry|2|
     //</editor-fold>//GEN-END:|82-entry|2|
 
-    void doSearchGPSDevices() {
-        System.out.println("Searching GPS devices...");
-
-        BluetoothManager deviceManager = new BluetoothManager(this);
-
-        UUID[] uuidServiceSet = new UUID[1];
-        uuidServiceSet[0] = new UUID(0x1101); // SPP service (Serial Port Profile)
-
-        Vector devices = deviceManager.searchDevices();
-
-        if (devices.size() == 0) {
-            getDeviceList().append("[No GPS devices found]", null);///or special icon?
-        } else {
-            for (int i = 0; i < devices.size(); i++) {
-
-                RemoteDevice device = (RemoteDevice)devices.elementAt(i);
-                System.out.println(device.toString());
-
-                // now let's see if this device supports the needed services...
-                Vector services = deviceManager.searchServices(device, uuidServiceSet);
-
-                for (int iService = 0; iService < services.size(); iService++) {
-
-                    ServiceRecord service = (ServiceRecord)services.elementAt(iService);
-                    deviceServiceRecords.addElement(service);
-
-                    try { // add matching entry to the selection list
-                        getDeviceList().append(device.getFriendlyName(false) // do not ask
-                                             + " ("
-                                             + service.getHostDevice().getBluetoothAddress()
-                                             + ")",
-                                           null); // no image
-                    } catch (IOException ex) {
-                        getDeviceList().append
-                                    ("!!"
-                                    + ex.getMessage()
-                                    + " (" + ex.getClass().getName()
-                                    + ")",
-                                    null); /// or error icon?
-                        getDisplay().vibrate(1000);
-                    }
-                }
-            }
+    void stopGPSDeviceSearch() {
+        if (gpsDeviceEnumerator != null) {
+            gpsDeviceEnumerator.cancel();
         }
-        System.out.println("GPS device scan complete.");
-        
-        getDeviceList().setTitle("Choose GPS device:");
     }
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: deviceList ">//GEN-BEGIN:|85-getter|0|85-preInit
+    
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: gpsDeviceList ">//GEN-BEGIN:|85-getter|0|85-preInit
     /**
-     * Returns an initiliazed instance of deviceList component.
+     * Returns an initiliazed instance of gpsDeviceList component.
      * @return the initialized component instance
      */
-    public List getDeviceList() {
-        if (deviceList == null) {//GEN-END:|85-getter|0|85-preInit
+    public List getGpsDeviceList() {
+        if (gpsDeviceList == null) {//GEN-END:|85-getter|0|85-preInit
             // write pre-init user code here
-            deviceList = new List("GPS devices", Choice.IMPLICIT);//GEN-BEGIN:|85-getter|1|85-postInit
-            deviceList.addCommand(getCancelCommand());
-            deviceList.addCommand(getOkCommand());
-            deviceList.setCommandListener(this);
-            deviceList.setFitPolicy(Choice.TEXT_WRAP_ON);
-            deviceList.setSelectCommand(getOkCommand());//GEN-END:|85-getter|1|85-postInit
+            gpsDeviceList = new List("GPS devices", Choice.IMPLICIT);//GEN-BEGIN:|85-getter|1|85-postInit
+            gpsDeviceList.addCommand(getCancelCommand());
+            gpsDeviceList.addCommand(getOkCommand());
+            gpsDeviceList.setCommandListener(this);
+            gpsDeviceList.setFitPolicy(Choice.TEXT_WRAP_ON);
+            gpsDeviceList.setSelectCommand(getOkCommand());//GEN-END:|85-getter|1|85-postInit
             // write post-init user code here
         }//GEN-BEGIN:|85-getter|2|
-        return deviceList;
+        return gpsDeviceList;
     }
     //</editor-fold>//GEN-END:|85-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: deviceListAction ">//GEN-BEGIN:|85-action|0|85-preAction
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: gpsDeviceListAction ">//GEN-BEGIN:|85-action|0|85-preAction
     /**
-     * Performs an action assigned to the selected list element in the deviceList component.
+     * Performs an action assigned to the selected list element in the gpsDeviceList component.
      */
-    public void deviceListAction() {//GEN-END:|85-action|0|85-preAction
-        getDeviceList().setTitle("Wait...");
-        String __selectedString = getDeviceList().getString(getDeviceList().getSelectedIndex());//GEN-LINE:|85-action|1|85-postAction
-        selectGPSDevice();
+    public void gpsDeviceListAction() {//GEN-END:|85-action|0|85-preAction
+
+        String __selectedString = getGpsDeviceList().getString(getGpsDeviceList().getSelectedIndex());//GEN-LINE:|85-action|1|85-postAction
+        Vector deviceServiceRecords = gpsDeviceEnumerator.getDeviceServiceRecords();
+
+        if (deviceServiceRecords == null) {
+            handleException(new Exception("No bluetooth services were found :("),
+                            getSettingsForm());
+            return;
+        }
+
+        if (deviceServiceRecords.size() == 0) {
+            handleException(new Exception("No bluetooth services were found :("),
+                            getSettingsForm());
+            return;
+        }
+
+        int selectedDeviceIndex = getGpsDeviceList().getSelectedIndex();
+
+        ServiceRecord service
+                = (ServiceRecord)(deviceServiceRecords.elementAt(selectedDeviceIndex));
+
+        System.out.println("Chosen Bluetooth device: " + service.getHostDevice().getBluetoothAddress());
+        System.out.println("Chosen Bluetooth service: " + service.toString());
+
+        getGpsDeviceList().setTitle("Connecting to GPS...");
+
+        String connectionURLString = service.getConnectionURL(0, // security
+                                                              true); // master mode
+        if (connectionURLString == null) {
+            handleException(new Exception("This Bluetooth device does not support Simple SPP Service."),
+                            getSettingsForm());
+            return;
+        }
+
+        settings.setGPSDeviceURL(connectionURLString);
+        getGpsDeviceTextField().setString(connectionURLString);
+
+        getDisplay().setCurrent(getSettingsForm()); // go back without history
     }//GEN-BEGIN:|85-action|2|
     //</editor-fold>//GEN-END:|85-action|2|
 
@@ -537,7 +528,7 @@ public class GPSLogger
     public Command getStartCommand() {
         if (startCommand == null) {//GEN-END:|142-getter|0|142-preInit
             // write pre-init user code here
-            startCommand = new Command(GPSLoggerLocalization.getMessage("startCommand"), GPSLoggerLocalization.getMessage("startCommand"), Command.OK, 1);//GEN-LINE:|142-getter|1|142-postInit
+            startCommand = new Command(GPSLoggerLocalization.getMessage("startCommand"), GPSLoggerLocalization.getMessage("startCommand"), Command.OK, 0);//GEN-LINE:|142-getter|1|142-postInit
             // write post-init user code here
         }//GEN-BEGIN:|142-getter|2|
         return startCommand;
@@ -582,7 +573,7 @@ public class GPSLogger
     public Form getSettingsForm() {
         if (settingsForm == null) {//GEN-END:|141-getter|0|141-preInit
             // write pre-init user code here
-            settingsForm = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getLogUpdateFrequencyTextField(), getLogFormatChoiceGroup(), getLogSettingsChoiceGroup(), getCoordinatesModeChoiceGroup(), getAltitudeUnitsChoiceGroup(), getSpeedUnitsChoiceGroup(), getLanguageChoiceGroup(), getSmsPhoneNumber() });//GEN-BEGIN:|141-getter|1|141-postInit
+            settingsForm = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getLogUpdateFrequencyTextField(), getLogFormatChoiceGroup(), getLogSettingsChoiceGroup(), getCoordinatesModeChoiceGroup(), getAltitudeUnitsChoiceGroup(), getSpeedUnitsChoiceGroup(), getLanguageChoiceGroup(), getDefaultSmsPhoneNumber() });//GEN-BEGIN:|141-getter|1|141-postInit
             settingsForm.addCommand(getSaveSettingsCommand());
             settingsForm.addCommand(getCancelCommand());
             settingsForm.setCommandListener(this);//GEN-END:|141-getter|1|141-postInit
@@ -617,7 +608,7 @@ public class GPSLogger
     public Command getSettingsCommand() {
         if (settingsCommand == null) {//GEN-END:|152-getter|0|152-preInit
             // write pre-init user code here
-            settingsCommand = new Command(GPSLoggerLocalization.getMessage("settingsCommand"), GPSLoggerLocalization.getMessage("settingsCommand"), Command.SCREEN, 2);//GEN-LINE:|152-getter|1|152-postInit
+            settingsCommand = new Command(GPSLoggerLocalization.getMessage("settingsCommand"), GPSLoggerLocalization.getMessage("settingsCommand"), Command.SCREEN, 10);//GEN-LINE:|152-getter|1|152-postInit
             // write post-init user code here
         }//GEN-BEGIN:|152-getter|2|
         return settingsCommand;
@@ -688,38 +679,38 @@ public class GPSLogger
      * @param displayable the Item where the command was invoked
      */
     public void commandAction(Command command, Item item) {//GEN-END:|17-itemCommandAction|0|17-preItemCommandAction
-        // write pre-action user code here
+
         if (item == browseLogFolderStringItem) {//GEN-BEGIN:|17-itemCommandAction|1|272-preAction
             if (command == browseCommand) {//GEN-END:|17-itemCommandAction|1|272-preAction
-            // write pre-action user code here
+
                 browseLogFolder();//GEN-LINE:|17-itemCommandAction|2|272-postAction
-            // write post-action user code here
+
             }//GEN-BEGIN:|17-itemCommandAction|3|210-preAction
         } else if (item == emailItem) {
             if (command == sendEmailCommand) {//GEN-END:|17-itemCommandAction|3|210-preAction
-                // write pre-action user code here
+
                 sendEmail();//GEN-LINE:|17-itemCommandAction|4|210-postAction
-                // write post-action user code here
+
             }//GEN-BEGIN:|17-itemCommandAction|5|236-preAction
         } else if (item == gpsDeviceTextField) {
             if (command == searchCommand) {//GEN-END:|17-itemCommandAction|5|236-preAction
-                // write pre-action user code here
+
                 searchDevices();//GEN-LINE:|17-itemCommandAction|6|236-postAction
-                // write post-action user code here
+
             }//GEN-BEGIN:|17-itemCommandAction|7|181-preAction
         } else if (item == logFolderTextField) {
             if (command == browseCommand) {//GEN-END:|17-itemCommandAction|7|181-preAction
                 browseLogFolder();//GEN-LINE:|17-itemCommandAction|8|181-postAction
-                // write post-action user code here
+
             }//GEN-BEGIN:|17-itemCommandAction|9|269-preAction
         } else if (item == searchGPSStringItem) {
             if (command == searchCommand) {//GEN-END:|17-itemCommandAction|9|269-preAction
-            // write pre-action user code here
+
                 searchDevices();//GEN-LINE:|17-itemCommandAction|10|269-postAction
-            // write post-action user code here
+
             }//GEN-BEGIN:|17-itemCommandAction|11|17-postItemCommandAction
         }//GEN-END:|17-itemCommandAction|11|17-postItemCommandAction
-        // write post-action user code here
+
     }//GEN-BEGIN:|17-itemCommandAction|12|
     //</editor-fold>//GEN-END:|17-itemCommandAction|12|
 
@@ -768,7 +759,7 @@ public class GPSLogger
      */
     public void setLogFolder() {//GEN-END:|183-entry|0|184-preAction
         logFolderTextField.setString(fileBrowser.getSelectedFileURL());
-        switchDisplayable(null, getSettingsForm());
+        getDisplay().setCurrent(getSettingsForm()); // without history
 //GEN-LINE:|183-entry|1|184-postAction
         // write post-action user code here
     }//GEN-BEGIN:|183-entry|2|
@@ -792,6 +783,8 @@ public class GPSLogger
         settings.setAltitudeUnits(getAltitudeUnitsChoiceGroup().getSelectedIndex());
         settings.setSpeedUnits(getSpeedUnitsChoiceGroup().getSelectedIndex());
 
+        settings.setDefaultSmsPhoneNumber(getDefaultSmsPhoneNumber().getString());
+
         try {
             settings.save();
         } catch (RecordStoreException e) {
@@ -799,7 +792,7 @@ public class GPSLogger
             return;
         }
 //GEN-LINE:|188-entry|1|189-postAction
-        switchDisplayable(null, getMainScreen());
+
     }//GEN-BEGIN:|188-entry|2|
     //</editor-fold>//GEN-END:|188-entry|2|
 
@@ -859,7 +852,7 @@ public class GPSLogger
     public Command getMarkWaypointCommand() {
         if (markWaypointCommand == null) {//GEN-END:|195-getter|0|195-preInit
             // write pre-init user code here
-            markWaypointCommand = new Command(GPSLoggerLocalization.getMessage("markWaypointCommand"), GPSLoggerLocalization.getMessage("markWaypointCommandLong"), Command.OK, 1);//GEN-LINE:|195-getter|1|195-postInit
+            markWaypointCommand = new Command(GPSLoggerLocalization.getMessage("markWaypointCommand"), GPSLoggerLocalization.getMessage("markWaypointCommandLong"), Command.OK, 0);//GEN-LINE:|195-getter|1|195-postInit
             // write post-init user code here
         }//GEN-BEGIN:|195-getter|2|
         return markWaypointCommand;
@@ -971,35 +964,6 @@ public class GPSLogger
         return languageChoiceGroup;
     }
     //</editor-fold>//GEN-END:|223-getter|2|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: selectGPSDevice ">//GEN-BEGIN:|227-entry|0|228-preAction
-    /**
-     * Performs an action assigned to the selectGPSDevice entry-point.
-     */
-    public void selectGPSDevice() {//GEN-END:|227-entry|0|228-preAction
-
-        int selectedDeviceIndex = getDeviceList().getSelectedIndex();
-
-        final ServiceRecord service = (ServiceRecord)deviceServiceRecords.elementAt(selectedDeviceIndex);
-        System.out.println("Chosen device: " + service.getHostDevice().getBluetoothAddress());
-        System.out.println("Chosen service: " + service.toString());
-
-        getDeviceList().setTitle("Checking GPS...");
-
-        String connectionURLString = service.getConnectionURL(0, // security
-                                                              true); // master mode
-        if(connectionURLString==null){
-            handleException(new Exception("Device does not support Simple SPP Service."),
-                            introForm);
-            return;
-        }
-
-        settings.setGPSDeviceURL(connectionURLString);
-        getGpsDeviceTextField().setString(connectionURLString);
-        switchDisplayable(null, getSettingsForm());//GEN-LINE:|227-entry|1|228-postAction
-        // write post-action user code here
-    }//GEN-BEGIN:|227-entry|2|
-    //</editor-fold>//GEN-END:|227-entry|2|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: gpsDeviceStringItem ">//GEN-BEGIN:|232-getter|0|232-preInit
     /**
@@ -1209,7 +1173,7 @@ public class GPSLogger
      */
     public void browseLogFolder() {//GEN-END:|275-entry|0|276-preAction
 
-    switchDisplayable(null, getFileBrowser());
+        getDisplay().setCurrent(getFileBrowser()); // without history
 //GEN-LINE:|275-entry|1|276-postAction
     }//GEN-BEGIN:|275-entry|2|
     //</editor-fold>//GEN-END:|275-entry|2|
@@ -1470,18 +1434,18 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
     }
     //</editor-fold>//GEN-END:|312-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: smsPhoneNumber ">//GEN-BEGIN:|313-getter|0|313-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: defaultSmsPhoneNumber ">//GEN-BEGIN:|313-getter|0|313-preInit
     /**
-     * Returns an initiliazed instance of smsPhoneNumber component.
+     * Returns an initiliazed instance of defaultSmsPhoneNumber component.
      * @return the initialized component instance
      */
-    public TextField getSmsPhoneNumber() {
-        if (smsPhoneNumber == null) {//GEN-END:|313-getter|0|313-preInit
+    public TextField getDefaultSmsPhoneNumber() {
+        if (defaultSmsPhoneNumber == null) {//GEN-END:|313-getter|0|313-preInit
             // write pre-init user code here
-            smsPhoneNumber = new TextField("default SMS phone number", "+1", 32, TextField.PHONENUMBER);//GEN-LINE:|313-getter|1|313-postInit
+            defaultSmsPhoneNumber = new TextField("default SMS phone number", "+1", 32, TextField.PHONENUMBER);//GEN-LINE:|313-getter|1|313-postInit
             // write post-init user code here
         }//GEN-BEGIN:|313-getter|2|
-        return smsPhoneNumber;
+        return defaultSmsPhoneNumber;
     }
     //</editor-fold>//GEN-END:|313-getter|2|
 
@@ -1511,7 +1475,7 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
     public TextField getPhoneNumberTextField() {
         if (phoneNumberTextField == null) {//GEN-END:|317-getter|0|317-preInit
             // write pre-init user code here
-            phoneNumberTextField = new TextField("Phone number", "+1", 32, TextField.PHONENUMBER);//GEN-LINE:|317-getter|1|317-postInit
+            phoneNumberTextField = new TextField("Phone number", "", 32, TextField.PHONENUMBER);//GEN-LINE:|317-getter|1|317-postInit
             // write post-init user code here
         }//GEN-BEGIN:|317-getter|2|
         return phoneNumberTextField;
@@ -1814,9 +1778,12 @@ new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
 
         speedUnits = settings.getSpeedUnits();
         getSpeedUnitsChoiceGroup().setSelectedIndex(speedUnits, true);
+
+        getPhoneNumberTextField().setString(settings.getDefaultSmsPhoneNumber());
+        getDefaultSmsPhoneNumber().setString(settings.getDefaultSmsPhoneNumber());
     }
 
-    void showSettings() {
+    void prepareSettingsSummary() {
         
         String connectionURLString = settings.getGPSDeviceURL();
             

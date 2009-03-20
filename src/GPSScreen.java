@@ -52,7 +52,7 @@ Image bgImage = null;
 
         addCommand(midlet.getMarkWaypointCommand());
         addCommand(midlet.getStopCommand());
-///        addCommand(midlet.getResetCommand());
+        addCommand(midlet.getSettingsCommand());
         setCommandListener(midlet);
 
 /*///tmp:
@@ -326,11 +326,6 @@ try {
 
         Graphics g = getGraphics();
 
-/// clear the background regardless of anything?
-g.setColor(0x000000); // black
-g.fillRect(x, y, width, height); // just fill/clear it...
-///
-
         if (bgImage != null) {
 
             int imageWidth = bgImage.getWidth();
@@ -351,7 +346,9 @@ g.fillRect(x, y, width, height); // just fill/clear it...
         }
 
         // center the compass in the screen
-        drawCourseArrow(course, getWidth() / 2, getHeight() / 2, 20);
+        if (course != Float.NaN) {
+            drawCourseArrow(course, getWidth() / 2, getHeight() / 2, 20);
+        }
 
         if (mustFlushGraphics) {
             flushGraphics(x, y, width, height);

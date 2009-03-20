@@ -34,6 +34,8 @@ public class GPSLoggerSettings
     public final static int SPEED_UNITS_KNOTS = 2;
     public final static int SPEED_UNITS_MPS = 3;
 
+    public final static String DEFAULT_SMS_PHONE_NUMBER = "defaultSMSPhoneNumber";
+
     public GPSLoggerSettings(GPSLogger loggerMidlet) {
         super(loggerMidlet, RECORD_STORE_NAME);
         setListener(loggerMidlet);
@@ -96,5 +98,13 @@ public class GPSLoggerSettings
 
     public void setSpeedUnits(int unitsIndex) {
         put(SPEED_UNITS, "" + unitsIndex);
+    }
+
+    public String getDefaultSmsPhoneNumber() {
+        return (String)get(DEFAULT_SMS_PHONE_NUMBER);
+    }
+
+    public void setDefaultSmsPhoneNumber(String phoneNumber) {
+        put(DEFAULT_SMS_PHONE_NUMBER, phoneNumber);
     }
 }

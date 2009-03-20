@@ -186,12 +186,25 @@ public class GPSLoggerUtils {
 
     public static String convertSpeedToString(float speed, int speedUnits) {
 
-/// use speedUnits data here:
 ///!!! use String.substring() to trim long values!!!
 
         if (!Float.isNaN(speed)) {
-            // convert m/s to km/h
-            return "" + (int)(speed * 3.6f) + " km/h";
+            switch (speedUnits) {
+                case GPSLoggerSettings.SPEED_UNITS_KPH: // kilometers per hour
+                    // convert m/s to km/h
+                    return "" + (int)(speed * 3.6f) + " km/h";
+                case GPSLoggerSettings.SPEED_UNITS_MPH: // miles per hour
+                    // convert m/s to mph
+                    return "" + (int)(speed * 2.236936f) + " mph";
+                case GPSLoggerSettings.SPEED_UNITS_KNOTS: // knots, sea miles per hour
+                    // convert m/s to knots
+                    return "" + (int)(speed * 1.943844f) + " kn";
+                case GPSLoggerSettings.SPEED_UNITS_MPS: // meters per second
+                    // leave m/s as is
+                    return "" + speed + " m/sec";
+                default: // invalid mode
+                    return "";
+            }
         } else { // NaN
             return ""; // invalid data
         }
