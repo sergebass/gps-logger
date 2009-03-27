@@ -149,7 +149,7 @@ public class NMEA0183Parser
                 char c;
                 int aWord;
 
-                do { // first, read a sentence, ended by a LF character
+                do { // first, read a sentence (ending with a linefeed character)
 
                     // let's do an additional check in order
                     // to react more quickly to a stop request
@@ -169,10 +169,19 @@ public class NMEA0183Parser
                     c = (char)aWord;
                     buffer.append(c);
 
+/// $GP - GPS
+/// $GL - GLONASS
+/// $GN - GLONASS+GPS
+
+
                 } while (c != '\n');
+///                } while (c != '$'); // $GP is the NMEA-0183 prefix for GPS data
 
-                String sentence = buffer.toString().trim();
+                String sentence = splitSentences(buffer.toString()).trim();
 
+/// some chips may generate several sentences in a single text line (really?);
+/// make sure $GPxxx,$GPyyy are split into different lines
+                
                 // avoid broken input sentences
                 if (sentence.startsWith("$")) {
                     processSentence(sentence);
@@ -198,6 +207,29 @@ public class NMEA0183Parser
             // this was the last notification
             parserListener = null;
         }
+    }
+
+    public static String splitSentences(String originalSentences) {
+        // let's quickly check if we need to split anything at all:
+        // if this is the only sentence, leave it as is
+        int sentenceStartIndex = originalSentences.lastIndexOf('$');
+        if (sentenceStartIndex == 0) {
+            return originalSentences;
+        }
+
+/// TODO: splitSentencesInSeparateLines()
+        
+/*
+        int startIndex = 0;
+
+        do {
+            sentenceStartIndex = originalSentences.indexOf("$GP", startIndex);
+        } while (true);
+        
+        originalSentences.replace('$', '\n');
+*/
+return originalSentences;
+///
     }
 
     public void processSentence(String sentence) {
