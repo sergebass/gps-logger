@@ -163,27 +163,16 @@ public class NMEA0183Parser
                         System.out.println("The end of NMEA stream has been reached\n");
                         isStarted = false;
                         onParsingComplete(false); // not requested by user
-                        return; // Ok, let's quit
+                        return; // Ok, let's quit parsing
                     }
 
                     c = (char)aWord;
                     buffer.append(c);
 
-/// $GP - GPS
-/// $GL - GLONASS
-/// $GN - GLONASS+GPS
+                } while (c != '\n'); // new-line terminates a sequence
 
-
-                } while (c != '\n');
-///                } while (c != '$'); // $GP is the NMEA-0183 prefix for GPS data
-
-                String sentence = splitSentences(buffer.toString()).trim();
-
-/// some chips may generate several sentences in a single text line (really?);
-/// make sure $GPxxx,$GPyyy are split into different lines
-                
-                // avoid broken input sentences
-                if (sentence.startsWith("$")) {
+                String sentence = buffer.toString().trim();
+                if (sentence.startsWith("$")) { // avoid broken input sentences
                     processSentence(sentence);
                 }
             } while (isStarted);
@@ -209,27 +198,28 @@ public class NMEA0183Parser
         }
     }
 
-    public static String splitSentences(String originalSentences) {
+    public static String splitSentencesIntoSeparateLines(String originalSentences) {
         // let's quickly check if we need to split anything at all:
         // if this is the only sentence, leave it as is
         int sentenceStartIndex = originalSentences.lastIndexOf('$');
-        if (sentenceStartIndex == 0) {
+        if (sentenceStartIndex == 0) { // nothing to do?
             return originalSentences;
         }
 
-/// TODO: splitSentencesInSeparateLines()
-        
-/*
-        int startIndex = 0;
+        StringBuffer processedSentences = new StringBuffer(originalSentences.length() * 2);
+        boolean isNewLineAdded = false;
 
-        do {
-            sentenceStartIndex = originalSentences.indexOf("$GP", startIndex);
-        } while (true);
-        
-        originalSentences.replace('$', '\n');
-*/
-return originalSentences;
-///
+        for (int i = 0; i < originalSentences.length(); i++) {
+            char c = originalSentences.charAt(i);
+            if (c == '$' && !isNewLineAdded) { // avoid double line separators
+                // prepend $ prefix with a new line separator
+                processedSentences.append('\n');
+            }
+            processedSentences.append(c);
+            isNewLineAdded = (c == '\n');
+        }
+
+        return processedSentences.toString();
     }
 
     public void processSentence(String sentence) {
@@ -243,7 +233,7 @@ return originalSentences;
         sentenceBuffer.append(sentence + "\n"); // save for later, this may be recorded
 
         String strippedSentence = "";
-        String sentenceHeader = "";
+        String sentenceID = "";
 
         // by stripping we are also _copying_ the values at the same time,
         // to release this resource as soon as possible
@@ -251,12 +241,17 @@ return originalSentences;
         synchronized (sentenceLock) {
             if (sentence.length() > 8) {
                 strippedSentence = sentence.substring(7);
-                sentenceHeader = sentence.substring(0, 7);
+                sentenceID = sentence.substring(3, 6); // remove the TalkerID NMEA-0183 prefix
             }
         }
         
-        if (sentenceHeader.equals("$GPRMC,")) {
-            parseGPRMC(convertToArray(strippedSentence));
+/// process Talker ID separately?
+/// $GP - GPS
+/// $GL - GLONASS
+/// $GN - GLONASS+GPS
+
+        if (sentenceID.equals("RMC")) {
+            parseRMCSentence(convertToArray(strippedSentence));
 
             // let the GPRMC be the callback trigger sentence
             // as it is the most important one
@@ -273,14 +268,14 @@ return originalSentences;
                 locationListener.onLocationUpdated(currentLocation);
             }
             
-        } else if (sentenceHeader.equals("$GPGGA,")) {
-            parseGPGGA(convertToArray(strippedSentence));
-        } else if (sentenceHeader.equals("$GPGSA,")) {
-            parseGPGSA(convertToArray(strippedSentence));
-//?        } else if (sentenceHeader.equals("$GPGSV,")) {
-//?            parseGPGSV(convertToArray(strippedSentence));
-//?        } else if (sentenceHeader.equals("$GPVTG,")) {
-//?            parseGPVTG(convertToArray(strippedSentence));
+        } else if (sentenceID.equals("GGA")) {
+            parseGGASentence(convertToArray(strippedSentence));
+        } else if (sentenceID.equals("GSA")) {
+            parseGSASentence(convertToArray(strippedSentence));
+        } else if (sentenceID.equals("GSV")) {
+            parseGSVSentence(convertToArray(strippedSentence));
+        } else if (sentenceID.equals("VTG")) {
+            parseVTGSentence(convertToArray(strippedSentence));
         }
     }
     
@@ -352,7 +347,7 @@ return originalSentences;
      *
      * @param values
      */
-    public void parseGPRMC(String[] values) {
+    public void parseRMCSentence(String[] values) {
 
         if (values.length > 0) {
             String originalTimeString = values[0];
@@ -501,7 +496,7 @@ return originalSentences;
      *
      * @param values
      */
-    public void parseGPGGA(String[] values) {
+    public void parseGGASentence(String[] values) {
         
         // (the date/time and latitude/longitude values are currently set by the GPRMC sentence)
         
@@ -546,7 +541,7 @@ return originalSentences;
      * 
      * @param values
      */
-    public void parseGPGSA(String[] values) {
+    public void parseGSASentence(String[] values) {
         
         fixType = ""; // reset
         
@@ -613,7 +608,7 @@ return originalSentences;
      * 
      * @param values
      */
-    public void parseGPGSV(String[] values) {
+    public void parseGSVSentence(String[] values) {
     }
 
     /**
@@ -635,7 +630,7 @@ return originalSentences;
      * 
      * @param values
      */
-    public void parseGPVTG(String[] values) {
+    public void parseVTGSentence(String[] values) {
         if (isValidGPSData) {
             if (values.length > 6) {
                 try {

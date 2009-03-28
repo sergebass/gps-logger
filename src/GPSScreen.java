@@ -44,6 +44,7 @@ public class GPSScreen
 /// tmp:
 Image bgImage = null;
 ///
+    boolean isOverMapMode = false; // true for displaying data strings over a map
 
     public GPSScreen(GPSLogger midlet) {
         super(false); // do not suppress key events
@@ -340,8 +341,7 @@ try {
                     x, y, // destination area
                     0); // anchor
         } else { // no background image?
-/// if the BG was cleared before, no need to do this again (remove if necessary):
-            g.setColor(0x000000); // black
+            g.setColor(0x000000); // just a black background
             g.fillRect(x, y, width, height); // just fill/clear it...
         }
 
@@ -361,6 +361,7 @@ try {
 
     public void paint(Graphics g) {
 
+///? if the BG was cleared before, no need to do this again (remove if necessary):
         drawBackground(0, 0, getWidth(), getHeight(), false);
 
         displayLatitude();
@@ -427,42 +428,51 @@ try {
         int opaqueFGColor = 0xFF000000 | fgColor; // force setting alpha to 0xFF
         int opaqueBGColor = 0xFF000000 | bgColor; // force setting alpha to 0xFF
 
-        Image image = Image.createImage(width, height);
-        Graphics g2 = image.getGraphics();
-        g2.setColor(opaqueBGColor); // alpha channel is ignored anyway
-        g2.fillRect(0, 0, width, height); // clear/fill image background
-        g2.setFont(font);
-        g2.setColor(opaqueFGColor); // alpha channel is ignored anyway
-        g2.drawString(string, 0, 0, 0);
+        if (isOverMapMode) { // drawing over map?
+            Image image = Image.createImage(width, height);
+            Graphics g2 = image.getGraphics(); // off-screen drawing context
+            g2.setColor(opaqueBGColor); // alpha channel is ignored anyway
+            g2.fillRect(0, 0, width, height); // clear/fill image background
+            g2.setFont(font);
+            g2.setColor(opaqueFGColor); // alpha channel is ignored anyway
+            g2.drawString(string, 0, 0, 0);
 
-        int[] dataPixels = new int[width * height];
-        image.getRGB(dataPixels, 0, width, 0, 0, width, height);
+            int[] dataPixels = new int[width * height];
+            image.getRGB(dataPixels, 0, width, 0, 0, width, height);
 
-        // restore alpha to our pixels, if necessary
-        // (alpha was ignored in setColor());
-        // do not run this loop if there are no transparent pixels
-        if (isFGTransparent || isBGTransparent) {
-            for (int i = 0; i < dataPixels.length; i++) {
-                if (dataPixels[i] == opaqueFGColor) {
-                    dataPixels[i] = fgColor;
-                } else if (dataPixels[i] == opaqueBGColor) {
-                    dataPixels[i] = bgColor;
+            // restore alpha to our pixels, if necessary
+            // (alpha was ignored in setColor());
+            // do not run this loop if there are no transparent pixels
+            if (isFGTransparent || isBGTransparent) {
+                for (int i = 0; i < dataPixels.length; i++) {
+                    if (dataPixels[i] == opaqueFGColor) {
+                        dataPixels[i] = fgColor;
+                    } else if (dataPixels[i] == opaqueBGColor) {
+                        dataPixels[i] = bgColor;
+                    }
                 }
             }
-        }
 
-        // this will be our data, but possibly (semi)transparent
-        image = Image.createRGBImage(dataPixels, width, height, true); // with alpha
+            // this will be our data, but possibly (semi)transparent
+            image = Image.createRGBImage(dataPixels, width, height, true); // with alpha
 
-        if (mustDrawBackground) {
-            drawBackground(x, y, width, height, false); // restore background under our data
-        }
+            if (mustDrawBackground) {
+                drawBackground(x, y, width, height, false); // restore background under our data
+            }
 
-        Graphics g = getGraphics();
-        g.drawImage(image, x, y, 0); // overlay our image with data
+            Graphics g = getGraphics();
+            g.drawImage(image, x, y, 0); // overlay our image with data
 
-        if (mustFlushGraphics) {
-            flushGraphics(x, y, width, height);
+            if (mustFlushGraphics) {
+                flushGraphics(x, y, width, height);
+            }
+        } else { // non-overlay mode
+            Graphics g = getGraphics();
+            g.setColor(opaqueBGColor); // alpha channel is ignored anyway
+            g.fillRect(x, y, width, height); // clear/fill image background
+            g.setFont(font);
+            g.setColor(opaqueFGColor); // alpha channel is ignored anyway
+            g.drawString(string, x, y, 0);
         }
     }
 
@@ -479,24 +489,52 @@ try {
         // shift the angle as well, our 0 degrees direction points upwards
         double angleInRadians = (270.0 - angle) * Math.PI / 180.0;
         int arrowLength = radius * 2; // twice as long as the circle radius
-        
-        // besides, our Y axis is upside down
-        int y = centerY - (int)(((double)arrowLength) * Math.sin(angleInRadians));
-        int x = centerX + (int)(((double)arrowLength) * Math.cos(angleInRadians));
 
-        int arrowHeadLength = radius / 2; // twice as short as the circle radius
         double arrowHeadAngle1 = angleInRadians + Math.PI / 6.0; // +30 degrees
         double arrowHeadAngle2 = angleInRadians - Math.PI / 6.0; // -30 degrees
+        int arrowHeadLength = radius / 2; // twice as short as the circle radius
+        
+        if (isOverMapMode) {
+            // our Y axis is upside down
+            int y = centerY - (int)(((double)arrowLength) * Math.sin(angleInRadians));
+            int x = centerX + (int)(((double)arrowLength) * Math.cos(angleInRadians));
 
-        int y1 = centerY - (int)(((double)arrowHeadLength) * Math.sin(arrowHeadAngle1));
-        int x1 = centerX + (int)(((double)arrowHeadLength) * Math.cos(arrowHeadAngle1));
+            int y1 = centerY - (int)(((double)arrowHeadLength) * Math.sin(arrowHeadAngle1));
+            int x1 = centerX + (int)(((double)arrowHeadLength) * Math.cos(arrowHeadAngle1));
 
-        int y2 = centerY - (int)(((double)arrowHeadLength) * Math.sin(arrowHeadAngle2));
-        int x2 = centerX + (int)(((double)arrowHeadLength) * Math.cos(arrowHeadAngle2));
+            int y2 = centerY - (int)(((double)arrowHeadLength) * Math.sin(arrowHeadAngle2));
+            int x2 = centerX + (int)(((double)arrowHeadLength) * Math.cos(arrowHeadAngle2));
 
-        g.setColor(0xFFFFFF00); // yellow arrow
-        g.drawLine(centerX, centerY, x, y);
-        g.drawLine(centerX, centerY, x1, y1);
-        g.drawLine(centerX, centerY, x2, y2);
+            g.setColor(0xFFFFFF00); // yellow arrow
+            g.drawLine(centerX, centerY, x, y);
+            g.drawLine(centerX, centerY, x1, y1);
+            g.drawLine(centerX, centerY, x2, y2);
+        } else { // non-overlay mode
+            // our Y axis is upside down
+            int y = centerY + (int)(((double)arrowLength / 2) * Math.sin(angleInRadians));
+            int x = centerX - (int)(((double)arrowLength / 2) * Math.cos(angleInRadians));
+
+            int y1 = centerY + (int)(((double)arrowHeadLength) * Math.sin(arrowHeadAngle1));
+            int x1 = centerX - (int)(((double)arrowHeadLength) * Math.cos(arrowHeadAngle1));
+
+            int y2 = centerY + (int)(((double)arrowHeadLength) * Math.sin(arrowHeadAngle2));
+            int x2 = centerX - (int)(((double)arrowHeadLength) * Math.cos(arrowHeadAngle2));
+
+            g.setColor(0xFFFFFF00); // yellow arrow
+            g.drawLine(centerX, centerY, x, y);
+            g.drawLine(x, y, x1, y1);
+            g.drawLine(x, y, x2, y2);
+
+/// localize course symbols
+            Font font = smallFont;
+            g.setFont(font);
+            g.setColor(0xFF00FFFF); // cyan course symbols
+            int fontHeight = font.getHeight();
+            
+            g.drawString("N", centerX - font.stringWidth("N") / 2, centerY - radius - fontHeight, 0);
+            g.drawString("S", centerX - font.stringWidth("S") / 2, centerY + radius, 0);
+            g.drawString("W", centerX - radius - font.stringWidth("W"), centerY - fontHeight / 2, 0);
+            g.drawString("E", centerX + radius + font.stringWidth("E"), centerY - fontHeight / 2, 0);
+        }
     }
 }

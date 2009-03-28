@@ -92,8 +92,8 @@ public class JSR179GeoLocator
 
         String nmeaSentences = lapiLocation.getExtraInfo("application/X-jsr179-location-nmea");
         if (nmeaSentences != null) {
-            // make sure $GPxxx,$GPyyy are split into different lines
-            location.setNMEASentences(NMEA0183Parser.splitSentences(nmeaSentences));
+            // make sure $GPxxx,$GPyyy are split into different lines, if glued together
+            location.setNMEASentences(NMEA0183Parser.splitSentencesIntoSeparateLines(nmeaSentences));
         }
 
         return location;
