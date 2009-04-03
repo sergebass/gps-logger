@@ -537,4 +537,10 @@ try {
             g.drawString("E", centerX + radius + font.stringWidth("E"), centerY - fontHeight / 2, 0);
         }
     }
+
+    public void keyPressed(int keyCode) {
+///
+System.out.println("keyPressed(" + keyCode + ", " + getKeyName(keyCode) + ")");
+///
+    }
 }

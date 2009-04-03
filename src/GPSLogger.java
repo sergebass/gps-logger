@@ -2,10 +2,6 @@
  * (C) Serge Perinsky, 2007, 2008, 2009
  */
 
-import com.sergebass.geography.*;
-import com.sergebass.ui.FileBrowser;
-import com.sergebass.util.*;
-
 import java.util.Vector;
 import java.io.*;
 
@@ -16,8 +12,14 @@ import javax.microedition.io.*;
 import javax.microedition.rms.RecordStoreException;
 import javax.microedition.media.*;
 import javax.bluetooth.*;
+import javax.microedition.media.control.VideoControl;
 import javax.wireless.messaging.MessageConnection;
 import javax.wireless.messaging.TextMessage;
+
+import com.sergebass.geography.*;
+import com.sergebass.video.*;
+import com.sergebass.ui.FileBrowser;
+import com.sergebass.util.*;
 
 /**
  * @author Serge Perinsky
@@ -71,6 +73,8 @@ public class GPSLogger
     int coordinatesMode = 0;
     int altitudeUnits = 0;
     int speedUnits = 0;
+
+    Canvas cameraCanvas = null;
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Fields ">//GEN-BEGIN:|fields|0|
     private java.util.Hashtable __previousDisplayables = new java.util.Hashtable();
@@ -1249,11 +1253,29 @@ public class GPSLogger
      */
     public void takePhoto() {//GEN-END:|292-entry|0|293-preAction
 
-///take a photo here
+        Player player;
+        VideoControl videoControl;
+
+        try{
+            player = Manager.createPlayer("capture://video");
+            player.realize();
+            videoControl = (VideoControl)player.getControl("VideoControl");
+
+            cameraCanvas = new CameraCanvas(videoControl);
+///            cameraCanvas.addCommand(capture);
+            cameraCanvas.addCommand(getBackCommand());
+            cameraCanvas.setCommandListener(this);
+            switchDisplayable(null, cameraCanvas);
+
+            player.start();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return;
+        } catch (MediaException ex) {
+            ex.printStackTrace();
+            return;
+        }
 //GEN-LINE:|292-entry|1|293-postAction
-///tmp:
-new MorseVibrator(Display.getDisplay(this)).vibrateMorseCode("Not yet");
-///
     }//GEN-BEGIN:|292-entry|2|
     //</editor-fold>//GEN-END:|292-entry|2|
 
