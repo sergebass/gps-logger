@@ -18,6 +18,7 @@ public class GPSLoggerSettings
     public final static String GPS_DEVICE_URL = "GPSDeviceURL";
     
     public final static String LOG_FOLDER_PATH = "logFolderPath";
+    public final static String LOG_FILE_PREFIX = "logFilePrefix";
     
     public final static String COORDINATES_MODE = "coordinatesMode";
     public final static int COORDINATES_MODE_D = 0;
@@ -51,6 +52,8 @@ public class GPSLoggerSettings
         super.save();
     }
     
+///Save the friendly device name (Bluetooth) as well + write to the log files!
+
     public String getGPSDeviceURL() {
         return (String)get(GPS_DEVICE_URL);
     }
@@ -65,6 +68,14 @@ public class GPSLoggerSettings
 
     public void setLogFolder(String path) {
         put(LOG_FOLDER_PATH, path);
+    }
+
+    public String getLogFilePrefix() {
+        return (String)get(LOG_FILE_PREFIX);
+    }
+
+    public void setLogFilePrefix(String prefix) {
+        put(LOG_FILE_PREFIX, prefix);
     }
 
     public int getCoordinatesMode() {

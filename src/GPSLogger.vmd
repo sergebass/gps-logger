@@ -464,7 +464,7 @@
                     <Property name="commands" typeID="1C#CommandEventSource" value="A2:4_R2024_R215"/>
                     <Property name="title" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;Settings&quot;)"/>
                     <Property name="commandListener" typeID="C#CommandListener" value="R7"/>
-                    <Property name="items" typeID="1Cjavax.microedition.lcdui.Item" value="A14:4_R1614_R2684_R2744_R1604_R2704_R2714_R3124_R3044_R3074_R1574_R2204_R1634_R2234_R313"/>
+                    <Property name="items" typeID="1Cjavax.microedition.lcdui.Item" value="A15:4_R1614_R2684_R2744_R1604_R2704_R2714_R3464_R3124_R3044_R3074_R1574_R2204_R1634_R2234_R313"/>
                     <Component componentID="274" typeID="Cjavax.microedition.lcdui.Spacer">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="Vspacer1"/>
                         <Property name="label" typeID="Pjava.lang.String" value="Vspacer1"/>
@@ -515,17 +515,17 @@
                         <Property name="instanceName" typeID="Pjava.lang.String" value="VlogFormatChoiceGroup"/>
                         <Property name="label" typeID="Pjava.lang.String" value="VLog format"/>
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
-                        <Property name="choiceType" typeID="Pint" value="V1"/>
+                        <Property name="choiceType" typeID="Pint" value="V2"/>
                         <Property name="elements" typeID="1C#ChoiceElement" value="A3:4_R3054_R3064_R341"/>
                         <Component componentID="305" typeID="C#ChoiceElement">
                             <Property name="string" typeID="Pjava.lang.String" value="VGPX"/>
                             <Property name="selected" typeID="Pboolean" value="Vtrue"/>
                         </Component>
                         <Component componentID="306" typeID="C#ChoiceElement">
-                            <Property name="string" typeID="Pjava.lang.String" value="VKML"/>
+                            <Property name="string" typeID="Pjava.lang.String" value="VKML (Google Earth)"/>
                         </Component>
                         <Component componentID="341" typeID="C#ChoiceElement">
-                            <Property name="string" typeID="Pjava.lang.String" value="VGPX+KML"/>
+                            <Property name="string" typeID="Pjava.lang.String" value="VTCX (Garmin Training Center)"/>
                         </Component>
                     </Component>
                     <Component componentID="307" typeID="Cjavax.microedition.lcdui.ChoiceGroup">
@@ -560,6 +560,14 @@
                         <Property name="text" typeID="Pjava.lang.String" value="V1"/>
                         <Property name="maxSize" typeID="Pint" value="V32"/>
                         <Property name="constraints" typeID="Pint" value="V2"/>
+                    </Component>
+                    <Component componentID="346" typeID="Cjavax.microedition.lcdui.TextField">
+                        <Property name="instanceName" typeID="Pjava.lang.String" value="VlogFileNamePrefixTextField"/>
+                        <Property name="label" typeID="Pjava.lang.String" value="VLog file name prefix"/>
+                        <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
+                        <Property name="text" typeID="Pjava.lang.String" value="VGPSLogger"/>
+                        <Property name="maxSize" typeID="Pint" value="V32"/>
+                        <Property name="constraints" typeID="Pint" value="V0"/>
                     </Component>
                     <Component componentID="157" typeID="Cjavax.microedition.lcdui.ChoiceGroup">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="VcoordinatesModeChoiceGroup"/>
@@ -748,27 +756,27 @@
         </Component>
     </Document>
     <FlowScene version="1">
+        <Node componentID="296" descriptorID="componentNode296" x="40" y="178"/>
+        <Node componentID="233" descriptorID="componentNode233" x="159" y="100"/>
         <Node componentID="85" descriptorID="componentNode85" x="225" y="148"/>
-        <Node componentID="292" descriptorID="componentNode292" x="400" y="566"/>
-        <Node componentID="279" descriptorID="componentNode279" x="364" y="679"/>
-        <Node componentID="2" descriptorID="componentNode2" x="860" y="397"/>
-        <Node componentID="82" descriptorID="componentNode82" x="504" y="14"/>
         <Node componentID="183" descriptorID="componentNode183" x="34" y="712"/>
+        <Node componentID="331" descriptorID="componentNode331" x="931" y="334"/>
+        <Node componentID="292" descriptorID="componentNode292" x="400" y="566"/>
+        <Node componentID="82" descriptorID="componentNode82" x="504" y="14"/>
+        <Node componentID="2" descriptorID="componentNode2" x="860" y="397"/>
+        <Node componentID="279" descriptorID="componentNode279" x="364" y="679"/>
+        <Node componentID="197" descriptorID="componentNode197" x="741" y="687"/>
         <Node componentID="338" descriptorID="componentNode338" x="1096" y="87"/>
+        <Node componentID="300" descriptorID="componentNode300" x="230" y="569"/>
+        <Node componentID="108" descriptorID="componentNode108" x="34" y="32"/>
+        <Node componentID="316" descriptorID="componentNode316" x="785" y="208"/>
+        <Node componentID="211" descriptorID="componentNode211" x="514" y="104"/>
+        <Node componentID="188" descriptorID="componentNode188" x="31" y="285"/>
+        <Node componentID="256" descriptorID="componentNode256" x="1159" y="648"/>
+        <Node componentID="147" descriptorID="componentNode147" x="955" y="712"/>
+        <Node componentID="319" descriptorID="componentNode319" x="834" y="61"/>
+        <Node componentID="275" descriptorID="componentNode275" x="54" y="496"/>
         <Node componentID="141" descriptorID="componentNode141" x="333" y="301"/>
         <Node componentID="125" descriptorID="componentNode125" x="734" y="501"/>
-        <Node componentID="233" descriptorID="componentNode233" x="159" y="100"/>
-        <Node componentID="188" descriptorID="componentNode188" x="31" y="285"/>
-        <Node componentID="316" descriptorID="componentNode316" x="785" y="208"/>
-        <Node componentID="256" descriptorID="componentNode256" x="1159" y="648"/>
-        <Node componentID="108" descriptorID="componentNode108" x="34" y="32"/>
-        <Node componentID="300" descriptorID="componentNode300" x="230" y="569"/>
-        <Node componentID="275" descriptorID="componentNode275" x="54" y="496"/>
-        <Node componentID="147" descriptorID="componentNode147" x="955" y="712"/>
-        <Node componentID="331" descriptorID="componentNode331" x="931" y="334"/>
-        <Node componentID="319" descriptorID="componentNode319" x="834" y="61"/>
-        <Node componentID="197" descriptorID="componentNode197" x="741" y="687"/>
-        <Node componentID="296" descriptorID="componentNode296" x="40" y="178"/>
-        <Node componentID="211" descriptorID="componentNode211" x="514" y="104"/>
     </FlowScene>
 </VisualDesign>

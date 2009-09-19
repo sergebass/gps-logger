@@ -121,6 +121,7 @@ public class GPSLogger
     private ChoiceGroup logSettingsChoiceGroup;
     private TextField defaultSmsPhoneNumber;
     private TextField logUpdateFrequencyTextField;
+    private TextField logFileNamePrefixTextField;
     private ChoiceGroup coordinatesModeChoiceGroup;
     private ChoiceGroup speedUnitsChoiceGroup;
     private TextField gpsDeviceTextField;
@@ -577,7 +578,7 @@ public class GPSLogger
     public Form getSettingsForm() {
         if (settingsForm == null) {//GEN-END:|141-getter|0|141-preInit
             // write pre-init user code here
-            settingsForm = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getLogUpdateFrequencyTextField(), getLogFormatChoiceGroup(), getLogSettingsChoiceGroup(), getCoordinatesModeChoiceGroup(), getAltitudeUnitsChoiceGroup(), getSpeedUnitsChoiceGroup(), getLanguageChoiceGroup(), getDefaultSmsPhoneNumber() });//GEN-BEGIN:|141-getter|1|141-postInit
+            settingsForm = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getLogFileNamePrefixTextField(), getLogUpdateFrequencyTextField(), getLogFormatChoiceGroup(), getLogSettingsChoiceGroup(), getCoordinatesModeChoiceGroup(), getAltitudeUnitsChoiceGroup(), getSpeedUnitsChoiceGroup(), getLanguageChoiceGroup(), getDefaultSmsPhoneNumber() });//GEN-BEGIN:|141-getter|1|141-postInit
             settingsForm.addCommand(getSaveSettingsCommand());
             settingsForm.addCommand(getCancelCommand());
             settingsForm.setCommandListener(this);//GEN-END:|141-getter|1|141-postInit
@@ -631,10 +632,7 @@ public class GPSLogger
             coordinatesModeChoiceGroup.append("DD.dd\u00B0", null);
             coordinatesModeChoiceGroup.append("DD\u00B0 MM.mm\'", null);
             coordinatesModeChoiceGroup.append("DD\u00B0 MM\' SS.ss\"", null);
-            coordinatesModeChoiceGroup.setSelectedFlags(new boolean[] { false, false, false });
-            coordinatesModeChoiceGroup.setFont(0, null);
-            coordinatesModeChoiceGroup.setFont(1, null);
-            coordinatesModeChoiceGroup.setFont(2, null);//GEN-END:|157-getter|1|157-postInit
+            coordinatesModeChoiceGroup.setSelectedFlags(new boolean[] { false, false, false });//GEN-END:|157-getter|1|157-postInit
             // write post-init user code here
         }//GEN-BEGIN:|157-getter|2|
         return coordinatesModeChoiceGroup;
@@ -731,11 +729,7 @@ public class GPSLogger
             speedUnitsChoiceGroup.append("mph", null);
             speedUnitsChoiceGroup.append("knots", null);
             speedUnitsChoiceGroup.append("m/sec", null);
-            speedUnitsChoiceGroup.setSelectedFlags(new boolean[] { false, false, false, false });
-            speedUnitsChoiceGroup.setFont(0, null);
-            speedUnitsChoiceGroup.setFont(1, null);
-            speedUnitsChoiceGroup.setFont(2, null);
-            speedUnitsChoiceGroup.setFont(3, null);//GEN-END:|163-getter|1|163-postInit
+            speedUnitsChoiceGroup.setSelectedFlags(new boolean[] { false, false, false, false });//GEN-END:|163-getter|1|163-postInit
             // write post-init user code here
         }//GEN-BEGIN:|163-getter|2|
         return speedUnitsChoiceGroup;
@@ -781,7 +775,10 @@ public class GPSLogger
 
         String logPath = logFolderTextField.getString();
         settings.setLogFolder(logPath);
-        logPathStringItem.setText(logPath);
+        logPathStringItem.setText(logPath); // copy to the initial screen
+
+        String logFileNamePrefix = logFileNamePrefixTextField.getString();
+        settings.setLogFilePrefix(logFileNamePrefix);
 
         settings.setCoordinatesMode(getCoordinatesModeChoiceGroup().getSelectedIndex());
         settings.setAltitudeUnits(getAltitudeUnitsChoiceGroup().getSelectedIndex());
@@ -938,9 +935,7 @@ public class GPSLogger
             altitudeUnitsChoiceGroup = new ChoiceGroup(GPSLoggerLocalization.getMessage("Altitude"), Choice.EXCLUSIVE);//GEN-BEGIN:|220-getter|1|220-postInit
             altitudeUnitsChoiceGroup.append("meters", null);
             altitudeUnitsChoiceGroup.append("feet", null);
-            altitudeUnitsChoiceGroup.setSelectedFlags(new boolean[] { false, false });
-            altitudeUnitsChoiceGroup.setFont(0, null);
-            altitudeUnitsChoiceGroup.setFont(1, null);//GEN-END:|220-getter|1|220-postInit
+            altitudeUnitsChoiceGroup.setSelectedFlags(new boolean[] { false, false });//GEN-END:|220-getter|1|220-postInit
             // write post-init user code here
         }//GEN-BEGIN:|220-getter|2|
         return altitudeUnitsChoiceGroup;
@@ -959,10 +954,7 @@ public class GPSLogger
             languageChoiceGroup.append("Default", null);
             languageChoiceGroup.append("English", null);
             languageChoiceGroup.append("\u0420\u0443\u0441\u0441\u043A\u0438\u0439", null);
-            languageChoiceGroup.setSelectedFlags(new boolean[] { false, false, false });
-            languageChoiceGroup.setFont(0, null);
-            languageChoiceGroup.setFont(1, null);
-            languageChoiceGroup.setFont(2, null);//GEN-END:|223-getter|1|223-postInit
+            languageChoiceGroup.setSelectedFlags(new boolean[] { false, false, false });//GEN-END:|223-getter|1|223-postInit
             // write post-init user code here
         }//GEN-BEGIN:|223-getter|2|
         return languageChoiceGroup;
@@ -1404,14 +1396,11 @@ public class GPSLogger
     public ChoiceGroup getLogFormatChoiceGroup() {
         if (logFormatChoiceGroup == null) {//GEN-END:|304-getter|0|304-preInit
             // write pre-init user code here
-            logFormatChoiceGroup = new ChoiceGroup("Log format", Choice.EXCLUSIVE);//GEN-BEGIN:|304-getter|1|304-postInit
+            logFormatChoiceGroup = new ChoiceGroup("Log format", Choice.MULTIPLE);//GEN-BEGIN:|304-getter|1|304-postInit
             logFormatChoiceGroup.append("GPX", null);
-            logFormatChoiceGroup.append("KML", null);
-            logFormatChoiceGroup.append("GPX+KML", null);
-            logFormatChoiceGroup.setSelectedFlags(new boolean[] { true, false, false });
-            logFormatChoiceGroup.setFont(0, null);
-            logFormatChoiceGroup.setFont(1, null);
-            logFormatChoiceGroup.setFont(2, null);//GEN-END:|304-getter|1|304-postInit
+            logFormatChoiceGroup.append("KML (Google Earth)", null);
+            logFormatChoiceGroup.append("TCX (Garmin Training Center)", null);
+            logFormatChoiceGroup.setSelectedFlags(new boolean[] { true, false, false });//GEN-END:|304-getter|1|304-postInit
             // write post-init user code here
         }//GEN-BEGIN:|304-getter|2|
         return logFormatChoiceGroup;
@@ -1430,10 +1419,7 @@ public class GPSLogger
             logSettingsChoiceGroup.append("Save NMEA data (if available)", null);
             logSettingsChoiceGroup.append("Separate NMEA log", null);
             logSettingsChoiceGroup.append("Separate Waypoint log", null);
-            logSettingsChoiceGroup.setSelectedFlags(new boolean[] { true, false, false });
-            logSettingsChoiceGroup.setFont(0, null);
-            logSettingsChoiceGroup.setFont(1, null);
-            logSettingsChoiceGroup.setFont(2, null);//GEN-END:|307-getter|1|307-postInit
+            logSettingsChoiceGroup.setSelectedFlags(new boolean[] { true, false, false });//GEN-END:|307-getter|1|307-postInit
             // write post-init user code here
         }//GEN-BEGIN:|307-getter|2|
         return logSettingsChoiceGroup;
@@ -1661,6 +1647,21 @@ public class GPSLogger
     }//GEN-BEGIN:|338-entry|2|
     //</editor-fold>//GEN-END:|338-entry|2|
 
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: logFileNamePrefixTextField ">//GEN-BEGIN:|346-getter|0|346-preInit
+    /**
+     * Returns an initiliazed instance of logFileNamePrefixTextField component.
+     * @return the initialized component instance
+     */
+    public TextField getLogFileNamePrefixTextField() {
+        if (logFileNamePrefixTextField == null) {//GEN-END:|346-getter|0|346-preInit
+            // write pre-init user code here
+            logFileNamePrefixTextField = new TextField("Log file name prefix", "GPSLogger", 32, TextField.ANY);//GEN-LINE:|346-getter|1|346-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|346-getter|2|
+        return logFileNamePrefixTextField;
+    }
+    //</editor-fold>//GEN-END:|346-getter|2|
+
     public FileBrowser getFileBrowser() {
         if (fileBrowser == null) {
             fileBrowser = new FileBrowser(getDisplay(), true, false); // folders only
@@ -1790,7 +1791,13 @@ public class GPSLogger
         
         // initialize the settings screen with data from the loaded configuration
         getGpsDeviceTextField().setString(settings.getGPSDeviceURL());
+
         getLogFolderTextField().setString(settings.getLogFolder());
+        String loadedLogFileNamePrefix = settings.getLogFilePrefix();
+        getLogFileNamePrefixTextField().setString
+                ((loadedLogFileNamePrefix == null || loadedLogFileNamePrefix.equals(""))?
+                      "GPSLogger"
+                    : loadedLogFileNamePrefix);
 
         coordinatesMode = settings.getCoordinatesMode();
         getCoordinatesModeChoiceGroup().setSelectedIndex(coordinatesMode, true);
@@ -2033,8 +2040,10 @@ public class GPSLogger
 
                 Instant now = new Instant(); // reflect the time in the log file name
 
+                String logFileNamePrefix = getLogFileNamePrefixTextField().getString().trim();
                 String logFilePath = logFolder
-                    + "GPSLogger-"
+                    + (logFileNamePrefix.equals("")? "GPSLogger" : logFileNamePrefix)
+                    + "-"
                     + now.getDateId()
                     + "-"
                     + now.getTimeId()
@@ -2091,8 +2100,10 @@ public class GPSLogger
                     logFolder = logFolder + "/"; // make sure we have the trailer here
                 }
 
+                String logFileNamePrefix = getLogFileNamePrefixTextField().getString().trim();
                 String logFilePath = logFolder
-                    + "GPSLogger-"
+                    + (logFileNamePrefix.equals("")? "GPSLogger" : logFileNamePrefix)
+                    + "-"
                     + now.getDateId()
                     + "-"
                     + now.getTimeId()
