@@ -2,7 +2,7 @@
  * GeoMath.java (C) Serge Perinsky, 2008
  */
 
-package com.sergebass.geography;
+package com.sergebass.geo;
 
 /**
  * GeoMath.

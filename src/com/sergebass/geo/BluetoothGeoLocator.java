@@ -2,7 +2,7 @@
  * (C) Serge Perinsky,  2008
  */
 
-package com.sergebass.geography;
+package com.sergebass.geo;
 
 import java.io.*;
 import javax.microedition.io.*;
@@ -49,14 +49,14 @@ public class BluetoothGeoLocator
             }
 
             stream = streamConnection.openInputStream();
-    
+
             nmeaParser = new NMEA0183Parser(this, stream);
             nmeaParser.start();
         } // synchronized (connectionLock)
 
         System.out.println("GPS connected.");
     }
-    
+
     public void setLocationListener(GeoLocationListener locationListener) {
         this.locationListener = locationListener;
         if (nmeaParser != null) {
@@ -68,7 +68,7 @@ public class BluetoothGeoLocator
             throws IOException {
 
         System.out.println("Closing GPS connection...");
-        
+
         synchronized (connectionLock) {
             if (nmeaParser != null) {
                 nmeaParser.stop();
@@ -85,7 +85,7 @@ public class BluetoothGeoLocator
                 streamConnection = null;
             }
         }
-        
+
         System.out.println("GPS disconnected.");
     }
 

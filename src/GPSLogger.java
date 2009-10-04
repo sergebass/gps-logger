@@ -16,7 +16,8 @@ import javax.microedition.media.control.VideoControl;
 import javax.wireless.messaging.MessageConnection;
 import javax.wireless.messaging.TextMessage;
 
-import com.sergebass.geography.*;
+import com.sergebass.geo.*;
+import com.sergebass.geo.map.MapConfiguration;
 import com.sergebass.video.*;
 import com.sergebass.ui.FileBrowser;
 import com.sergebass.util.*;
@@ -67,6 +68,7 @@ public class GPSLogger
     Player errorPlayer = null;
 
     GPSScreen mainScreen = null;
+    MapConfiguration mapConfiguration = null;
 
     long startTimeMillis = 0L;
 
@@ -84,11 +86,13 @@ public class GPSLogger
     private Command takePhotoCommand;
     private Command stopCommand;
     private Command sendSMSCommand;
+    private Command minimizeCommand;
     private Command okSendSMSCommand;
     private Command cancelSMSEditCommand;
     private Command okSMSEditCommand;
     private Command cancelSendSMSCommand;
     private Command searchCommand;
+    private Command browseMapDescriptorFileCommand;
     private Command startCommand;
     private Command settingsCommand;
     private Command helpCommand;
@@ -100,19 +104,20 @@ public class GPSLogger
     private Command sendEmailCommand;
     private Command resetCommand;
     private Command okCommand;
-    private Form waypointForm;
+    private Form waypointScreen;
     private TextField waypointNameTextField;
-    private Form smsForm;
+    private Form smsScreen;
     private TextField phoneNumberTextField;
     private StringItem smsLengthStringItem;
     private StringItem smsTextStringItem;
     private TextBox smsTextBox;
     private List gpsDeviceList;
-    private Form introForm;
-    private StringItem gpsDeviceStringItem;
-    private StringItem freeSpaceStringItem;
-    private StringItem logPathStringItem;
-    private Form settingsForm;
+    private Form startScreen;
+    private StringItem gpsDeviceNameStartScreenStringItem;
+    private StringItem freeSpaceStartScreenStringItem;
+    private StringItem logPathStartScreenStringItem;
+    private StringItem gpsDeviceURLStartScreenStringItem;
+    private Form settingsScreen;
     private Spacer spacer1;
     private StringItem browseLogFolderStringItem;
     private Spacer spacer;
@@ -122,13 +127,20 @@ public class GPSLogger
     private TextField defaultSmsPhoneNumber;
     private TextField logUpdateFrequencyTextField;
     private TextField logFileNamePrefixTextField;
+    private TextField mapDescriptorFileTextField;
+    private Spacer spacer3;
+    private StringItem browseMapDescriptorFileStringItem;
     private ChoiceGroup coordinatesModeChoiceGroup;
     private ChoiceGroup speedUnitsChoiceGroup;
-    private TextField gpsDeviceTextField;
+    private TextField gpsDeviceURLTextField;
     private TextField logFolderTextField;
     private ChoiceGroup altitudeUnitsChoiceGroup;
     private ChoiceGroup languageChoiceGroup;
-    private Form helpForm;
+    private StringItem gpsDeviceNameStringItem;
+    private Form helpScreen;
+    private StringItem freeMemoryStringItem;
+    private StringItem totalMemoryStringItem;
+    private Spacer spacer2;
     private StringItem stringItem1;
     private StringItem emailItem;
     private Alert errorAlert;
@@ -177,8 +189,8 @@ public class GPSLogger
     public void startMIDlet() {//GEN-END:|3-startMIDlet|0|3-preAction
 
         loadSettings();
-        switchDisplayable(null, getIntroForm());//GEN-LINE:|3-startMIDlet|1|3-postAction
-        prepareSettingsSummary();
+        switchDisplayable(null, getStartScreen());//GEN-LINE:|3-startMIDlet|1|3-postAction
+        prepareStartScreen();
     }//GEN-BEGIN:|3-startMIDlet|2|
     //</editor-fold>//GEN-END:|3-startMIDlet|2|
     
@@ -231,68 +243,48 @@ public class GPSLogger
             } else if (command == cancelCommand) {//GEN-LINE:|7-commandAction|3|217-preAction
                 stopGPSDeviceSearch();
 //GEN-LINE:|7-commandAction|4|217-postAction
-                getDisplay().setCurrent(getSettingsForm()); // go back without history
+                getDisplay().setCurrent(getSettingsScreen()); // go back without history
             } else if (command == okCommand) {//GEN-LINE:|7-commandAction|5|342-preAction
                 stopGPSDeviceSearch();
                 gpsDeviceListAction();//GEN-LINE:|7-commandAction|6|342-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|7|150-preAction
-        } else if (displayable == helpForm) {
+        } else if (displayable == helpScreen) {
             if (command == backCommand) {//GEN-END:|7-commandAction|7|150-preAction
                 // write pre-action user code here
                 switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|8|150-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|9|128-preAction
-        } else if (displayable == introForm) {
-            if (command == exitCommand) {//GEN-END:|7-commandAction|9|128-preAction
-                new Thread() {
-                    public void run() {
-                        exitMIDlet();//GEN-LINE:|7-commandAction|10|128-postAction
-                    }
-                }.start();
-            } else if (command == helpCommand) {//GEN-LINE:|7-commandAction|11|146-preAction
-                // write pre-action user code here
-                switchDisplayable(null, getHelpForm());//GEN-LINE:|7-commandAction|12|146-postAction
-                // write post-action user code here
-            } else if (command == settingsCommand) {//GEN-LINE:|7-commandAction|13|153-preAction
-                // write pre-action user code here
-                switchDisplayable(null, getSettingsForm());//GEN-LINE:|7-commandAction|14|153-postAction
-                // write post-action user code here
-            } else if (command == startCommand) {//GEN-LINE:|7-commandAction|15|143-preAction
-                // write pre-action user code here
-                startTrack();//GEN-LINE:|7-commandAction|16|143-postAction
-                // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|17|215-preAction
-        } else if (displayable == settingsForm) {
-            if (command == cancelCommand) {//GEN-END:|7-commandAction|17|215-preAction
+            }//GEN-BEGIN:|7-commandAction|9|215-preAction
+        } else if (displayable == settingsScreen) {
+            if (command == cancelCommand) {//GEN-END:|7-commandAction|9|215-preAction
 
-                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|18|215-postAction
+                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|10|215-postAction
                 // write post-action user code here
-            } else if (command == saveSettingsCommand) {//GEN-LINE:|7-commandAction|19|202-preAction
+            } else if (command == saveSettingsCommand) {//GEN-LINE:|7-commandAction|11|202-preAction
 
-                saveSettings();//GEN-LINE:|7-commandAction|20|202-postAction
+                saveSettings();//GEN-LINE:|7-commandAction|12|202-postAction
                 // only show summary if the last (next) displayable is introForm
-                if (__previousDisplayables.get(getDisplay().getCurrent()) == introForm) {
-                    prepareSettingsSummary();
+                if (__previousDisplayables.get(getDisplay().getCurrent()) == startScreen) {
+                    prepareStartScreen();
                 }
                 switchToPreviousDisplayable();
-            }//GEN-BEGIN:|7-commandAction|21|329-preAction
-        } else if (displayable == smsForm) {
-            if (command == cancelSendSMSCommand) {//GEN-END:|7-commandAction|21|329-preAction
+            }//GEN-BEGIN:|7-commandAction|13|329-preAction
+        } else if (displayable == smsScreen) {
+            if (command == cancelSendSMSCommand) {//GEN-END:|7-commandAction|13|329-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getSmsTextBox());//GEN-LINE:|7-commandAction|22|329-postAction
+                switchDisplayable(null, getSmsTextBox());//GEN-LINE:|7-commandAction|14|329-postAction
                 // write post-action user code here
-            } else if (command == okSendSMSCommand) {//GEN-LINE:|7-commandAction|23|327-preAction
+            } else if (command == okSendSMSCommand) {//GEN-LINE:|7-commandAction|15|327-preAction
                 // write pre-action user code here
-                doSendSMS();//GEN-LINE:|7-commandAction|24|327-postAction
+                doSendSMS();//GEN-LINE:|7-commandAction|16|327-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|25|323-preAction
+            }//GEN-BEGIN:|7-commandAction|17|323-preAction
         } else if (displayable == smsTextBox) {
-            if (command == cancelSMSEditCommand) {//GEN-END:|7-commandAction|25|323-preAction
+            if (command == cancelSMSEditCommand) {//GEN-END:|7-commandAction|17|323-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getWaypointForm());//GEN-LINE:|7-commandAction|26|323-postAction
+                switchDisplayable(null, getWaypointScreen());//GEN-LINE:|7-commandAction|18|323-postAction
                 // write post-action user code here
-            } else if (command == okSMSEditCommand) {//GEN-LINE:|7-commandAction|27|321-preAction
+            } else if (command == okSMSEditCommand) {//GEN-LINE:|7-commandAction|19|321-preAction
                 String messageText = getSmsTextBox().getString();
                 getSmsLengthStringItem().setText(messageText.length() + " characters");
                 getSmsTextStringItem().setText(messageText);
@@ -300,42 +292,66 @@ public class GPSLogger
                 if (getPhoneNumberTextField().getString().trim().equals("")) {
                     getPhoneNumberTextField().setString(settings.getDefaultSmsPhoneNumber());
                 }
-                switchDisplayable(null, getSmsForm());//GEN-LINE:|7-commandAction|28|321-postAction
+                switchDisplayable(null, getSmsScreen());//GEN-LINE:|7-commandAction|20|321-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|29|282-preAction
-        } else if (displayable == waypointForm) {
-            if (command == cancelWaypointCommand) {//GEN-END:|7-commandAction|29|282-preAction
+            }//GEN-BEGIN:|7-commandAction|21|128-preAction
+        } else if (displayable == startScreen) {
+            if (command == exitCommand) {//GEN-END:|7-commandAction|21|128-preAction
+                new Thread() {
+                    public void run() {
+                        exitMIDlet();//GEN-LINE:|7-commandAction|22|128-postAction
+                    }
+                }.start();
+            } else if (command == helpCommand) {//GEN-LINE:|7-commandAction|23|146-preAction
+                // write pre-action user code here
+                switchDisplayable(null, getHelpScreen());//GEN-LINE:|7-commandAction|24|146-postAction
+                // write post-action user code here
+            } else if (command == minimizeCommand) {//GEN-LINE:|7-commandAction|25|348-preAction
+                // write pre-action user code here
+//GEN-LINE:|7-commandAction|26|348-postAction
+                // write post-action user code here
+            } else if (command == settingsCommand) {//GEN-LINE:|7-commandAction|27|153-preAction
+                // write pre-action user code here
+                switchDisplayable(null, getSettingsScreen());//GEN-LINE:|7-commandAction|28|153-postAction
+                // write post-action user code here
+            } else if (command == startCommand) {//GEN-LINE:|7-commandAction|29|143-preAction
+                // write pre-action user code here
+                startTrack();//GEN-LINE:|7-commandAction|30|143-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|7-commandAction|31|282-preAction
+        } else if (displayable == waypointScreen) {
+            if (command == cancelWaypointCommand) {//GEN-END:|7-commandAction|31|282-preAction
                 // remove the last added waypoint: it was cancelled
                 if (waypoints.size() > 1) {
                     waypoints.removeElementAt(waypoints.size() - 1);
                 }
-                switchToMainScreen();//GEN-LINE:|7-commandAction|30|282-postAction
+                switchToMainScreen();//GEN-LINE:|7-commandAction|32|282-postAction
 
-            } else if (command == saveWaypointCommand) {//GEN-LINE:|7-commandAction|31|284-preAction
+            } else if (command == saveWaypointCommand) {//GEN-LINE:|7-commandAction|33|284-preAction
                 new Thread() {
                     public void run() {
-                        saveWaypoint();//GEN-LINE:|7-commandAction|32|284-postAction
+                        saveWaypoint();//GEN-LINE:|7-commandAction|34|284-postAction
                     }
                 }.start();
-            } else if (command == sendSMSCommand) {//GEN-LINE:|7-commandAction|33|299-preAction
+            } else if (command == sendSMSCommand) {//GEN-LINE:|7-commandAction|35|299-preAction
                 new Thread() {
                     public void run() {
-                        sendSMS();//GEN-LINE:|7-commandAction|34|299-postAction
+                        sendSMS();//GEN-LINE:|7-commandAction|36|299-postAction
                     }
                 }.start();
-            } else if (command == takePhotoCommand) {//GEN-LINE:|7-commandAction|35|291-preAction
+            } else if (command == takePhotoCommand) {//GEN-LINE:|7-commandAction|37|291-preAction
                 new Thread() {
                     public void run() {
-                        takePhoto();//GEN-LINE:|7-commandAction|36|291-postAction
+                        takePhoto();//GEN-LINE:|7-commandAction|38|291-postAction
                     }
                 }.start();
-            }//GEN-BEGIN:|7-commandAction|37|7-postCommandAction
-        }//GEN-END:|7-commandAction|37|7-postCommandAction
+            }//GEN-BEGIN:|7-commandAction|39|7-postCommandAction
+        }//GEN-END:|7-commandAction|39|7-postCommandAction
         else if (displayable == fileBrowser) {
             if (command == FileBrowser.SELECT_ITEM_COMMAND) {
                 setLogFolder ();
             } else if (command == backCommand) {
-                getDisplay().setCurrent(getSettingsForm()); // without history
+                getDisplay().setCurrent(getSettingsScreen()); // without history
             }
         } else { // all other displayables
             if (command.getCommandType() == Command.EXIT) {
@@ -360,13 +376,15 @@ public class GPSLogger
                     }
                 }.start();
             } else if (command == settingsCommand) {
-                switchDisplayable(null, getSettingsForm());
+                switchDisplayable(null, getSettingsScreen());
+            } else if (command == minimizeCommand) {
+                getDisplay().setCurrent(null); // null screen = minimization
             } else if (command == resetCommand) {
                 resetOdometer();
             }
         }
-    }//GEN-BEGIN:|7-commandAction|38|
-    //</editor-fold>//GEN-END:|7-commandAction|38|
+    }//GEN-BEGIN:|7-commandAction|40|
+    //</editor-fold>//GEN-END:|7-commandAction|40|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: exitCommand ">//GEN-BEGIN:|18-getter|0|18-preInit
     /**
@@ -434,13 +452,13 @@ public class GPSLogger
 
         if (deviceServiceRecords == null) {
             handleException(new Exception("No bluetooth services were found :("),
-                            getSettingsForm());
+                            getSettingsScreen());
             return;
         }
 
         if (deviceServiceRecords.size() == 0) {
             handleException(new Exception("No bluetooth services were found :("),
-                            getSettingsForm());
+                            getSettingsScreen());
             return;
         }
 
@@ -458,14 +476,28 @@ public class GPSLogger
                                                               true); // master mode
         if (connectionURLString == null) {
             handleException(new Exception("This Bluetooth device does not support Simple SPP Service."),
-                            getSettingsForm());
+                            getSettingsScreen());
             return;
         }
 
         settings.setGPSDeviceURL(connectionURLString);
-        getGpsDeviceTextField().setString(connectionURLString);
+        getGpsDeviceURLTextField().setString(connectionURLString);
 
-        getDisplay().setCurrent(getSettingsForm()); // go back without history
+        String friendlyDeviceName = null;
+        try {
+            friendlyDeviceName = service.getHostDevice().getFriendlyName(false);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        if (friendlyDeviceName == null) {
+            friendlyDeviceName = "(name unknown)"; /// localize
+        }
+
+        settings.setGPSDeviceName(friendlyDeviceName);
+        getGpsDeviceNameStringItem().setText(friendlyDeviceName);
+
+        getDisplay().setCurrent(getSettingsScreen()); // go back without history
     }//GEN-BEGIN:|85-action|2|
     //</editor-fold>//GEN-END:|85-action|2|
 
@@ -505,23 +537,24 @@ public class GPSLogger
     }//GEN-BEGIN:|108-entry|2|
     //</editor-fold>//GEN-END:|108-entry|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: introForm ">//GEN-BEGIN:|125-getter|0|125-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: startScreen ">//GEN-BEGIN:|125-getter|0|125-preInit
     /**
-     * Returns an initiliazed instance of introForm component.
+     * Returns an initiliazed instance of startScreen component.
      * @return the initialized component instance
      */
-    public Form getIntroForm() {
-        if (introForm == null) {//GEN-END:|125-getter|0|125-preInit
+    public Form getStartScreen() {
+        if (startScreen == null) {//GEN-END:|125-getter|0|125-preInit
             // write pre-init user code here
-            introForm = new Form("GPS Logger", new Item[] { getGpsDeviceStringItem(), getLogPathStringItem(), getFreeSpaceStringItem() });//GEN-BEGIN:|125-getter|1|125-postInit
-            introForm.addCommand(getStartCommand());
-            introForm.addCommand(getSettingsCommand());
-            introForm.addCommand(getExitCommand());
-            introForm.addCommand(getHelpCommand());
-            introForm.setCommandListener(this);//GEN-END:|125-getter|1|125-postInit
+            startScreen = new Form("GPS Logger", new Item[] { getGpsDeviceNameStartScreenStringItem(), getGpsDeviceURLStartScreenStringItem(), getLogPathStartScreenStringItem(), getFreeSpaceStartScreenStringItem() });//GEN-BEGIN:|125-getter|1|125-postInit
+            startScreen.addCommand(getStartCommand());
+            startScreen.addCommand(getSettingsCommand());
+            startScreen.addCommand(getExitCommand());
+            startScreen.addCommand(getHelpCommand());
+            startScreen.addCommand(getMinimizeCommand());
+            startScreen.setCommandListener(this);//GEN-END:|125-getter|1|125-postInit
 
         }//GEN-BEGIN:|125-getter|2|
-        return introForm;
+        return startScreen;
     }
     //</editor-fold>//GEN-END:|125-getter|2|
    
@@ -570,38 +603,40 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|149-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: settingsForm ">//GEN-BEGIN:|141-getter|0|141-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: settingsScreen ">//GEN-BEGIN:|141-getter|0|141-preInit
     /**
-     * Returns an initiliazed instance of settingsForm component.
+     * Returns an initiliazed instance of settingsScreen component.
      * @return the initialized component instance
      */
-    public Form getSettingsForm() {
-        if (settingsForm == null) {//GEN-END:|141-getter|0|141-preInit
+    public Form getSettingsScreen() {
+        if (settingsScreen == null) {//GEN-END:|141-getter|0|141-preInit
             // write pre-init user code here
-            settingsForm = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getLogFileNamePrefixTextField(), getLogUpdateFrequencyTextField(), getLogFormatChoiceGroup(), getLogSettingsChoiceGroup(), getCoordinatesModeChoiceGroup(), getAltitudeUnitsChoiceGroup(), getSpeedUnitsChoiceGroup(), getLanguageChoiceGroup(), getDefaultSmsPhoneNumber() });//GEN-BEGIN:|141-getter|1|141-postInit
-            settingsForm.addCommand(getSaveSettingsCommand());
-            settingsForm.addCommand(getCancelCommand());
-            settingsForm.setCommandListener(this);//GEN-END:|141-getter|1|141-postInit
+            settingsScreen = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceNameStringItem(), getGpsDeviceURLTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getLogFileNamePrefixTextField(), getLogUpdateFrequencyTextField(), getLogFormatChoiceGroup(), getLogSettingsChoiceGroup(), getSpacer3(), getMapDescriptorFileTextField(), getBrowseMapDescriptorFileStringItem(), getCoordinatesModeChoiceGroup(), getAltitudeUnitsChoiceGroup(), getSpeedUnitsChoiceGroup(), getLanguageChoiceGroup(), getDefaultSmsPhoneNumber() });//GEN-BEGIN:|141-getter|1|141-postInit
+            settingsScreen.addCommand(getSaveSettingsCommand());
+            settingsScreen.addCommand(getCancelCommand());
+            settingsScreen.setCommandListener(this);//GEN-END:|141-getter|1|141-postInit
             // write post-init user code here
         }//GEN-BEGIN:|141-getter|2|
-        return settingsForm;
+        return settingsScreen;
     }
     //</editor-fold>//GEN-END:|141-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: helpForm ">//GEN-BEGIN:|147-getter|0|147-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: helpScreen ">//GEN-BEGIN:|147-getter|0|147-preInit
     /**
-     * Returns an initiliazed instance of helpForm component.
+     * Returns an initiliazed instance of helpScreen component.
      * @return the initialized component instance
      */
-    public Form getHelpForm() {
-        if (helpForm == null) {//GEN-END:|147-getter|0|147-preInit
+    public Form getHelpScreen() {
+        if (helpScreen == null) {//GEN-END:|147-getter|0|147-preInit
             // write pre-init user code here
-            helpForm = new Form("Help", new Item[] { getStringItem1(), getEmailItem() });//GEN-BEGIN:|147-getter|1|147-postInit
-            helpForm.addCommand(getBackCommand());
-            helpForm.setCommandListener(this);//GEN-END:|147-getter|1|147-postInit
-            // write post-init user code here
+            helpScreen = new Form("Help", new Item[] { getStringItem1(), getEmailItem(), getSpacer2(), getTotalMemoryStringItem(), getFreeMemoryStringItem() });//GEN-BEGIN:|147-getter|1|147-postInit
+            helpScreen.addCommand(getBackCommand());
+            helpScreen.setCommandListener(this);//GEN-END:|147-getter|1|147-postInit
+            Runtime runtime = Runtime.getRuntime();
+            getTotalMemoryStringItem().setText(runtime.totalMemory() + " bytes");
+            getFreeMemoryStringItem().setText(runtime.freeMemory() + " bytes");
         }//GEN-BEGIN:|147-getter|2|
-        return helpForm;
+        return helpScreen;
     }
     //</editor-fold>//GEN-END:|147-getter|2|
 
@@ -657,20 +692,20 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|160-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: gpsDeviceTextField ">//GEN-BEGIN:|161-getter|0|161-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: gpsDeviceURLTextField ">//GEN-BEGIN:|161-getter|0|161-preInit
     /**
-     * Returns an initiliazed instance of gpsDeviceTextField component.
+     * Returns an initiliazed instance of gpsDeviceURLTextField component.
      * @return the initialized component instance
      */
-    public TextField getGpsDeviceTextField() {
-        if (gpsDeviceTextField == null) {//GEN-END:|161-getter|0|161-preInit
+    public TextField getGpsDeviceURLTextField() {
+        if (gpsDeviceURLTextField == null) {//GEN-END:|161-getter|0|161-preInit
             // write pre-init user code here
-            gpsDeviceTextField = new TextField(GPSLoggerLocalization.getMessage("GPSDevice"), "", 4096, TextField.URL);//GEN-BEGIN:|161-getter|1|161-postInit
-            gpsDeviceTextField.addCommand(getSearchCommand());
-            gpsDeviceTextField.setItemCommandListener(this);//GEN-END:|161-getter|1|161-postInit
+            gpsDeviceURLTextField = new TextField(GPSLoggerLocalization.getMessage("GPSDevice"), "", 4096, TextField.URL);//GEN-BEGIN:|161-getter|1|161-postInit
+            gpsDeviceURLTextField.addCommand(getSearchCommand());
+            gpsDeviceURLTextField.setItemCommandListener(this);//GEN-END:|161-getter|1|161-postInit
             // write post-init user code here
         }//GEN-BEGIN:|161-getter|2|
-        return gpsDeviceTextField;
+        return gpsDeviceURLTextField;
     }
     //</editor-fold>//GEN-END:|161-getter|2|
 
@@ -687,34 +722,40 @@ public class GPSLogger
 
                 browseLogFolder();//GEN-LINE:|17-itemCommandAction|2|272-postAction
 
-            }//GEN-BEGIN:|17-itemCommandAction|3|210-preAction
+            }//GEN-BEGIN:|17-itemCommandAction|3|363-preAction
+        } else if (item == browseMapDescriptorFileStringItem) {
+            if (command == browseMapDescriptorFileCommand) {//GEN-END:|17-itemCommandAction|3|363-preAction
+                // write pre-action user code here
+//GEN-LINE:|17-itemCommandAction|4|363-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|17-itemCommandAction|5|210-preAction
         } else if (item == emailItem) {
-            if (command == sendEmailCommand) {//GEN-END:|17-itemCommandAction|3|210-preAction
+            if (command == sendEmailCommand) {//GEN-END:|17-itemCommandAction|5|210-preAction
 
-                sendEmail();//GEN-LINE:|17-itemCommandAction|4|210-postAction
+                sendEmail();//GEN-LINE:|17-itemCommandAction|6|210-postAction
 
-            }//GEN-BEGIN:|17-itemCommandAction|5|236-preAction
-        } else if (item == gpsDeviceTextField) {
-            if (command == searchCommand) {//GEN-END:|17-itemCommandAction|5|236-preAction
+            }//GEN-BEGIN:|17-itemCommandAction|7|236-preAction
+        } else if (item == gpsDeviceURLTextField) {
+            if (command == searchCommand) {//GEN-END:|17-itemCommandAction|7|236-preAction
 
-                searchDevices();//GEN-LINE:|17-itemCommandAction|6|236-postAction
+                searchDevices();//GEN-LINE:|17-itemCommandAction|8|236-postAction
 
-            }//GEN-BEGIN:|17-itemCommandAction|7|181-preAction
+            }//GEN-BEGIN:|17-itemCommandAction|9|181-preAction
         } else if (item == logFolderTextField) {
-            if (command == browseCommand) {//GEN-END:|17-itemCommandAction|7|181-preAction
-                browseLogFolder();//GEN-LINE:|17-itemCommandAction|8|181-postAction
+            if (command == browseCommand) {//GEN-END:|17-itemCommandAction|9|181-preAction
+                browseLogFolder();//GEN-LINE:|17-itemCommandAction|10|181-postAction
 
-            }//GEN-BEGIN:|17-itemCommandAction|9|269-preAction
+            }//GEN-BEGIN:|17-itemCommandAction|11|269-preAction
         } else if (item == searchGPSStringItem) {
-            if (command == searchCommand) {//GEN-END:|17-itemCommandAction|9|269-preAction
+            if (command == searchCommand) {//GEN-END:|17-itemCommandAction|11|269-preAction
 
-                searchDevices();//GEN-LINE:|17-itemCommandAction|10|269-postAction
+                searchDevices();//GEN-LINE:|17-itemCommandAction|12|269-postAction
 
-            }//GEN-BEGIN:|17-itemCommandAction|11|17-postItemCommandAction
-        }//GEN-END:|17-itemCommandAction|11|17-postItemCommandAction
+            }//GEN-BEGIN:|17-itemCommandAction|13|17-postItemCommandAction
+        }//GEN-END:|17-itemCommandAction|13|17-postItemCommandAction
 
-    }//GEN-BEGIN:|17-itemCommandAction|12|
-    //</editor-fold>//GEN-END:|17-itemCommandAction|12|
+    }//GEN-BEGIN:|17-itemCommandAction|14|
+    //</editor-fold>//GEN-END:|17-itemCommandAction|14|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: speedUnitsChoiceGroup ">//GEN-BEGIN:|163-getter|0|163-preInit
     /**
@@ -757,7 +798,7 @@ public class GPSLogger
      */
     public void setLogFolder() {//GEN-END:|183-entry|0|184-preAction
         logFolderTextField.setString(fileBrowser.getSelectedFileURL());
-        getDisplay().setCurrent(getSettingsForm()); // without history
+        getDisplay().setCurrent(getSettingsScreen()); // without history
 //GEN-LINE:|183-entry|1|184-postAction
         // write post-action user code here
     }//GEN-BEGIN:|183-entry|2|
@@ -769,13 +810,24 @@ public class GPSLogger
      */
     public void saveSettings() {//GEN-END:|188-entry|0|189-preAction
 
-        String gpsDeviceURL = gpsDeviceTextField.getString();
+        String gpsDeviceURL = gpsDeviceURLTextField.getString();
         settings.setGPSDeviceURL(gpsDeviceURL);
-        gpsDeviceStringItem.setText(gpsDeviceTextField.getString()); // copy to the initial screen
+        gpsDeviceURLStartScreenStringItem.setText(gpsDeviceURL); // copy to the initial screen
+
+        String gpsDeviceName = getGpsDeviceNameStringItem().getText();
+
+        if (gpsDeviceURL.trim().equals("")) { // user removed URL (JSR179 request)
+///localize!
+            gpsDeviceName = "[built-in]"; // reset the name as well
+            getGpsDeviceNameStringItem().setText(gpsDeviceName); // change the source too
+        }
+
+        settings.setGPSDeviceName(gpsDeviceName);
+        gpsDeviceNameStartScreenStringItem.setText(gpsDeviceName); // copy to the initial screen
 
         String logPath = logFolderTextField.getString();
         settings.setLogFolder(logPath);
-        logPathStringItem.setText(logPath); // copy to the initial screen
+        logPathStartScreenStringItem.setText(logPath); // copy to the initial screen
 
         String logFileNamePrefix = logFileNamePrefixTextField.getString();
         settings.setLogFilePrefix(logFileNamePrefix);
@@ -789,7 +841,7 @@ public class GPSLogger
         try {
             settings.save();
         } catch (RecordStoreException e) {
-            handleException(e, introForm);
+            handleException(e, startScreen);
             return;
         }
 //GEN-LINE:|188-entry|1|189-postAction
@@ -868,7 +920,7 @@ public class GPSLogger
         try {
             platformRequest("mailto:" + getEmailItem().getText());
         } catch (ConnectionNotFoundException e) {
-            handleException(e, introForm);
+            handleException(e, startScreen);
         }
 
 //GEN-LINE:|211-entry|1|212-postAction
@@ -961,19 +1013,19 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|223-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: gpsDeviceStringItem ">//GEN-BEGIN:|232-getter|0|232-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: gpsDeviceNameStartScreenStringItem ">//GEN-BEGIN:|232-getter|0|232-preInit
     /**
-     * Returns an initiliazed instance of gpsDeviceStringItem component.
+     * Returns an initiliazed instance of gpsDeviceNameStartScreenStringItem component.
      * @return the initialized component instance
      */
-    public StringItem getGpsDeviceStringItem() {
-        if (gpsDeviceStringItem == null) {//GEN-END:|232-getter|0|232-preInit
+    public StringItem getGpsDeviceNameStartScreenStringItem() {
+        if (gpsDeviceNameStartScreenStringItem == null) {//GEN-END:|232-getter|0|232-preInit
             // write pre-init user code here
-            gpsDeviceStringItem = new StringItem("GPS: ", "");//GEN-BEGIN:|232-getter|1|232-postInit
-            gpsDeviceStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | Item.LAYOUT_VSHRINK);//GEN-END:|232-getter|1|232-postInit
+            gpsDeviceNameStartScreenStringItem = new StringItem("GPS: ", "");//GEN-BEGIN:|232-getter|1|232-postInit
+            gpsDeviceNameStartScreenStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | Item.LAYOUT_VSHRINK);//GEN-END:|232-getter|1|232-postInit
             // write post-init user code here
         }//GEN-BEGIN:|232-getter|2|
-        return gpsDeviceStringItem;
+        return gpsDeviceNameStartScreenStringItem;
     }
     //</editor-fold>//GEN-END:|232-getter|2|
 
@@ -1008,34 +1060,34 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|242-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: logPathStringItem ">//GEN-BEGIN:|249-getter|0|249-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: logPathStartScreenStringItem ">//GEN-BEGIN:|249-getter|0|249-preInit
     /**
-     * Returns an initiliazed instance of logPathStringItem component.
+     * Returns an initiliazed instance of logPathStartScreenStringItem component.
      * @return the initialized component instance
      */
-    public StringItem getLogPathStringItem() {
-        if (logPathStringItem == null) {//GEN-END:|249-getter|0|249-preInit
+    public StringItem getLogPathStartScreenStringItem() {
+        if (logPathStartScreenStringItem == null) {//GEN-END:|249-getter|0|249-preInit
             // write pre-init user code here
-            logPathStringItem = new StringItem("Log: ", "");//GEN-BEGIN:|249-getter|1|249-postInit
-            logPathStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | Item.LAYOUT_VSHRINK);//GEN-END:|249-getter|1|249-postInit
+            logPathStartScreenStringItem = new StringItem("Log: ", "");//GEN-BEGIN:|249-getter|1|249-postInit
+            logPathStartScreenStringItem.setLayout(ImageItem.LAYOUT_DEFAULT | Item.LAYOUT_VSHRINK);//GEN-END:|249-getter|1|249-postInit
             // write post-init user code here
         }//GEN-BEGIN:|249-getter|2|
-        return logPathStringItem;
+        return logPathStartScreenStringItem;
     }
     //</editor-fold>//GEN-END:|249-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: freeSpaceStringItem ">//GEN-BEGIN:|250-getter|0|250-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: freeSpaceStartScreenStringItem ">//GEN-BEGIN:|250-getter|0|250-preInit
     /**
-     * Returns an initiliazed instance of freeSpaceStringItem component.
+     * Returns an initiliazed instance of freeSpaceStartScreenStringItem component.
      * @return the initialized component instance
      */
-    public StringItem getFreeSpaceStringItem() {
-        if (freeSpaceStringItem == null) {//GEN-END:|250-getter|0|250-preInit
+    public StringItem getFreeSpaceStartScreenStringItem() {
+        if (freeSpaceStartScreenStringItem == null) {//GEN-END:|250-getter|0|250-preInit
             // write pre-init user code here
-            freeSpaceStringItem = new StringItem("", "");//GEN-LINE:|250-getter|1|250-postInit
+            freeSpaceStartScreenStringItem = new StringItem("", "");//GEN-LINE:|250-getter|1|250-postInit
             // write post-init user code here
         }//GEN-BEGIN:|250-getter|2|
-        return freeSpaceStringItem;
+        return freeSpaceStartScreenStringItem;
     }
     //</editor-fold>//GEN-END:|250-getter|2|
 
@@ -1174,23 +1226,23 @@ public class GPSLogger
     }//GEN-BEGIN:|275-entry|2|
     //</editor-fold>//GEN-END:|275-entry|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: waypointForm ">//GEN-BEGIN:|279-getter|0|279-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: waypointScreen ">//GEN-BEGIN:|279-getter|0|279-preInit
     /**
-     * Returns an initiliazed instance of waypointForm component.
+     * Returns an initiliazed instance of waypointScreen component.
      * @return the initialized component instance
      */
-    public Form getWaypointForm() {
-        if (waypointForm == null) {//GEN-END:|279-getter|0|279-preInit
+    public Form getWaypointScreen() {
+        if (waypointScreen == null) {//GEN-END:|279-getter|0|279-preInit
         // write pre-init user code here
-            waypointForm = new Form("Waypoint", new Item[] { getWaypointNameTextField() });//GEN-BEGIN:|279-getter|1|279-postInit
-            waypointForm.addCommand(getCancelWaypointCommand());
-            waypointForm.addCommand(getSaveWaypointCommand());
-            waypointForm.addCommand(getTakePhotoCommand());
-            waypointForm.addCommand(getSendSMSCommand());
-            waypointForm.setCommandListener(this);//GEN-END:|279-getter|1|279-postInit
+            waypointScreen = new Form("Waypoint", new Item[] { getWaypointNameTextField() });//GEN-BEGIN:|279-getter|1|279-postInit
+            waypointScreen.addCommand(getCancelWaypointCommand());
+            waypointScreen.addCommand(getSaveWaypointCommand());
+            waypointScreen.addCommand(getTakePhotoCommand());
+            waypointScreen.addCommand(getSendSMSCommand());
+            waypointScreen.setCommandListener(this);//GEN-END:|279-getter|1|279-postInit
         // write post-init user code here
         }//GEN-BEGIN:|279-getter|2|
-        return waypointForm;
+        return waypointScreen;
     }
     //</editor-fold>//GEN-END:|279-getter|2|
 
@@ -1312,23 +1364,23 @@ public class GPSLogger
                 // (only finish, do not close the whole track log at this time!)
                 finishTrackLog();
             } catch (IOException e) {
-                handleException(e, introForm);
+                handleException(e, startScreen);
             }
 
             try {
                 closeIndividualWaypointLog();
             } catch (IOException e) {
-                handleException(e, introForm);
+                handleException(e, startScreen);
             }
 
             try {
                 closeGeoLocator();
             } catch (IOException e) {
-                handleException(e, introForm);
+                handleException(e, startScreen);
             }
         }
 //GEN-LINE:|296-entry|1|297-postAction
-        switchDisplayable(null, introForm);
+        switchDisplayable(null, startScreen);
     }//GEN-BEGIN:|296-entry|2|
     //</editor-fold>//GEN-END:|296-entry|2|
 
@@ -1457,21 +1509,21 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|313-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: smsForm ">//GEN-BEGIN:|316-getter|0|316-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: smsScreen ">//GEN-BEGIN:|316-getter|0|316-preInit
     /**
-     * Returns an initiliazed instance of smsForm component.
+     * Returns an initiliazed instance of smsScreen component.
      * @return the initialized component instance
      */
-    public Form getSmsForm() {
-        if (smsForm == null) {//GEN-END:|316-getter|0|316-preInit
+    public Form getSmsScreen() {
+        if (smsScreen == null) {//GEN-END:|316-getter|0|316-preInit
             // write pre-init user code here
-            smsForm = new Form("Send SMS", new Item[] { getPhoneNumberTextField(), getSmsLengthStringItem(), getSmsTextStringItem() });//GEN-BEGIN:|316-getter|1|316-postInit
-            smsForm.addCommand(getOkSendSMSCommand());
-            smsForm.addCommand(getCancelSendSMSCommand());
-            smsForm.setCommandListener(this);//GEN-END:|316-getter|1|316-postInit
+            smsScreen = new Form("Send SMS", new Item[] { getPhoneNumberTextField(), getSmsLengthStringItem(), getSmsTextStringItem() });//GEN-BEGIN:|316-getter|1|316-postInit
+            smsScreen.addCommand(getOkSendSMSCommand());
+            smsScreen.addCommand(getCancelSendSMSCommand());
+            smsScreen.setCommandListener(this);//GEN-END:|316-getter|1|316-postInit
             // write post-init user code here
         }//GEN-BEGIN:|316-getter|2|
-        return smsForm;
+        return smsScreen;
     }
     //</editor-fold>//GEN-END:|316-getter|2|
 
@@ -1602,7 +1654,7 @@ public class GPSLogger
             }
         }.start();
 //GEN-LINE:|331-entry|1|332-postAction
-        switchDisplayable(null, getWaypointForm());
+        switchDisplayable(null, getWaypointScreen());
     }//GEN-BEGIN:|331-entry|2|
     //</editor-fold>//GEN-END:|331-entry|2|
 
@@ -1661,6 +1713,170 @@ public class GPSLogger
         return logFileNamePrefixTextField;
     }
     //</editor-fold>//GEN-END:|346-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: minimizeCommand ">//GEN-BEGIN:|347-getter|0|347-preInit
+    /**
+     * Returns an initiliazed instance of minimizeCommand component.
+     * @return the initialized component instance
+     */
+    public Command getMinimizeCommand() {
+        if (minimizeCommand == null) {//GEN-END:|347-getter|0|347-preInit
+            // write pre-init user code here
+            minimizeCommand = new Command(GPSLoggerLocalization.getMessage("minimizeCommand"), Command.OK, 0);//GEN-LINE:|347-getter|1|347-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|347-getter|2|
+        return minimizeCommand;
+    }
+    //</editor-fold>//GEN-END:|347-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: spacer2 ">//GEN-BEGIN:|349-getter|0|349-preInit
+    /**
+     * Returns an initiliazed instance of spacer2 component.
+     * @return the initialized component instance
+     */
+    public Spacer getSpacer2() {
+        if (spacer2 == null) {//GEN-END:|349-getter|0|349-preInit
+            // write pre-init user code here
+            spacer2 = new Spacer(16, 1);//GEN-LINE:|349-getter|1|349-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|349-getter|2|
+        return spacer2;
+    }
+    //</editor-fold>//GEN-END:|349-getter|2|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: totalMemoryStringItem ">//GEN-BEGIN:|350-getter|0|350-preInit
+    /**
+     * Returns an initiliazed instance of totalMemoryStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getTotalMemoryStringItem() {
+        if (totalMemoryStringItem == null) {//GEN-END:|350-getter|0|350-preInit
+            // write pre-init user code here
+            totalMemoryStringItem = new StringItem("total memory:", null);//GEN-LINE:|350-getter|1|350-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|350-getter|2|
+        return totalMemoryStringItem;
+    }
+    //</editor-fold>//GEN-END:|350-getter|2|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: freeMemoryStringItem ">//GEN-BEGIN:|351-getter|0|351-preInit
+    /**
+     * Returns an initiliazed instance of freeMemoryStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getFreeMemoryStringItem() {
+        if (freeMemoryStringItem == null) {//GEN-END:|351-getter|0|351-preInit
+            // write pre-init user code here
+            freeMemoryStringItem = new StringItem("free memory:", null);//GEN-LINE:|351-getter|1|351-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|351-getter|2|
+        return freeMemoryStringItem;
+    }
+    //</editor-fold>//GEN-END:|351-getter|2|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: mapDescriptorFileTextField ">//GEN-BEGIN:|352-getter|0|352-preInit
+    /**
+     * Returns an initiliazed instance of mapDescriptorFileTextField component.
+     * @return the initialized component instance
+     */
+    public TextField getMapDescriptorFileTextField() {
+        if (mapDescriptorFileTextField == null) {//GEN-END:|352-getter|0|352-preInit
+            // write pre-init user code here
+            mapDescriptorFileTextField = new TextField("Map descriptor file", "", 32, TextField.ANY);//GEN-BEGIN:|352-getter|1|352-postInit
+            mapDescriptorFileTextField.setItemCommandListener(this);//GEN-END:|352-getter|1|352-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|352-getter|2|
+        return mapDescriptorFileTextField;
+    }
+    //</editor-fold>//GEN-END:|352-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: spacer3 ">//GEN-BEGIN:|353-getter|0|353-preInit
+    /**
+     * Returns an initiliazed instance of spacer3 component.
+     * @return the initialized component instance
+     */
+    public Spacer getSpacer3() {
+        if (spacer3 == null) {//GEN-END:|353-getter|0|353-preInit
+            // write pre-init user code here
+            spacer3 = new Spacer(16, 1);//GEN-LINE:|353-getter|1|353-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|353-getter|2|
+        return spacer3;
+    }
+    //</editor-fold>//GEN-END:|353-getter|2|
+
+
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: browseMapDescriptorFileStringItem ">//GEN-BEGIN:|361-getter|0|361-preInit
+    /**
+     * Returns an initiliazed instance of browseMapDescriptorFileStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getBrowseMapDescriptorFileStringItem() {
+        if (browseMapDescriptorFileStringItem == null) {//GEN-END:|361-getter|0|361-preInit
+            // write pre-init user code here
+            browseMapDescriptorFileStringItem = new StringItem("///browse map descriptor file...", "", Item.BUTTON);//GEN-BEGIN:|361-getter|1|361-postInit
+            browseMapDescriptorFileStringItem.addCommand(getBrowseMapDescriptorFileCommand());
+            browseMapDescriptorFileStringItem.setItemCommandListener(this);
+            browseMapDescriptorFileStringItem.setDefaultCommand(getBrowseMapDescriptorFileCommand());
+            browseMapDescriptorFileStringItem.setFont(getFont());//GEN-END:|361-getter|1|361-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|361-getter|2|
+        return browseMapDescriptorFileStringItem;
+    }
+    //</editor-fold>//GEN-END:|361-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: browseMapDescriptorFileCommand ">//GEN-BEGIN:|362-getter|0|362-preInit
+    /**
+     * Returns an initiliazed instance of browseMapDescriptorFileCommand component.
+     * @return the initialized component instance
+     */
+    public Command getBrowseMapDescriptorFileCommand() {
+        if (browseMapDescriptorFileCommand == null) {//GEN-END:|362-getter|0|362-preInit
+            // write pre-init user code here
+            browseMapDescriptorFileCommand = new Command("Ok", Command.OK, 0);//GEN-LINE:|362-getter|1|362-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|362-getter|2|
+        return browseMapDescriptorFileCommand;
+    }
+    //</editor-fold>//GEN-END:|362-getter|2|
+    //</editor-fold>
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: gpsDeviceURLStartScreenStringItem ">//GEN-BEGIN:|364-getter|0|364-preInit
+    /**
+     * Returns an initiliazed instance of gpsDeviceURLStartScreenStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getGpsDeviceURLStartScreenStringItem() {
+        if (gpsDeviceURLStartScreenStringItem == null) {//GEN-END:|364-getter|0|364-preInit
+            // write pre-init user code here
+            gpsDeviceURLStartScreenStringItem = new StringItem("", "");//GEN-LINE:|364-getter|1|364-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|364-getter|2|
+        return gpsDeviceURLStartScreenStringItem;
+    }
+    //</editor-fold>//GEN-END:|364-getter|2|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: gpsDeviceNameStringItem ">//GEN-BEGIN:|365-getter|0|365-preInit
+    /**
+     * Returns an initiliazed instance of gpsDeviceNameStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getGpsDeviceNameStringItem() {
+        if (gpsDeviceNameStringItem == null) {//GEN-END:|365-getter|0|365-preInit
+            // write pre-init user code here
+            gpsDeviceNameStringItem = new StringItem("GPS name: ", "");//GEN-LINE:|365-getter|1|365-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|365-getter|2|
+        return gpsDeviceNameStringItem;
+    }
+    //</editor-fold>//GEN-END:|365-getter|2|
 
     public FileBrowser getFileBrowser() {
         if (fileBrowser == null) {
@@ -1769,6 +1985,10 @@ public class GPSLogger
         return mainScreen;
     }
 
+    public MapConfiguration getMapConfiguration() {
+        return mapConfiguration;
+    }
+
     public static GPSLoggerSettings getSettings() {
         if (settings == null) {
             settings = new GPSLoggerSettings(midlet);
@@ -1790,7 +2010,8 @@ public class GPSLogger
         }
         
         // initialize the settings screen with data from the loaded configuration
-        getGpsDeviceTextField().setString(settings.getGPSDeviceURL());
+        getGpsDeviceURLTextField().setString(settings.getGPSDeviceURL());
+        getGpsDeviceNameStringItem().setText(settings.getGPSDeviceName());
 
         getLogFolderTextField().setString(settings.getLogFolder());
         String loadedLogFileNamePrefix = settings.getLogFilePrefix();
@@ -1812,38 +2033,45 @@ public class GPSLogger
         getDefaultSmsPhoneNumber().setString(settings.getDefaultSmsPhoneNumber());
     }
 
-    void prepareSettingsSummary() {
+    void prepareStartScreen() {
         
-        String connectionURLString = settings.getGPSDeviceURL();
-            
         boolean mustConfigure = false;
-        
-        if (connectionURLString != null) {
-            gpsDeviceStringItem.setText(connectionURLString);
-        } else { // empty bluetooth URL
-            gpsDeviceStringItem.setText("");
+
+        String gpsDeviceName = settings.getGPSDeviceName();
+        String gpsDeviceURLString = settings.getGPSDeviceURL();
+            
+        if (gpsDeviceName != null) {
+            gpsDeviceNameStartScreenStringItem.setText(gpsDeviceName);
         }
 
-        // check again
-        if (gpsDeviceStringItem.getText().trim().equals("")) { // empty URL?
-            gpsDeviceStringItem.setText("[use Location API (JSR-179)]");
-            //commented because will fall back to JSR-179 is BT device was not specified
-            //mustConfigure = true;
+        if (gpsDeviceURLString != null) {
+            gpsDeviceURLStartScreenStringItem.setText(gpsDeviceURLString);
+        }
+        
+/// LOCALIZE:
+        
+        // empty URL? should we use built-in GPS receiver?
+        if (gpsDeviceURLString == null
+            || gpsDeviceURLStartScreenStringItem.getText().trim().equals("")) {
+            gpsDeviceNameStartScreenStringItem.setText("[built-in]");
+            gpsDeviceURLStartScreenStringItem.setText("[use Location API (JSR-179)]");
+        } else if (gpsDeviceName == null) { // URL given but no name?
+            gpsDeviceNameStartScreenStringItem.setText("[name available after re-scan]");
         }
 
         final String logPath = settings.getLogFolder();
         
         if (logPath != null) {
-            logPathStringItem.setText(logPath);
+            logPathStartScreenStringItem.setText(logPath);
         } else {
-            logPathStringItem.setText("[not configured]");
+            logPathStartScreenStringItem.setText("[not configured]");
             mustConfigure = true;
         }
         
         if (mustConfigure) {
-            getIntroForm().removeCommand(getStartCommand()); // we cannot start unless we configure the settings
+            getStartScreen().removeCommand(getStartCommand()); // we cannot start unless we configure the settings
         } else { // everything is already configured
-            getIntroForm().addCommand(getStartCommand()); // we cannot start unless we configure the settings
+            getStartScreen().addCommand(getStartCommand()); // we cannot start unless we configure the settings
         }
         
         Thread spaceCalculatorThread = new Thread() {
@@ -1852,7 +2080,7 @@ public class GPSLogger
                 long availableSpace = -1L;
 
                 try {
-                    fileConnection = (FileConnection)Connector.open(logPath);
+                    fileConnection = (FileConnection)Connector.open(logPath, Connector.READ); // check space only
                     availableSpace = fileConnection.availableSize();
                 } catch (Exception e) {
                     availableSpace = -1L; // :-(
@@ -1868,9 +2096,9 @@ public class GPSLogger
                 }
                 
                 if (availableSpace >= 0) {
-                    freeSpaceStringItem.setText("(" + (availableSpace / 1048576L)+ " MiB free)");
+                    freeSpaceStartScreenStringItem.setText("(" + (availableSpace / 1048576L)+ " MiB free)");
                 } else { // negative means info was N/A
-                    freeSpaceStringItem.setText("(unknown free space info)");
+                    freeSpaceStartScreenStringItem.setText("(free space is unknown)");
                 }
             }
         };
@@ -1882,6 +2110,8 @@ public class GPSLogger
         
         String connectionURLString = settings.getGPSDeviceURL();
         System.out.println("Starting tracking, connection URL = " + connectionURLString);
+        
+///reconnect automatically on errors (user-customizable behaviour?)
         
         try {
             do { // (re)connect loop
@@ -1913,7 +2143,7 @@ public class GPSLogger
                                 // when trying to reference the missing javax.microedition.location
                                 // classes
                                 geoLocator = (GeoLocator)
-                                        (Class.forName("com.sergebass.geography.JSR179GeoLocator")
+                                        (Class.forName("com.sergebass.geo.JSR179GeoLocator")
                                          .newInstance());
                             } catch (ClassNotFoundException e) { // no JSR-179 support on this device?
                                 e.printStackTrace();
@@ -1946,7 +2176,7 @@ public class GPSLogger
             } while (false); /// fix this: reconnect?
             
         } catch (Exception e) {
-            handleException(e, introForm);
+            handleException(e, startScreen);
         }
     }
     
@@ -1989,7 +2219,7 @@ public class GPSLogger
     
     void markWaypoint() {
         registerCurrentWaypoint(); // save the location immediately!
-        switchDisplayable(null, getWaypointForm()); // let the user edit it
+        switchDisplayable(null, getWaypointScreen()); // let the user edit it
     }
 
     void registerCurrentWaypoint() {
@@ -2115,12 +2345,14 @@ public class GPSLogger
                 trackLogWriter = new GPXWriter(trackLogFile.getOutputStream());
 
                 // add platform name to the log, to make logs more easily identifiable
-                String platformName = System.getProperty("microedition.platform");
-                String deviceModel = System.getProperty("device.model"); // for Motorola phones?
+                String javaPlatformName = System.getProperty("microedition.platform");
+                String phoneDeviceModel = System.getProperty("device.model"); // for Motorola phones?
+                String gpsDeviceName = settings.getGPSDeviceName();
                 
                 String trackLogHeader = "GPSLogger track log (" + now.getISO8601UTCDateTimeId() + ")"
-                        + (platformName != null? ", " + platformName : "")
-                        + (deviceModel != null? ", " + deviceModel : "");
+                        + (javaPlatformName != null? ", " + javaPlatformName : "")
+                        + (phoneDeviceModel != null? ", " + phoneDeviceModel : "")
+                        + (gpsDeviceName != null? ", GPS: " + gpsDeviceName : "");
 
                 trackLogWriter.writeHeader(trackLogHeader);
             }
@@ -2244,7 +2476,7 @@ public class GPSLogger
                     try {
                         trackLogWriter.writeTrackpoint(location);
                     } catch (IOException e) {
-                        handleException(e, getIntroForm());
+                        handleException(e, getStartScreen());
                     }
                 }
             }
@@ -2286,7 +2518,7 @@ public class GPSLogger
 ///??? should we reconnect here automatically??
         }
 
-        handleException(e, getIntroForm());
+        handleException(e, getStartScreen());
     }
 
     public void settingsChanged(Settings settings, Object key, Object newValue) {

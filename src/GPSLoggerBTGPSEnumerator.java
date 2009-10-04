@@ -47,7 +47,7 @@ public class GPSLoggerBTGPSEnumerator
         try {
             devices = deviceManager.searchDevices();
         } catch (BluetoothStateException ex) {
-            logger.handleException(ex, logger.getSettingsForm());
+            logger.handleException(ex, logger.getSettingsScreen());
             return;
         }
 
@@ -71,7 +71,7 @@ public class GPSLoggerBTGPSEnumerator
                 try {
                     services = deviceManager.searchServices(device, uuidServiceSet);
                 } catch (BluetoothStateException ex) {
-                    logger.handleException(ex, logger.getSettingsForm());
+                    logger.handleException(ex, logger.getSettingsScreen());
                     return;
                 }
 

@@ -1,6 +1,6 @@
 /*
  * FileBrowser.java
- * 
+ *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
  * Portions Copyrighted 2008 by Serge Perinsky.
  *
@@ -53,7 +53,7 @@ import javax.microedition.lcdui.*;
  * directories. It's uses FileConnection Optional Package (JSR 75). The FileConnection
  * Optional Package APIs give J2ME devices access to file systems residing on mobile devices,
  * primarily access to removable storage media such as external memory cards.
- * 
+ *
  * @author breh
  * @author Serge Perinsky
  */
@@ -76,7 +76,7 @@ public class FileBrowser
 
     boolean areFoldersSelectable = true;
     boolean areFilesSelectable = true;
-    
+
     /* special string denotes upper directory */
     private static final String UP_DIRECTORY = "..";
 
@@ -125,7 +125,7 @@ public class FileBrowser
         super.addCommand(OPEN_ITEM_COMMAND);
         super.setCommandListener(this);
         setSelectCommand(OPEN_ITEM_COMMAND);
-        
+
         try {
             dirIcon = Image.createImage("/images/dir.png");
         } catch (IOException e) {

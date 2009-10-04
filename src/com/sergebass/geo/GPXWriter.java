@@ -2,7 +2,7 @@
  * (C) Serge Perinsky, 2009
  */
 
-package com.sergebass.geography;
+package com.sergebass.geo;
 
 import java.io.OutputStreamWriter;
 import java.io.OutputStream;

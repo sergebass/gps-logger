@@ -16,10 +16,10 @@ public class BluetoothManager
         implements DiscoveryListener {
 
     DiscoveryAgent agent = null;
-    
+
     Vector /*<RemoteDevice>*/ devices;
     Vector /*<ServiceRecord>*/ services;
-    
+
     final Object lock = new Object();
 
     public static boolean isBluetoothAPISupported() {
@@ -32,28 +32,28 @@ public class BluetoothManager
         } catch(ClassNotFoundException e) { // class does not exist -> no Bluetooth
             isJSR82SupportedHere  = false;
         }
-        
+
         return isJSR82SupportedHere;
     }
-    
+
     public BluetoothManager() {
     }
-    
+
     public Vector /*<RemoteDevice>*/ searchDevices()
                 throws BluetoothStateException {
 
         System.out.println("Searching for Bluetooth devices...");
-                
+
         devices = new Vector(); /*<RemoteDevice>*/
         agent = null; // serves also as a flag
-        
+
         LocalDevice localDevice = LocalDevice.getLocalDevice();
         agent = localDevice.getDiscoveryAgent();
 
         if (agent == null) {
             return devices;
         }
-        
+
         if (!agent.startInquiry(DiscoveryAgent.GIAC, this)) {
             return devices;
         }
@@ -75,22 +75,22 @@ public class BluetoothManager
     public boolean cancelDeviceSearch() {
         return agent != null? agent.cancelInquiry(this) : false;
     }
-    
+
     public void deviceDiscovered(RemoteDevice device,
                                  DeviceClass deviceClass) {
-        
+
         System.out.println("Bluetooth device discovered: device="
                 + device
                 + ", class="
                 + deviceClass);
-        
+
         devices.addElement(device);
     }
-    
+
     public void inquiryCompleted(int discoveryType) {
-        
+
         System.out.println("inquiryCompleted: discoveryType=" + discoveryType);
-        
+
         switch (discoveryType) {
             case DiscoveryListener.INQUIRY_COMPLETED :
                 System.out.println("INQUIRY_COMPLETED");
@@ -105,27 +105,27 @@ public class BluetoothManager
                 System.out.println("Unknown Response Code");
                 break;
         }
-        
+
         synchronized(lock){
             lock.notifyAll();
         }
     }
-    
+
     public Vector /*<ServiceRecord>*/ searchServices(RemoteDevice device,
                                                      UUID[] uuidServiceSet)
             throws BluetoothStateException {
-        
+
         System.out.println("Searching for Bluetooth services...");
-                
+
         services = new Vector(); /*<ServiceRecord>*/
-        
+
         LocalDevice localDevice = LocalDevice.getLocalDevice();
         agent = localDevice.getDiscoveryAgent();
 
         if (agent == null) {
             return services;
         }
-        
+
         try {
             agent.searchServices(null, uuidServiceSet, device, this);
             synchronized (lock) {
@@ -134,19 +134,19 @@ public class BluetoothManager
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        
+
         // Ok, the services must have been discovered by now
         System.out.println("Returning discovered Bluetooth services.");
         return services;
     }
-    
+
     public boolean cancelServiceSearch(int transID) {
         return agent != null? agent.cancelServiceSearch(transID) : false;
     }
-        
+
     public void servicesDiscovered(int transID,
                                    ServiceRecord[] serviceRecords) {
-        
+
         if (serviceRecords != null) {
             System.out.println("Bluetooth services discovered: " + serviceRecords.length + " item(s)");
             for (int i = 0; i < serviceRecords.length; i++) {
@@ -154,16 +154,16 @@ public class BluetoothManager
             }
         }
     }
-    
+
     public void serviceSearchCompleted(int transID,
                                        int responseCode) {
-        
+
         System.out.println("Bluetooth service search completed: transID="
                 + transID
                 + ", responseCode="
                 + responseCode
                 );
-        
+
         synchronized(lock){
             lock.notifyAll();
         }

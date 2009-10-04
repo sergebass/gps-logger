@@ -2,7 +2,7 @@
  * (C) Serge Perinsky
  */
 
-package com.sergebass.geography;
+package com.sergebass.geo;
 
 /**
  *

@@ -1,4 +1,4 @@
-package com.sergebass.geography;
+package com.sergebass.geo;
 
 /*
  * NMEA0183Parser.java (C) 2008 by Serge Perinsky

@@ -2,7 +2,8 @@
  * (C) Serge Perinsky, 2009
  */
 
-import com.sergebass.geography.GeoLocation;
+import com.sergebass.geo.GeoLocation;
+import com.sergebass.geo.map.*;
 import com.sergebass.util.Instant;
 import java.util.TimeZone;
 import javax.microedition.lcdui.*;
@@ -17,6 +18,7 @@ public class GPSScreen
 
     GPSLogger midlet = null;
 
+    Graphics g = null;
     Font smallFont = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL);
 
     GeoLocation location = null;
@@ -41,28 +43,26 @@ public class GPSScreen
 
     String messageString = null;
 
-/// tmp:
-Image bgImage = null;
-///
     boolean isOverMapMode = false; // true for displaying data strings over a map
+
+    MapRenderer mapRenderer = null;
 
     public GPSScreen(GPSLogger midlet) {
         super(false); // do not suppress key events
         this.midlet = midlet;
         this.setFullScreenMode(false); /// actually, let user decide between full-screen and not
 
+        // getGraphics() must only be called once per Screen
+        // (since a new copy is created each time)
+        g = getGraphics();
+
         addCommand(midlet.getMarkWaypointCommand());
         addCommand(midlet.getStopCommand());
         addCommand(midlet.getSettingsCommand());
+        addCommand(midlet.getMinimizeCommand());
         setCommandListener(midlet);
 
-/*///tmp:
-try {
-    bgImage = Image.createImage("/images/_map.png");
-} catch (IOException e) {
-
-}
-*///
+        mapRenderer = MapRenderer.newInstance(midlet.getMapConfiguration());
     }
 
 ///!!! display location fix method! (location.getLocationMethod())
@@ -82,6 +82,10 @@ try {
             setSatelliteInfo("Location data unavailable");
 
             return;
+        }
+
+        if (mapRenderer != null) {
+            mapRenderer.setLocation(location);
         }
 
         double latitude = location.getLatitude();
@@ -325,22 +329,13 @@ try {
     void drawBackground(int x, int y, int width, int height,
                         boolean mustFlushGraphics) {
 
-        Graphics g = getGraphics();
+        boolean isMapRendered = false;
 
-        if (bgImage != null) {
+        if (mapRenderer != null) {
+            isMapRendered = mapRenderer.render(g, x, y, width, height);
+        }
 
-            int imageWidth = bgImage.getWidth();
-            int imageHeight = bgImage.getHeight();
-
-            /// how do I scale it over the whole screen?
-            g.drawRegion(bgImage,
-                    x, y,
-                    Math.min(width, imageWidth), // source width
-                    Math.min(height, imageHeight), // source image region boundaries
-                    Sprite.TRANS_NONE, // transform
-                    x, y, // destination area
-                    0); // anchor
-        } else { // no background image?
+        if (!isMapRendered) { // no map rendering performed
             g.setColor(0x000000); // just a black background
             g.fillRect(x, y, width, height); // just fill/clear it...
         }
@@ -356,7 +351,7 @@ try {
     }
 
     public void forceRepaint() {
-        paint(getGraphics());
+        paint(g);
     }
 
     public void paint(Graphics g) {
@@ -382,6 +377,7 @@ try {
 
         displayMessage();
 
+/// should flushGraphics() be avoided on Nokia 3610? (white screen flickering)
         flushGraphics();
     }
 
@@ -460,14 +456,12 @@ try {
                 drawBackground(x, y, width, height, false); // restore background under our data
             }
 
-            Graphics g = getGraphics();
             g.drawImage(image, x, y, 0); // overlay our image with data
 
             if (mustFlushGraphics) {
                 flushGraphics(x, y, width, height);
             }
         } else { // non-overlay mode
-            Graphics g = getGraphics();
             g.setColor(opaqueBGColor); // alpha channel is ignored anyway
             g.fillRect(x, y, width, height); // clear/fill image background
             g.setFont(font);
@@ -478,7 +472,6 @@ try {
 
     void drawCourseArrow(double angle, int centerX, int centerY, int radius) {
 
-        Graphics g = getGraphics();
         g.setColor(0xFFFFFFFF); // white circle
         g.drawArc(centerX - radius,
                   centerY - radius,
