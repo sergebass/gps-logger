@@ -486,7 +486,7 @@ public class GPSScreen
 
     void drawCourseArrow(double angle, Graphics g, int centerX, int centerY, int radius) {
 
-        g.setColor(0xFFFFFF00); // yellow circle
+        g.setColor(0xFF00FF00); // green circle
         g.drawArc(centerX - radius,
                   centerY - radius,
                   radius + radius,

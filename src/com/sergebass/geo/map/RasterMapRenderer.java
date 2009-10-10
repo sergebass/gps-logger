@@ -60,11 +60,6 @@ public class RasterMapRenderer
             // our Y-axis is upside down (lower values are above)
             int yLocationOnTile = imageHeight - (int)(yPixelsPerDegree * (latitude - minLatitude));
 
-///
-System.out.println("xPixelsPerDegree=" + xPixelsPerDegree);
-System.out.println("yPixelsPerDegree=" + yPixelsPerDegree);
-System.out.println("Location on tile: x=" + xLocationOnTile + ", y=" + yLocationOnTile);
-///
             int mapSectionX = xLocationOnTile - markerX;
             int mapSectionY = yLocationOnTile - markerY;
 
@@ -84,23 +79,11 @@ System.out.println("Location on tile: x=" + xLocationOnTile + ", y=" + yLocation
             int mapSectionWidth = Math.min(clipWidth, Math.abs(imageWidth - mapSectionX));
             int mapSectionHeight = Math.min(clipHeight, Math.abs(imageHeight - mapSectionY));
 
-/*///
-System.out.println("mapSectionX=" + mapSectionX);
-System.out.println("mapSectionY=" + mapSectionY);
-System.out.println("mapSectionW=" + mapSectionWidth);
-System.out.println("mapSectionH=" + mapSectionHeight);
-System.out.println("clipX=" + clipX);
-System.out.println("clipY=" + clipY);
-System.out.println("clipW=" + clipWidth);
-System.out.println("clipH=" + clipHeight);
-System.out.println("destinationX=" + destinationX);
-System.out.println("destinationY=" + destinationY);
-*///
-
-///tmp!!! fill the map area with blue color:
-            g.setColor(0x808080); // just a grey background
+///tmp!!! fill the map area with grey color:
+///optimize: only fill areas unused by the map
+            g.setColor(0x404040); // just a grey background
             g.fillRect(clipX, clipY, clipWidth, clipHeight); // just fill/clear it...
-///^^
+
             // make sure our image is inside the screen:
             if (destinationX < clipX + clipWidth && destinationY < clipY + clipHeight &&
                 mapSectionX < imageWidth && mapSectionY < imageHeight) {
