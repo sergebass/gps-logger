@@ -113,10 +113,11 @@ public class GPSLogger
     private TextBox smsTextBox;
     private List gpsDeviceList;
     private Form startScreen;
+    private StringItem gpsDeviceURLStartScreenStringItem;
     private StringItem gpsDeviceNameStartScreenStringItem;
     private StringItem freeSpaceStartScreenStringItem;
     private StringItem logPathStartScreenStringItem;
-    private StringItem gpsDeviceURLStartScreenStringItem;
+    private StringItem mapDescriptorFileStartScreenStringItem;
     private Form settingsScreen;
     private Spacer spacer1;
     private StringItem browseLogFolderStringItem;
@@ -129,6 +130,7 @@ public class GPSLogger
     private TextField logFileNamePrefixTextField;
     private TextField mapDescriptorFileTextField;
     private Spacer spacer3;
+    private StringItem gpsDeviceNameStringItem;
     private StringItem browseMapDescriptorFileStringItem;
     private ChoiceGroup coordinatesModeChoiceGroup;
     private ChoiceGroup speedUnitsChoiceGroup;
@@ -136,7 +138,6 @@ public class GPSLogger
     private TextField logFolderTextField;
     private ChoiceGroup altitudeUnitsChoiceGroup;
     private ChoiceGroup languageChoiceGroup;
-    private StringItem gpsDeviceNameStringItem;
     private Form helpScreen;
     private StringItem freeMemoryStringItem;
     private StringItem totalMemoryStringItem;
@@ -521,22 +522,40 @@ public class GPSLogger
      * Performs an action assigned to the startTrack entry-point.
      */
     public void startTrack() {//GEN-END:|108-entry|0|109-preAction
-        waypoints = new Vector(); // (re)initialize
-        mainScreen = new GPSScreen(this);
-        switchDisplayable(null, mainScreen);
-        mainScreen.setTitle("Connecting to GPS...");
-        System.out.println("Connecting to GPS receiver...");
-
         // run our tracking stuff in a separate thread
         new Thread() {
             public void run() {
-                startLogging(mainScreen);
+                startTrackingThread();
             }
         }.start();
 //GEN-LINE:|108-entry|1|109-postAction
     }//GEN-BEGIN:|108-entry|2|
     //</editor-fold>//GEN-END:|108-entry|2|
+    
+    public void startTrackingThread() {
+        waypoints = new Vector(); // (re)initialize
 
+        // initialize the maps
+        String mapDescriptorFileName = settings.getMapDescriptorFilePath();
+        if (mapDescriptorFileName != null) { // map specified?
+            try {
+                System.out.println("Parsing map descriptor file (" + mapDescriptorFileName + ")...");
+                mapConfiguration = MapConfiguration.newInstance(mapDescriptorFileName);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                handleException(ex, startScreen);
+                return;
+            }
+        }
+
+        mainScreen = new GPSScreen(this);
+        switchDisplayable(null, mainScreen);
+        mainScreen.setTitle("Starting...");
+        System.out.println("Starting a track log...");
+
+        startLogging(mainScreen);
+    }
+    
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: startScreen ">//GEN-BEGIN:|125-getter|0|125-preInit
     /**
      * Returns an initiliazed instance of startScreen component.
@@ -545,7 +564,7 @@ public class GPSLogger
     public Form getStartScreen() {
         if (startScreen == null) {//GEN-END:|125-getter|0|125-preInit
             // write pre-init user code here
-            startScreen = new Form("GPS Logger", new Item[] { getGpsDeviceNameStartScreenStringItem(), getGpsDeviceURLStartScreenStringItem(), getLogPathStartScreenStringItem(), getFreeSpaceStartScreenStringItem() });//GEN-BEGIN:|125-getter|1|125-postInit
+            startScreen = new Form("GPS Logger", new Item[] { getGpsDeviceNameStartScreenStringItem(), getGpsDeviceURLStartScreenStringItem(), getLogPathStartScreenStringItem(), getFreeSpaceStartScreenStringItem(), getMapDescriptorFileStartScreenStringItem() });//GEN-BEGIN:|125-getter|1|125-postInit
             startScreen.addCommand(getStartCommand());
             startScreen.addCommand(getSettingsCommand());
             startScreen.addCommand(getExitCommand());
@@ -745,17 +764,23 @@ public class GPSLogger
             if (command == browseCommand) {//GEN-END:|17-itemCommandAction|9|181-preAction
                 browseLogFolder();//GEN-LINE:|17-itemCommandAction|10|181-postAction
 
-            }//GEN-BEGIN:|17-itemCommandAction|11|269-preAction
+            }//GEN-BEGIN:|17-itemCommandAction|11|367-preAction
+        } else if (item == mapDescriptorFileTextField) {
+            if (command == browseMapDescriptorFileCommand) {//GEN-END:|17-itemCommandAction|11|367-preAction
+                // write pre-action user code here
+//GEN-LINE:|17-itemCommandAction|12|367-postAction
+                // write post-action user code here
+            }//GEN-BEGIN:|17-itemCommandAction|13|269-preAction
         } else if (item == searchGPSStringItem) {
-            if (command == searchCommand) {//GEN-END:|17-itemCommandAction|11|269-preAction
+            if (command == searchCommand) {//GEN-END:|17-itemCommandAction|13|269-preAction
 
-                searchDevices();//GEN-LINE:|17-itemCommandAction|12|269-postAction
+                searchDevices();//GEN-LINE:|17-itemCommandAction|14|269-postAction
 
-            }//GEN-BEGIN:|17-itemCommandAction|13|17-postItemCommandAction
-        }//GEN-END:|17-itemCommandAction|13|17-postItemCommandAction
+            }//GEN-BEGIN:|17-itemCommandAction|15|17-postItemCommandAction
+        }//GEN-END:|17-itemCommandAction|15|17-postItemCommandAction
 
-    }//GEN-BEGIN:|17-itemCommandAction|14|
-    //</editor-fold>//GEN-END:|17-itemCommandAction|14|
+    }//GEN-BEGIN:|17-itemCommandAction|16|
+    //</editor-fold>//GEN-END:|17-itemCommandAction|16|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: speedUnitsChoiceGroup ">//GEN-BEGIN:|163-getter|0|163-preInit
     /**
@@ -831,6 +856,9 @@ public class GPSLogger
 
         String logFileNamePrefix = logFileNamePrefixTextField.getString();
         settings.setLogFilePrefix(logFileNamePrefix);
+
+        String mapDescriptorFileName = mapDescriptorFileTextField.getString();
+        settings.setMapDescriptorFilePath(mapDescriptorFileName);
 
         settings.setCoordinatesMode(getCoordinatesModeChoiceGroup().getSelectedIndex());
         settings.setAltitudeUnits(getAltitudeUnitsChoiceGroup().getSelectedIndex());
@@ -1359,6 +1387,8 @@ public class GPSLogger
      */
     public void stopTrack() {//GEN-END:|296-entry|0|297-preAction
 
+        mainScreen.setTitle("Stopping...");
+
         synchronized (trackLock) {
             try {
                 // (only finish, do not close the whole track log at this time!)
@@ -1785,8 +1815,10 @@ public class GPSLogger
     public TextField getMapDescriptorFileTextField() {
         if (mapDescriptorFileTextField == null) {//GEN-END:|352-getter|0|352-preInit
             // write pre-init user code here
-            mapDescriptorFileTextField = new TextField("Map descriptor file", "", 32, TextField.ANY);//GEN-BEGIN:|352-getter|1|352-postInit
-            mapDescriptorFileTextField.setItemCommandListener(this);//GEN-END:|352-getter|1|352-postInit
+            mapDescriptorFileTextField = new TextField("Map descriptor file", "", 4096, TextField.ANY);//GEN-BEGIN:|352-getter|1|352-postInit
+            mapDescriptorFileTextField.addCommand(getBrowseMapDescriptorFileCommand());
+            mapDescriptorFileTextField.setItemCommandListener(this);
+            mapDescriptorFileTextField.setDefaultCommand(getBrowseMapDescriptorFileCommand());//GEN-END:|352-getter|1|352-postInit
             // write post-init user code here
         }//GEN-BEGIN:|352-getter|2|
         return mapDescriptorFileTextField;
@@ -1877,6 +1909,22 @@ public class GPSLogger
         return gpsDeviceNameStringItem;
     }
     //</editor-fold>//GEN-END:|365-getter|2|
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: mapDescriptorFileStartScreenStringItem ">//GEN-BEGIN:|366-getter|0|366-preInit
+    /**
+     * Returns an initiliazed instance of mapDescriptorFileStartScreenStringItem component.
+     * @return the initialized component instance
+     */
+    public StringItem getMapDescriptorFileStartScreenStringItem() {
+        if (mapDescriptorFileStartScreenStringItem == null) {//GEN-END:|366-getter|0|366-preInit
+            // write pre-init user code here
+            mapDescriptorFileStartScreenStringItem = new StringItem("Map: ", "");//GEN-LINE:|366-getter|1|366-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|366-getter|2|
+        return mapDescriptorFileStartScreenStringItem;
+    }
+    //</editor-fold>//GEN-END:|366-getter|2|
 
     public FileBrowser getFileBrowser() {
         if (fileBrowser == null) {
@@ -2020,6 +2068,8 @@ public class GPSLogger
                       "GPSLogger"
                     : loadedLogFileNamePrefix);
 
+        getMapDescriptorFileTextField().setString(settings.getMapDescriptorFilePath());
+
         coordinatesMode = settings.getCoordinatesMode();
         getCoordinatesModeChoiceGroup().setSelectedIndex(coordinatesMode, true);
 
@@ -2068,6 +2118,13 @@ public class GPSLogger
             mustConfigure = true;
         }
         
+        String mapDescriptorFilePath = settings.getMapDescriptorFilePath();
+        if (mapDescriptorFilePath != null) {
+            mapDescriptorFileStartScreenStringItem.setText(mapDescriptorFilePath);
+        } else {
+            mapDescriptorFileStartScreenStringItem.setText("[not specified]");
+        }
+
         if (mustConfigure) {
             getStartScreen().removeCommand(getStartCommand()); // we cannot start unless we configure the settings
         } else { // everything is already configured
@@ -2164,7 +2221,7 @@ public class GPSLogger
                 
                 // show initial screen
                 getMainScreen().setMessage("Acquiring location, please wait...");
-                getMainScreen().forceRepaint();
+                getMainScreen().repaint();
 
                 // we will start receiving notifications after this call:
                 geoLocator.setLocationListener(this);

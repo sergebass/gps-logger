@@ -18,7 +18,9 @@ public class GPSScreen
 
     GPSLogger midlet = null;
 
-    Graphics g = null;
+///should I use this?:
+    Graphics gOffscreen = null;
+    
     Font smallFont = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL);
 
     GeoLocation location = null;
@@ -43,8 +45,6 @@ public class GPSScreen
 
     String messageString = null;
 
-    boolean isOverMapMode = false; // true for displaying data strings over a map
-
     MapRenderer mapRenderer = null;
 
     public GPSScreen(GPSLogger midlet) {
@@ -54,7 +54,8 @@ public class GPSScreen
 
         // getGraphics() must only be called once per Screen
         // (since a new copy is created each time)
-        g = getGraphics();
+///should I use this?:
+        gOffscreen = getGraphics();
 
         addCommand(midlet.getMarkWaypointCommand());
         addCommand(midlet.getStopCommand());
@@ -127,9 +128,9 @@ public class GPSScreen
         latitudeString = string;
     }
 
-    public void displayLatitude() {
+    public void displayLatitude(Graphics g) {
         displayString(latitudeString,
-                    0, smallFont.getHeight() * 0,
+                    g, 0, smallFont.getHeight() * 0,
                     smallFont.stringWidth(latitudeString), smallFont.getHeight(),
                     isLocationValid? 0xFF00FF00 : 0xFF008000, 0xA0000000, // green on 60% black
                     smallFont,
@@ -141,9 +142,9 @@ public class GPSScreen
         longitudeString = string;
     }
 
-    public void displayLongitude() {
+    public void displayLongitude(Graphics g) {
         displayString(longitudeString,
-                    0, smallFont.getHeight() * 1,
+                    g, 0, smallFont.getHeight() * 1,
                     smallFont.stringWidth(longitudeString), smallFont.getHeight(),
                     isLocationValid? 0xFF00FF00 : 0xFF008000, 0xA0000000, // green on 60% black
                     smallFont,
@@ -155,9 +156,9 @@ public class GPSScreen
         altitudeString = string;
     }
 
-    public void displayAltitude() {
+    public void displayAltitude(Graphics g) {
         displayString(altitudeString,
-                    0, smallFont.getHeight() * 2,
+                    g, 0, smallFont.getHeight() * 2,
                     smallFont.stringWidth(altitudeString), smallFont.getHeight(),
                     isLocationValid? 0xFF00FF00 : 0xFF008000, 0xA0000000, // green on 60% black
                     smallFont,
@@ -167,14 +168,14 @@ public class GPSScreen
 
 /// use java.util.Timer/TimerTask as a separate clock thread
     
-    public void displayLocalTime() {
+    public void displayLocalTime(Graphics g) {
         Instant now = new Instant(System.currentTimeMillis());
         TimeZone timeZone = TimeZone.getDefault();
         String localTimeString = now.getISO8601TimeId(timeZone)
                                     + " "
                                     + timeZone.getID();
         displayString(localTimeString,
-                    0, getHeight() - smallFont.getHeight() * 3,
+                    g, 0, getHeight() - smallFont.getHeight() * 3,
                     smallFont.stringWidth(localTimeString), smallFont.getHeight(),
                     0xFFFFFFFF, 0xA0000000, // white on 60% black
                     smallFont,
@@ -186,9 +187,9 @@ public class GPSScreen
         timeString = string;
     }
 
-    public void displayTime() {
+    public void displayTime(Graphics g) {
         displayString(timeString,
-                    0, getHeight() - smallFont.getHeight() * 2,
+                    g, 0, getHeight() - smallFont.getHeight() * 2,
                     smallFont.stringWidth(timeString), smallFont.getHeight(),
                     0xFF00FFFF, 0xA0000000, // cyan on 60% black
                     smallFont,
@@ -200,9 +201,9 @@ public class GPSScreen
         dateString = string;
     }
 
-    public void displayDate() {
+    public void displayDate(Graphics g) {
         displayString(dateString,
-                    0, getHeight() - smallFont.getHeight() * 1,
+                    g, 0, getHeight() - smallFont.getHeight() * 1,
                     smallFont.stringWidth(dateString), smallFont.getHeight(),
                     0xFF00FFFF, 0xA0000000, // cyan on 60% black
                     smallFont,
@@ -214,9 +215,9 @@ public class GPSScreen
         satelliteInfoString = string;
     }
 
-    public void displaySatelliteInfo() {
+    public void displaySatelliteInfo(Graphics g) {
         displayString(satelliteInfoString,
-                    getWidth() - smallFont.stringWidth(satelliteInfoString),
+                    g, getWidth() - smallFont.stringWidth(satelliteInfoString),
                     smallFont.getHeight() * 0,
                     smallFont.stringWidth(satelliteInfoString), smallFont.getHeight(),
                     isLocationValid? 0xFFFFB0B0 : 0xFFFF0000, // pinkish (valid) / red (invalid)
@@ -230,9 +231,9 @@ public class GPSScreen
         speedString = string;
     }
 
-    public void displaySpeed() {
+    public void displaySpeed(Graphics g) {
         displayString(speedString,
-                    getWidth() - smallFont.stringWidth(speedString),
+                    g, getWidth() - smallFont.stringWidth(speedString),
                     smallFont.getHeight() * 1,
                     smallFont.stringWidth(speedString), smallFont.getHeight(),
                     isLocationValid? 0xFFFFFF00 : 0xFF808000, 0xA0000000, // yellow on 60% black
@@ -249,9 +250,9 @@ public class GPSScreen
         courseString = string;
     }
 
-    public void displayCourse() {
+    public void displayCourse(Graphics g) {
         displayString(courseString,
-                    getWidth() - smallFont.stringWidth(courseString),
+                    g, getWidth() - smallFont.stringWidth(courseString),
                     smallFont.getHeight() * 2,
                     smallFont.stringWidth(courseString), smallFont.getHeight(),
                     isLocationValid? 0xFFFFFF00 : 0xFF808000, 0xA0000000, // yellow on 60% black
@@ -264,9 +265,9 @@ public class GPSScreen
         distanceString = string;
     }
 
-    public void displayDistance() {
+    public void displayDistance(Graphics g) {
         displayString(distanceString,
-                    getWidth() - smallFont.stringWidth(distanceString),
+                    g, getWidth() - smallFont.stringWidth(distanceString),
                     getHeight() - smallFont.getHeight() * 3,
                     smallFont.stringWidth(distanceString), smallFont.getHeight(),
                     0xFFFFFF00, 0xA0000000, // yellow on 60% black
@@ -279,9 +280,9 @@ public class GPSScreen
         tripTimeString = string;
     }
 
-    public void displayTripTime() {
+    public void displayTripTime(Graphics g) {
         displayString(tripTimeString,
-                    getWidth() - smallFont.stringWidth(tripTimeString),
+                    g, getWidth() - smallFont.stringWidth(tripTimeString),
                     getHeight() - smallFont.getHeight() * 2,
                     smallFont.stringWidth(tripTimeString), smallFont.getHeight(),
                     0xFFFFFF00, 0xA0000000, // yellow on 60% black
@@ -294,9 +295,9 @@ public class GPSScreen
         totalTimeString = string;
     }
 
-    public void displayTotalTime() {
+    public void displayTotalTime(Graphics g) {
         displayString(totalTimeString,
-                    getWidth() - smallFont.stringWidth(totalTimeString),
+                    g, getWidth() - smallFont.stringWidth(totalTimeString),
                     getHeight() - smallFont.getHeight() * 1,
                     smallFont.stringWidth(totalTimeString), smallFont.getHeight(),
                     0xFFFFFF00, 0xA0000000, // yellow on 60% black
@@ -309,7 +310,7 @@ public class GPSScreen
         messageString = string;
     }
 
-    public void displayMessage() {
+    public void displayMessage(Graphics g) {
 
         if (messageString == null) {
             return;
@@ -317,7 +318,7 @@ public class GPSScreen
         
         // make the information message centered on the screen
         displayString(messageString,
-                    (getWidth() - smallFont.stringWidth(messageString)) / 2,
+                    g, (getWidth() - smallFont.stringWidth(messageString)) / 2,
                     (getHeight() - smallFont.getHeight()) / 2,
                     smallFont.stringWidth(messageString), smallFont.getHeight(),
                     0xFFFF0000, 0xFF000000, // red on 100% opaque black
@@ -326,67 +327,80 @@ public class GPSScreen
                     false);
     }
 
-    void drawBackground(int x, int y, int width, int height,
-                        boolean mustFlushGraphics) {
+    void drawBackground(Graphics g,
+                          int clipX, int clipY, int clipWidth, int clipHeight,
+                          boolean mustFlushGraphics) {
 
         boolean isMapRendered = false;
 
         if (mapRenderer != null) {
-            isMapRendered = mapRenderer.render(g, x, y, width, height);
+            isMapRendered = mapRenderer.render(g,
+                    clipX, clipY, clipWidth, clipHeight,
+                    getWidth() / 2, getHeight() / 2); // our marker is in the center
         }
 
         if (!isMapRendered) { // no map rendering performed
             g.setColor(0x000000); // just a black background
-            g.fillRect(x, y, width, height); // just fill/clear it...
+            g.fillRect(clipX, clipY, clipWidth, clipHeight); // just fill/clear it...
         }
 
         // center the compass in the screen
         if (course != Float.NaN) {
-            drawCourseArrow(course, getWidth() / 2, getHeight() / 2, 20);
+            drawCourseArrow(course, g, getWidth() / 2, getHeight() / 2, 20);
         }
 
         if (mustFlushGraphics) {
-            flushGraphics(x, y, width, height);
+            flushGraphics(clipX, clipY, clipWidth, clipHeight);
         }
-    }
-
-    public void forceRepaint() {
-        paint(g);
     }
 
     public void paint(Graphics g) {
 
+        // check clipping region
+        ///g.getClipX();
+        ///g.getClipY();
+        ///g.getClipWidth();
+        ///g.getClipHeight();
+
 ///? if the BG was cleared before, no need to do this again (remove if necessary):
-        drawBackground(0, 0, getWidth(), getHeight(), false);
+        drawBackground(g, 0, 0, getWidth(), getHeight(), false);
 
-        displayLatitude();
-        displayLongitude();
-        displayAltitude();
+        displayLatitude(g);
+        displayLongitude(g);
+        displayAltitude(g);
 
-        displayLocalTime();
-        displayTime();
-        displayDate();
+        displayLocalTime(g);
+        displayTime(g);
+        displayDate(g);
 
-        displaySatelliteInfo();
-        displaySpeed();
-        displayCourse();
+        displaySatelliteInfo(g);
+        displaySpeed(g);
+        displayCourse(g);
 
-        displayDistance();
-        displayTripTime();
-        displayTotalTime();
+        displayDistance(g);
+        displayTripTime(g);
+        displayTotalTime(g);
 
-        displayMessage();
+        displayMessage(g);
 
 /// should flushGraphics() be avoided on Nokia 3610? (white screen flickering)
-        flushGraphics();
+///        if (isDoubleBuffered()) {
+///            flushGraphics();
+///        }
+    }
+
+    protected void sizeChanged(int newWidth, int newHeight) {
+        super.sizeChanged(newWidth, newHeight);
+        ///do something else on canvas size change???
     }
 
     public void displayString(String string,
-                         int x, int y, int width, int height,
-                         int fgColor, int bgColor,
-                         Font font,
-                         boolean mustDrawBackground,
-                         boolean mustFlushGraphics) {
+                               Graphics g,
+                               int x, int y, int width, int height,
+                               int fgColor, int bgColor,
+                               Font font,
+                               boolean mustDrawBackground,
+                               boolean mustFlushGraphics) {
 
         if (string == null) {
             return;
@@ -424,7 +438,7 @@ public class GPSScreen
         int opaqueFGColor = 0xFF000000 | fgColor; // force setting alpha to 0xFF
         int opaqueBGColor = 0xFF000000 | bgColor; // force setting alpha to 0xFF
 
-        if (isOverMapMode) { // drawing over map?
+        if (mapRenderer != null) { // drawing over map
             Image image = Image.createImage(width, height);
             Graphics g2 = image.getGraphics(); // off-screen drawing context
             g2.setColor(opaqueBGColor); // alpha channel is ignored anyway
@@ -453,7 +467,7 @@ public class GPSScreen
             image = Image.createRGBImage(dataPixels, width, height, true); // with alpha
 
             if (mustDrawBackground) {
-                drawBackground(x, y, width, height, false); // restore background under our data
+                drawBackground(g, x, y, width, height, false); // restore background under our data
             }
 
             g.drawImage(image, x, y, 0); // overlay our image with data
@@ -470,9 +484,9 @@ public class GPSScreen
         }
     }
 
-    void drawCourseArrow(double angle, int centerX, int centerY, int radius) {
+    void drawCourseArrow(double angle, Graphics g, int centerX, int centerY, int radius) {
 
-        g.setColor(0xFFFFFFFF); // white circle
+        g.setColor(0xFFFFFF00); // yellow circle
         g.drawArc(centerX - radius,
                   centerY - radius,
                   radius + radius,
@@ -487,7 +501,7 @@ public class GPSScreen
         double arrowHeadAngle2 = angleInRadians - Math.PI / 6.0; // -30 degrees
         int arrowHeadLength = radius / 2; // twice as short as the circle radius
         
-        if (isOverMapMode) {
+        if (mapRenderer != null) { // drawing over map
             // our Y axis is upside down
             int y = centerY - (int)(((double)arrowLength) * Math.sin(angleInRadians));
             int x = centerX + (int)(((double)arrowLength) * Math.cos(angleInRadians));
@@ -498,7 +512,7 @@ public class GPSScreen
             int y2 = centerY - (int)(((double)arrowHeadLength) * Math.sin(arrowHeadAngle2));
             int x2 = centerX + (int)(((double)arrowHeadLength) * Math.cos(arrowHeadAngle2));
 
-            g.setColor(0xFFFFFF00); // yellow arrow
+            g.setColor(0xFFFF0000); // red arrow
             g.drawLine(centerX, centerY, x, y);
             g.drawLine(centerX, centerY, x1, y1);
             g.drawLine(centerX, centerY, x2, y2);

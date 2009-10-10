@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd ./build/compiled
+~/wtk/bin/emulator -cp . GPSLogger

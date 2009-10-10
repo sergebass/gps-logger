@@ -22,7 +22,7 @@ public abstract class MapRenderer {
         }
     }
 
-    GeoLocation location = null;
+    private GeoLocation location = null;
 
     public void setLocation(GeoLocation location) {
         this.location = location;
@@ -32,5 +32,7 @@ public abstract class MapRenderer {
         return location;
     }
 
-    public abstract boolean render(Graphics g, int x, int y, int width, int height);
+    public abstract boolean render(Graphics g,
+            int clipX, int clipY, int clipWidth, int clipHeight,
+            int markerX, int markerY);
 }
