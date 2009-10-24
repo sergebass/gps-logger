@@ -537,7 +537,7 @@ public class GPSLogger
 
         // initialize the maps
         String mapDescriptorFileName = settings.getMapDescriptorFilePath();
-        if (mapDescriptorFileName != null) { // map specified?
+        if (mapDescriptorFileName != null && (!mapDescriptorFileName.equals(""))) { // map specified?
             try {
                 System.out.println("Parsing map descriptor file (" + mapDescriptorFileName + ")...");
                 mapConfiguration = MapConfiguration.newInstance(mapDescriptorFileName);
