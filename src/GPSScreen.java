@@ -47,10 +47,13 @@ public class GPSScreen
 
     MapRenderer mapRenderer = null;
 
+    boolean isFullScreenMode = false;
+    boolean isDataDisplayMode = true;
+
     public GPSScreen(GPSLogger midlet) {
         super(false); // do not suppress key events
         this.midlet = midlet;
-        this.setFullScreenMode(false); /// actually, let user decide between full-screen and not
+        this.setFullScreenMode(false); // initial setting, make configurable by user?
 
         // getGraphics() must only be called once per Screen
         // (since a new copy is created each time)
@@ -132,7 +135,7 @@ public class GPSScreen
         displayString(latitudeString,
                     g, 0, smallFont.getHeight() * 0,
                     smallFont.stringWidth(latitudeString), smallFont.getHeight(),
-                    isLocationValid? 0xFF00FF00 : 0xFF008000, 0xA0000000, // green on 60% black
+                    isLocationValid? 0xFFFFFF00 : 0xFF808000, 0xA0000000, // yellow on 60% black
                     smallFont,
                     false,
                     false);
@@ -146,7 +149,7 @@ public class GPSScreen
         displayString(longitudeString,
                     g, 0, smallFont.getHeight() * 1,
                     smallFont.stringWidth(longitudeString), smallFont.getHeight(),
-                    isLocationValid? 0xFF00FF00 : 0xFF008000, 0xA0000000, // green on 60% black
+                    isLocationValid? 0xFFFFFF00 : 0xFF808000, 0xA0000000, // yellow on 60% black
                     smallFont,
                     false,
                     false);
@@ -160,7 +163,7 @@ public class GPSScreen
         displayString(altitudeString,
                     g, 0, smallFont.getHeight() * 2,
                     smallFont.stringWidth(altitudeString), smallFont.getHeight(),
-                    isLocationValid? 0xFF00FF00 : 0xFF008000, 0xA0000000, // green on 60% black
+                    isLocationValid? 0xFFFFFF00 : 0xFF808000, 0xA0000000, // yellow on 60% black
                     smallFont,
                     false,
                     false);
@@ -175,7 +178,7 @@ public class GPSScreen
                                     + " "
                                     + timeZone.getID();
         displayString(localTimeString,
-                    g, 0, getHeight() - smallFont.getHeight() * 3,
+                    g, 0, getHeight() - smallFont.getHeight() * 1,
                     smallFont.stringWidth(localTimeString), smallFont.getHeight(),
                     0xFFFFFFFF, 0xA0000000, // white on 60% black
                     smallFont,
@@ -203,7 +206,7 @@ public class GPSScreen
 
     public void displayDate(Graphics g) {
         displayString(dateString,
-                    g, 0, getHeight() - smallFont.getHeight() * 1,
+                    g, 0, getHeight() - smallFont.getHeight() * 3,
                     smallFont.stringWidth(dateString), smallFont.getHeight(),
                     0xFF00FFFF, 0xA0000000, // cyan on 60% black
                     smallFont,
@@ -227,21 +230,6 @@ public class GPSScreen
                     false);
     }
 
-    public void setSpeed(String string) {
-        speedString = string;
-    }
-
-    public void displaySpeed(Graphics g) {
-        displayString(speedString,
-                    g, getWidth() - smallFont.stringWidth(speedString),
-                    smallFont.getHeight() * 1,
-                    smallFont.stringWidth(speedString), smallFont.getHeight(),
-                    isLocationValid? 0xFFFFFF00 : 0xFF808000, 0xA0000000, // yellow on 60% black
-                    smallFont,
-                    false,
-                    false);
-    }
-
     public void setCourse(float course) {
         this.course = course;
     }
@@ -253,9 +241,24 @@ public class GPSScreen
     public void displayCourse(Graphics g) {
         displayString(courseString,
                     g, getWidth() - smallFont.stringWidth(courseString),
-                    smallFont.getHeight() * 2,
+                    smallFont.getHeight() * 1,
                     smallFont.stringWidth(courseString), smallFont.getHeight(),
-                    isLocationValid? 0xFFFFFF00 : 0xFF808000, 0xA0000000, // yellow on 60% black
+                    isLocationValid? 0xFF00FF00 : 0xFF008000, 0xA0000000, // green on 60% black
+                    smallFont,
+                    false,
+                    false);
+    }
+
+    public void setSpeed(String string) {
+        speedString = string;
+    }
+
+    public void displaySpeed(Graphics g) {
+        displayString(speedString,
+                    g, getWidth() - smallFont.stringWidth(speedString),
+                    smallFont.getHeight() * 2,
+                    smallFont.stringWidth(speedString), smallFont.getHeight(),
+                    isLocationValid? 0xFF00FF00 : 0xFF008000, 0xA0000000, // green on 60% black
                     smallFont,
                     false,
                     false);
@@ -365,28 +368,25 @@ public class GPSScreen
 ///? if the BG was cleared before, no need to do this again (remove if necessary):
         drawBackground(g, 0, 0, getWidth(), getHeight(), false);
 
-        displayLatitude(g);
-        displayLongitude(g);
-        displayAltitude(g);
+        if (isDataDisplayMode) {
+            displayLatitude(g);
+            displayLongitude(g);
+            displayAltitude(g);
 
-        displayLocalTime(g);
-        displayTime(g);
-        displayDate(g);
+            displayDate(g);
+            displayTime(g);
+            displayLocalTime(g);
 
-        displaySatelliteInfo(g);
-        displaySpeed(g);
-        displayCourse(g);
+            displaySatelliteInfo(g);
+            displayCourse(g);
+            displaySpeed(g);
 
-        displayDistance(g);
-        displayTripTime(g);
-        displayTotalTime(g);
+            displayDistance(g);
+            displayTripTime(g);
+            displayTotalTime(g);
+        }
 
         displayMessage(g);
-
-/// should flushGraphics() be avoided on Nokia 3610? (white screen flickering)
-///        if (isDoubleBuffered()) {
-///            flushGraphics();
-///        }
     }
 
     protected void sizeChanged(int newWidth, int newHeight) {
@@ -402,11 +402,7 @@ public class GPSScreen
                                boolean mustDrawBackground,
                                boolean mustFlushGraphics) {
 
-        if (string == null) {
-            return;
-        }
-
-        if (!isShown() || string.equals("")) {
+        if (!isShown() || string == null || string.equals("")) {
             return; // do not waste battery energy in vain
         }
 
@@ -545,9 +541,42 @@ public class GPSScreen
         }
     }
 
+    void toggleFullScreenMode() {
+        setFullScreenMode(!isFullScreenMode);
+        isFullScreenMode = !isFullScreenMode;
+    }
+
+    void toggleDataDisplayMode() {
+        isDataDisplayMode = !isDataDisplayMode;
+        repaint();
+    }
+
     public void keyPressed(int keyCode) {
-///
-System.out.println("keyPressed(" + keyCode + ", " + getKeyName(keyCode) + ")");
-///
+
+///add the list of supported keys to a help item!
+        
+        if (getKeyCode(FIRE) == keyCode) {
+            midlet.markWaypoint();
+        } else if (getKeyCode(UP) == keyCode) {
+            ///
+        } else if (getKeyCode(DOWN) == keyCode) {
+            ///
+        } else if (getKeyCode(LEFT) == keyCode) {
+            ///
+        } else if (getKeyCode(RIGHT) == keyCode) {
+            ///
+        } else if (KEY_STAR == keyCode) {
+            /// zoom-in
+        } else if (KEY_POUND == keyCode) {
+            /// zoom-out
+        } else if (KEY_NUM0 == keyCode) {
+            /// where am I? (set cursor to GPS fix position)
+        } else if (KEY_NUM1 == keyCode) {
+            toggleFullScreenMode();
+        } else if (KEY_NUM2 == keyCode) {
+            toggleDataDisplayMode();
+        } else if (KEY_NUM3 == keyCode) {
+            /// toggle grid/scale indicator
+        }
     }
 }

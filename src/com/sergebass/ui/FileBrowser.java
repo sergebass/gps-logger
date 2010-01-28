@@ -221,7 +221,7 @@ public class FileBrowser
             e = FileSystemRegistry.listRoots();
         } else {
             try {
-                currDir = (FileConnection) Connector.open("file:///" + currDirName);
+                currDir = (FileConnection) Connector.open("file:///" + currDirName, Connector.READ);
                 e = currDir.list();
             } catch (IOException ioe) {
             }
@@ -287,9 +287,21 @@ public class FileBrowser
     /**
      * Returns selected file as a <code>FileConnection</code> object.
      * @return non null <code>FileConection</code> object
+     * @throws IOException
      */
     public FileConnection getSelectedFile() throws IOException {
         FileConnection fileConnection = (FileConnection) Connector.open(selectedURL);
+        return fileConnection;
+    }
+
+    /**
+     * Returns selected file as a <code>FileConnection</code> object.
+     * @param mode Connector.READ etc.
+     * @return non null <code>FileConection</code> object
+     * @throws IOException
+     */
+    public FileConnection getSelectedFile(int mode) throws IOException {
+        FileConnection fileConnection = (FileConnection) Connector.open(selectedURL, mode);
         return fileConnection;
     }
 
@@ -327,9 +339,9 @@ public class FileBrowser
 
     private void performSelection() {
         selectedURL = "file:///" + currDirName + currFile;
-        CommandListener commandListener = getCommandListener();
-        if (commandListener != null) {
-            commandListener.commandAction(SELECT_ITEM_COMMAND, this);
+        CommandListener aCommandListener = getCommandListener();
+        if (aCommandListener != null) {
+            aCommandListener.commandAction(SELECT_ITEM_COMMAND, this);
         }
     }
 }

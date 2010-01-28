@@ -114,10 +114,10 @@ public class GPSLogger
     private List gpsDeviceList;
     private Form startScreen;
     private StringItem gpsDeviceURLStartScreenStringItem;
+    private StringItem mapDescriptorFileStartScreenStringItem;
     private StringItem gpsDeviceNameStartScreenStringItem;
     private StringItem freeSpaceStartScreenStringItem;
     private StringItem logPathStartScreenStringItem;
-    private StringItem mapDescriptorFileStartScreenStringItem;
     private Form settingsScreen;
     private Spacer spacer1;
     private StringItem browseLogFolderStringItem;
@@ -2274,7 +2274,7 @@ public class GPSLogger
         getDisplay().setCurrent(errorAlert, displayable);
     }
     
-    void markWaypoint() {
+    public void markWaypoint() {
         registerCurrentWaypoint(); // save the location immediately!
         switchDisplayable(null, getWaypointScreen()); // let the user edit it
     }

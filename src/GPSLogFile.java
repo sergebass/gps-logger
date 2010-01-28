@@ -22,7 +22,9 @@ public class GPSLogFile {
         this.logFilePath = logFilePath;
         System.out.println("Opening a connection to " + logFilePath);
 
-        gpsLogFileConnection = (FileConnection)Connector.open(logFilePath);
+///!!! HOW CAN I MAKE IT WORK WITH JUST Connector.WRITE!:
+
+        gpsLogFileConnection = (FileConnection)Connector.open(logFilePath, Connector.READ_WRITE);
 
         if (!gpsLogFileConnection.exists()) {
             System.out.print("This is a new file. Creating...");
@@ -33,6 +35,10 @@ public class GPSLogFile {
 
     public String getPath() {
         return logFilePath;
+    }
+
+    public FileConnection getFileConnection() {
+        return gpsLogFileConnection;
     }
 
     public OutputStream getOutputStream()

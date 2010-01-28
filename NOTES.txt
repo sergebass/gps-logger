@@ -48,3 +48,6 @@ Real-time E-mail/Bluetooth/IM(XMPP) tracking (send selected data, like BOTH coor
 Log data:
 1. RMS
 2. Filesystem (JSR-)
+
+
+///GPS alarm
