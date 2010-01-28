@@ -67,9 +67,9 @@ public class FileBrowser
     public static final Command OPEN_ITEM_COMMAND = new Command("Open", Command.OK, 1);
     public static final Command SELECT_ITEM_COMMAND = new Command("Select", Command.OK, 2);
 
-    private String currDirName;
-    private String currFile;
-    private Image dirIcon;
+    private String currentDirectoryName = MEGA_ROOT;
+    private String currentFileName;
+    private Image directoryIcon;
     private Image fileIcon;
     private Image[] iconList;
     private CommandListener commandListener;
@@ -86,10 +86,10 @@ public class FileBrowser
     private static final String MEGA_ROOT = "/";
 
     /* separator string as defined by FC specification */
-    private static final String SEP_STR = "/";
+    private static final String SEPARATOR_STRING = "/";
 
     /* separator character as defined by FC specification */
-    private static final char SEP = '/';
+    private static final char SEPARATOR_CHARACTER = '/';
 
     private Display display;
 
@@ -104,20 +104,21 @@ public class FileBrowser
      * @param display non null display object.
      */
     public FileBrowser(Display display) {
-        this(display, true, true);
+        this(display, null, true, true);
     }
     /**
      * Creates a new instance of FileBrowser for given <code>Display</code> object.
      * @param display non null display object.
+     * @param initialURL 
      * @param areFoldersSelectable
      * @param areFilesSelectable
      */
     public FileBrowser(Display display,
+                       String initialURL,
                        boolean areFoldersSelectable,
                        boolean areFilesSelectable) {
         super("", IMPLICIT);
-        currDirName = MEGA_ROOT;
-
+        
         this.display = display;
         this.areFilesSelectable = areFilesSelectable;
         this.areFoldersSelectable = areFoldersSelectable;
@@ -127,26 +128,41 @@ public class FileBrowser
         setSelectCommand(OPEN_ITEM_COMMAND);
 
         try {
-            dirIcon = Image.createImage("/images/dir.png");
+            directoryIcon = Image.createImage("/images/dir.png");
         } catch (IOException e) {
-            dirIcon = null;
+            directoryIcon = null;
         }
         try {
             fileIcon = Image.createImage("/images/file.png");
         } catch (IOException e) {
             fileIcon = null;
         }
-        iconList = new Image[]{fileIcon, dirIcon};
+        iconList = new Image[]{fileIcon, directoryIcon};
 
-        showDir();
+        setCurrentURL(initialURL);
     }
 
-    private void showDir() {
-        new Thread(new Runnable() {
+    public void setCurrentURL(String newCurrentURL) {
+        if (newCurrentURL == null) {
+            currentDirectoryName = MEGA_ROOT;
+        } else { // something was specified
+            if (newCurrentURL.startsWith("file:///")) {
+                // strip the initial URL of the "file:///" prefix
+                int lastDirectorySeparatorIndex = newCurrentURL.lastIndexOf(SEPARATOR_CHARACTER);
+                currentDirectoryName = newCurrentURL.substring(8, lastDirectorySeparatorIndex + 1);
+                
+/// where should we handle errors from incorrect initial URLs?
+System.out.println("Setting default to " + currentDirectoryName);
+            }
+        }
+        showDirectory();
+    }
 
+    private void showDirectory() {
+        new Thread(new Runnable() {
             public void run() {
                 try {
-                    showCurrDir();
+                    showCurrentDirectory();
                 } catch (SecurityException e) {
                     Alert alert = new Alert("Error", "You are not authorized to access the restricted API", null, AlertType.ERROR);
                     alert.setTimeout(2000);
@@ -160,39 +176,35 @@ public class FileBrowser
 
     /**
      * Indicates that a command event has occurred on Displayable d.
-     * @param c a <code>Command</code> object identifying the command. This is either
+     * @param command a <code>Command</code> object identifying the command. This is either
      * one of the applications have been added to <code>Displayable</code> with <code>addCommand(Command)</code>
      * or is the implicit <code>SELECT_COMMAND</code> of List.
-     * @param d the <code>Displayable</code> on which this event has occurred
+     * @param screen the <code>Displayable</code> on which this event has occurred
      */
-    public void commandAction(final Command c, Displayable d) {
-        if (c.equals(SELECT_ITEM_COMMAND) || c.equals(OPEN_ITEM_COMMAND)) {
-            List curr = (List) d;
-            currFile = curr.getString(curr.getSelectedIndex());
+    public void commandAction(final Command command, Displayable screen) {
+        if (command.equals(SELECT_ITEM_COMMAND) || command.equals(OPEN_ITEM_COMMAND)) {
+            List list = (List) screen;
+            currentFileName = list.getString(list.getSelectedIndex());
             new Thread(new Runnable() {
-
                 public void run() {
-
-                    if (c.equals(OPEN_ITEM_COMMAND)) {
-                        if ((currFile.endsWith(SEP_STR) || currFile.equals(UP_DIRECTORY))) {
-                            openDir(currFile);
-                        }
-                    } else if (c.equals(SELECT_ITEM_COMMAND)) {
-                        // is this a folder?
-                        if ((currFile.endsWith(SEP_STR) || currFile.equals(UP_DIRECTORY))) {
+                    // is this a directory?
+                    if ((currentFileName.endsWith(SEPARATOR_STRING) || currentFileName.equals(UP_DIRECTORY))) {
+                        if (command.equals(OPEN_ITEM_COMMAND)) {
+                            openDirectory(currentFileName);
+                        } else if (command.equals(SELECT_ITEM_COMMAND)) {
                             if (areFoldersSelectable) {
                                 performSelection();
                             }
-                        } else { // this is a simple file
-                            if (areFilesSelectable) {
-                                performSelection();
-                            }
+                        }
+                    } else { // just a file, clicking on files always selects them (open/select is the same)
+                        if (areFilesSelectable) {
+                            performSelection();
                         }
                     }
                 }
             }).start();
         } else {
-            commandListener.commandAction(c, d);
+            commandListener.commandAction(command, screen);
         }
     }
 
@@ -208,40 +220,44 @@ public class FileBrowser
     /**
      * Show file list in the current directory .
      */
-    private void showCurrDir() {
+    private void showCurrentDirectory() {
         if (title == null) {
-            super.setTitle(currDirName);
+            super.setTitle(currentDirectoryName);
         }
-        Enumeration e = null;
-        FileConnection currDir = null;
+        Enumeration fsRootsEnumeration = null;
+        FileConnection currentDirectory = null;
 
+///
+System.out.println("currentDirectoryName=" + currentDirectoryName);
+        
         deleteAll();
-        if (MEGA_ROOT.equals(currDirName)) {
-            append(UP_DIRECTORY, dirIcon);
-            e = FileSystemRegistry.listRoots();
+        if (MEGA_ROOT.equals(currentDirectoryName)) {
+            append(UP_DIRECTORY, directoryIcon);
+            fsRootsEnumeration = FileSystemRegistry.listRoots();
         } else {
             try {
-                currDir = (FileConnection) Connector.open("file:///" + currDirName, Connector.READ);
-                e = currDir.list();
+                currentDirectory = (FileConnection) Connector.open
+                        ("file:///" + currentDirectoryName, Connector.READ);
+                fsRootsEnumeration = currentDirectory.list();
             } catch (IOException ioe) {
             }
-            append(UP_DIRECTORY, dirIcon);
+            append(UP_DIRECTORY, directoryIcon);
         }
 
-        if (e == null) {
+        if (fsRootsEnumeration == null) {
             try {
-                currDir.close();
+                currentDirectory.close();
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
             return;
         }
 
-        while (e.hasMoreElements()) {
-            String fileName = (String) e.nextElement();
-            if (fileName.charAt(fileName.length() - 1) == SEP) {
+        while (fsRootsEnumeration.hasMoreElements()) {
+            String fileName = (String) fsRootsEnumeration.nextElement();
+            if (fileName.charAt(fileName.length() - 1) == SEPARATOR_CHARACTER) {
                 // This is directory
-                append(fileName, dirIcon);
+                append(fileName, directoryIcon);
             } else {
                 // this is regular file
                 if (filter == null || fileName.indexOf(filter) > -1) {
@@ -250,38 +266,38 @@ public class FileBrowser
             }
         }
 
-        if (currDir != null) {
+        if (currentDirectory != null) {
             try {
-                currDir.close();
+                currentDirectory.close();
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
         }
     }
 
-    private void openDir(String fileName) {
+    private void openDirectory(String fileName) {
         /* In case of directory just change the current directory
          * and show it
          */
-        if (currDirName.equals(MEGA_ROOT)) {
+        if (currentDirectoryName.equals(MEGA_ROOT)) {
             if (fileName.equals(UP_DIRECTORY)) {
                 // can not go up from MEGA_ROOT
                 return;
             }
-            currDirName = fileName;
+            currentDirectoryName = fileName;
         } else if (fileName.equals(UP_DIRECTORY)) {
             // Go up one directory
             // TODO use setFileConnection when implemented
-            int i = currDirName.lastIndexOf(SEP, currDirName.length() - 2);
+            int i = currentDirectoryName.lastIndexOf(SEPARATOR_CHARACTER, currentDirectoryName.length() - 2);
             if (i != -1) {
-                currDirName = currDirName.substring(0, i + 1);
+                currentDirectoryName = currentDirectoryName.substring(0, i + 1);
             } else {
-                currDirName = MEGA_ROOT;
+                currentDirectoryName = MEGA_ROOT;
             }
         } else {
-            currDirName = currDirName + fileName;
+            currentDirectoryName = currentDirectoryName + fileName;
         }
-        showDir();
+        showDirectory();
     }
 
     /**
@@ -338,7 +354,7 @@ public class FileBrowser
     }
 
     private void performSelection() {
-        selectedURL = "file:///" + currDirName + currFile;
+        selectedURL = "file:///" + currentDirectoryName + currentFileName;
         CommandListener aCommandListener = getCommandListener();
         if (aCommandListener != null) {
             aCommandListener.commandAction(SELECT_ITEM_COMMAND, this);

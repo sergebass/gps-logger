@@ -63,8 +63,9 @@ public class GPSLogger
     
     Vector waypoints = null;
 
-    FileBrowser fileBrowser;
-        
+    FileBrowser logFolderBrowser = null;
+    FileBrowser mapDescriptorFileBrowser = null;
+
     Player errorPlayer = null;
 
     GPSScreen mainScreen = null;
@@ -98,7 +99,7 @@ public class GPSLogger
     private Command helpCommand;
     private Command backCommand;
     private Command saveSettingsCommand;
-    private Command browseCommand;
+    private Command browseLogFolderCommand;
     private Command markWaypointCommand;
     private Command cancelCommand;
     private Command sendEmailCommand;
@@ -228,6 +229,10 @@ public class GPSLogger
     }//GEN-BEGIN:|5-switchDisplayable|2|
     //</editor-fold>//GEN-END:|5-switchDisplayable|2|
 
+    public static GPSLogger getMidlet() {
+        return midlet;
+    }
+
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: commandAction for Displayables ">//GEN-BEGIN:|7-commandAction|0|7-preCommandAction
     /**
      * Called by a system to indicated that a command has been invoked on a particular displayable.
@@ -348,13 +353,7 @@ public class GPSLogger
                 }.start();
             }//GEN-BEGIN:|7-commandAction|39|7-postCommandAction
         }//GEN-END:|7-commandAction|39|7-postCommandAction
-        else if (displayable == fileBrowser) {
-            if (command == FileBrowser.SELECT_ITEM_COMMAND) {
-                setLogFolder ();
-            } else if (command == backCommand) {
-                getDisplay().setCurrent(getSettingsScreen()); // without history
-            }
-        } else { // all other displayables
+        else { // all other displayables
             if (command.getCommandType() == Command.EXIT) {
                 new Thread() {
                     public void run() {
@@ -702,9 +701,9 @@ public class GPSLogger
         if (logFolderTextField == null) {//GEN-END:|160-getter|0|160-preInit
             // write pre-init user code here
             logFolderTextField = new TextField(GPSLoggerLocalization.getMessage("LogFolder"), "", 4096, TextField.ANY);//GEN-BEGIN:|160-getter|1|160-postInit
-            logFolderTextField.addCommand(getBrowseCommand());
+            logFolderTextField.addCommand(getBrowseLogFolderCommand());
             logFolderTextField.setItemCommandListener(this);
-            logFolderTextField.setDefaultCommand(getBrowseCommand());//GEN-END:|160-getter|1|160-postInit
+            logFolderTextField.setDefaultCommand(getBrowseLogFolderCommand());//GEN-END:|160-getter|1|160-postInit
             // write post-init user code here
         }//GEN-BEGIN:|160-getter|2|
         return logFolderTextField;
@@ -737,7 +736,7 @@ public class GPSLogger
     public void commandAction(Command command, Item item) {//GEN-END:|17-itemCommandAction|0|17-preItemCommandAction
 
         if (item == browseLogFolderStringItem) {//GEN-BEGIN:|17-itemCommandAction|1|272-preAction
-            if (command == browseCommand) {//GEN-END:|17-itemCommandAction|1|272-preAction
+            if (command == browseLogFolderCommand) {//GEN-END:|17-itemCommandAction|1|272-preAction
 
                 browseLogFolder();//GEN-LINE:|17-itemCommandAction|2|272-postAction
 
@@ -745,7 +744,7 @@ public class GPSLogger
         } else if (item == browseMapDescriptorFileStringItem) {
             if (command == browseMapDescriptorFileCommand) {//GEN-END:|17-itemCommandAction|3|363-preAction
                 // write pre-action user code here
-//GEN-LINE:|17-itemCommandAction|4|363-postAction
+                browseMapDescriptorFile();//GEN-LINE:|17-itemCommandAction|4|363-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|17-itemCommandAction|5|210-preAction
         } else if (item == emailItem) {
@@ -761,14 +760,14 @@ public class GPSLogger
 
             }//GEN-BEGIN:|17-itemCommandAction|9|181-preAction
         } else if (item == logFolderTextField) {
-            if (command == browseCommand) {//GEN-END:|17-itemCommandAction|9|181-preAction
+            if (command == browseLogFolderCommand) {//GEN-END:|17-itemCommandAction|9|181-preAction
                 browseLogFolder();//GEN-LINE:|17-itemCommandAction|10|181-postAction
 
             }//GEN-BEGIN:|17-itemCommandAction|11|367-preAction
         } else if (item == mapDescriptorFileTextField) {
             if (command == browseMapDescriptorFileCommand) {//GEN-END:|17-itemCommandAction|11|367-preAction
                 // write pre-action user code here
-//GEN-LINE:|17-itemCommandAction|12|367-postAction
+                browseMapDescriptorFile();//GEN-LINE:|17-itemCommandAction|12|367-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|17-itemCommandAction|13|269-preAction
         } else if (item == searchGPSStringItem) {
@@ -802,32 +801,34 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|163-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: browseCommand ">//GEN-BEGIN:|178-getter|0|178-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: browseLogFolderCommand ">//GEN-BEGIN:|178-getter|0|178-preInit
     /**
-     * Returns an initiliazed instance of browseCommand component.
+     * Returns an initiliazed instance of browseLogFolderCommand component.
      * @return the initialized component instance
      */
-    public Command getBrowseCommand() {
-        if (browseCommand == null) {//GEN-END:|178-getter|0|178-preInit
+    public Command getBrowseLogFolderCommand() {
+        if (browseLogFolderCommand == null) {//GEN-END:|178-getter|0|178-preInit
             // write pre-init user code here
-            browseCommand = new Command(GPSLoggerLocalization.getMessage("browseCommand"), Command.OK, 0);//GEN-LINE:|178-getter|1|178-postInit
+            browseLogFolderCommand = new Command(GPSLoggerLocalization.getMessage("browseCommand"), Command.OK, 0);//GEN-LINE:|178-getter|1|178-postInit
             // write post-init user code here
         }//GEN-BEGIN:|178-getter|2|
-        return browseCommand;
+        return browseLogFolderCommand;
     }
     //</editor-fold>//GEN-END:|178-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Method: setLogFolder ">//GEN-BEGIN:|183-entry|0|184-preAction
-    /**
-     * Performs an action assigned to the setLogFolder entry-point.
-     */
-    public void setLogFolder() {//GEN-END:|183-entry|0|184-preAction
-        logFolderTextField.setString(fileBrowser.getSelectedFileURL());
+    void pasteLogFolderToTextField() {
+        logFolderTextField.setString(logFolderBrowser.getSelectedFileURL());
         getDisplay().setCurrent(getSettingsScreen()); // without history
-//GEN-LINE:|183-entry|1|184-postAction
-        // write post-action user code here
-    }//GEN-BEGIN:|183-entry|2|
-    //</editor-fold>//GEN-END:|183-entry|2|
+    }
+
+    void pasteMapDescriptorFileToTextField() {
+        mapDescriptorFileTextField.setString(mapDescriptorFileBrowser.getSelectedFileURL());
+        getDisplay().setCurrent(getSettingsScreen()); // without history
+    }
+
+    void goToSettingsScreen() {
+        getDisplay().setCurrent(getSettingsScreen()); // without history
+    }
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: saveSettings ">//GEN-BEGIN:|188-entry|0|189-preAction
     /**
@@ -1204,9 +1205,9 @@ public class GPSLogger
         if (browseLogFolderStringItem == null) {//GEN-END:|270-getter|0|270-preInit
         // write pre-init user code here
             browseLogFolderStringItem = new StringItem(GPSLoggerLocalization.getMessage("BrowseFolder"), "", Item.BUTTON);//GEN-BEGIN:|270-getter|1|270-postInit
-            browseLogFolderStringItem.addCommand(getBrowseCommand());
+            browseLogFolderStringItem.addCommand(getBrowseLogFolderCommand());
             browseLogFolderStringItem.setItemCommandListener(this);
-            browseLogFolderStringItem.setDefaultCommand(getBrowseCommand());//GEN-END:|270-getter|1|270-postInit
+            browseLogFolderStringItem.setDefaultCommand(getBrowseLogFolderCommand());//GEN-END:|270-getter|1|270-postInit
         // write post-init user code here
         }//GEN-BEGIN:|270-getter|2|
         return browseLogFolderStringItem;
@@ -1248,8 +1249,7 @@ public class GPSLogger
      * Performs an action assigned to the browseLogFolder entry-point.
      */
     public void browseLogFolder() {//GEN-END:|275-entry|0|276-preAction
-
-        getDisplay().setCurrent(getFileBrowser()); // without history
+        getDisplay().setCurrent(getLogFolderBrowser()); // without history
 //GEN-LINE:|275-entry|1|276-postAction
     }//GEN-BEGIN:|275-entry|2|
     //</editor-fold>//GEN-END:|275-entry|2|
@@ -1815,7 +1815,7 @@ public class GPSLogger
     public TextField getMapDescriptorFileTextField() {
         if (mapDescriptorFileTextField == null) {//GEN-END:|352-getter|0|352-preInit
             // write pre-init user code here
-            mapDescriptorFileTextField = new TextField("Map descriptor file", "", 4096, TextField.ANY);//GEN-BEGIN:|352-getter|1|352-postInit
+            mapDescriptorFileTextField = new TextField(GPSLoggerLocalization.getMessage("MapDescriptorFile"), "", 4096, TextField.ANY);//GEN-BEGIN:|352-getter|1|352-postInit
             mapDescriptorFileTextField.addCommand(getBrowseMapDescriptorFileCommand());
             mapDescriptorFileTextField.setItemCommandListener(this);
             mapDescriptorFileTextField.setDefaultCommand(getBrowseMapDescriptorFileCommand());//GEN-END:|352-getter|1|352-postInit
@@ -1851,7 +1851,7 @@ public class GPSLogger
     public StringItem getBrowseMapDescriptorFileStringItem() {
         if (browseMapDescriptorFileStringItem == null) {//GEN-END:|361-getter|0|361-preInit
             // write pre-init user code here
-            browseMapDescriptorFileStringItem = new StringItem("///browse map descriptor file...", "", Item.BUTTON);//GEN-BEGIN:|361-getter|1|361-postInit
+            browseMapDescriptorFileStringItem = new StringItem(GPSLoggerLocalization.getMessage("BrowseMapDescriptorFile"), "", Item.BUTTON);//GEN-BEGIN:|361-getter|1|361-postInit
             browseMapDescriptorFileStringItem.addCommand(getBrowseMapDescriptorFileCommand());
             browseMapDescriptorFileStringItem.setItemCommandListener(this);
             browseMapDescriptorFileStringItem.setDefaultCommand(getBrowseMapDescriptorFileCommand());
@@ -1926,17 +1926,62 @@ public class GPSLogger
     }
     //</editor-fold>//GEN-END:|366-getter|2|
 
-    public FileBrowser getFileBrowser() {
-        if (fileBrowser == null) {
-            fileBrowser = new FileBrowser(getDisplay(), true, false); // folders only
-            fileBrowser.setTitle("Select log folder");
-            fileBrowser.setCommandListener (this);
-            fileBrowser.addCommand(FileBrowser.SELECT_ITEM_COMMAND);
-            fileBrowser.addCommand(getBackCommand ());  
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: browseMapDescriptorFile ">//GEN-BEGIN:|368-entry|0|369-preAction
+    /**
+     * Performs an action assigned to the browseMapDescriptorFile entry-point.
+     */
+    public void browseMapDescriptorFile() {//GEN-END:|368-entry|0|369-preAction
+        getDisplay().setCurrent(getMapDescriptorFileBrowser()); // without history
+//GEN-LINE:|368-entry|1|369-postAction
+    }//GEN-BEGIN:|368-entry|2|
+    //</editor-fold>//GEN-END:|368-entry|2|
+
+    public FileBrowser getMapDescriptorFileBrowser() {
+        if (mapDescriptorFileBrowser == null) {
+            mapDescriptorFileBrowser = new FileBrowser(getDisplay(),
+                                        null,
+                                        false, true); // files only
+            mapDescriptorFileBrowser.setTitle("Select map descriptor");
+            mapDescriptorFileBrowser.setCommandListener(new CommandListener() {
+                public void commandAction(Command command, Displayable d) {
+                    if (command == FileBrowser.SELECT_ITEM_COMMAND) {
+                        pasteMapDescriptorFileToTextField();
+                    } else if (command == backCommand) {
+                        goToSettingsScreen(); // without history
+                    }
+                }
+            });
+            mapDescriptorFileBrowser.addCommand(FileBrowser.SELECT_ITEM_COMMAND);
+            mapDescriptorFileBrowser.addCommand(getBackCommand ());
         }
-        return fileBrowser;
+        // this should be done here because current path may have changed since the object creation
+        mapDescriptorFileBrowser.setCurrentURL(mapDescriptorFileTextField.getString());
+        return mapDescriptorFileBrowser;
     }
-    
+
+    public FileBrowser getLogFolderBrowser() {
+        if (logFolderBrowser == null) {
+            logFolderBrowser = new FileBrowser(getDisplay(),
+                                    null,
+                                    true, false); // folders only
+            logFolderBrowser.setTitle("Select log folder");
+            logFolderBrowser.setCommandListener (new CommandListener() {
+                public void commandAction(Command command, Displayable d) {
+                    if (command == FileBrowser.SELECT_ITEM_COMMAND) {
+                        pasteLogFolderToTextField();
+                    } else if (command == backCommand) {
+                        goToSettingsScreen(); // without history
+                    }
+                }
+            });
+            logFolderBrowser.addCommand(FileBrowser.SELECT_ITEM_COMMAND);
+            logFolderBrowser.addCommand(getBackCommand ());
+        }
+        // this should be done here because current path may have changed since the object creation
+        logFolderBrowser.setCurrentURL(logFolderTextField.getString());
+        return logFolderBrowser;
+    }
+
     /**
      * The GPSLogger constructor.
      */

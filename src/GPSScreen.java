@@ -135,7 +135,7 @@ public class GPSScreen
         displayString(latitudeString,
                     g, 0, smallFont.getHeight() * 0,
                     smallFont.stringWidth(latitudeString), smallFont.getHeight(),
-                    isLocationValid? 0xFFFFFF00 : 0xFF808000, 0xA0000000, // yellow on 60% black
+                    isLocationValid? 0xFFFFFF00 : 0xFFC0C000, 0xA0000000, // yellow on 60% black
                     smallFont,
                     false,
                     false);
@@ -149,7 +149,7 @@ public class GPSScreen
         displayString(longitudeString,
                     g, 0, smallFont.getHeight() * 1,
                     smallFont.stringWidth(longitudeString), smallFont.getHeight(),
-                    isLocationValid? 0xFFFFFF00 : 0xFF808000, 0xA0000000, // yellow on 60% black
+                    isLocationValid? 0xFFFFFF00 : 0xFFC0C000, 0xA0000000, // yellow on 60% black
                     smallFont,
                     false,
                     false);
@@ -163,7 +163,7 @@ public class GPSScreen
         displayString(altitudeString,
                     g, 0, smallFont.getHeight() * 2,
                     smallFont.stringWidth(altitudeString), smallFont.getHeight(),
-                    isLocationValid? 0xFFFFFF00 : 0xFF808000, 0xA0000000, // yellow on 60% black
+                    isLocationValid? 0xFFFFFF00 : 0xFFC0C000, 0xA0000000, // yellow on 60% black
                     smallFont,
                     false,
                     false);
@@ -243,7 +243,7 @@ public class GPSScreen
                     g, getWidth() - smallFont.stringWidth(courseString),
                     smallFont.getHeight() * 1,
                     smallFont.stringWidth(courseString), smallFont.getHeight(),
-                    isLocationValid? 0xFF00FF00 : 0xFF008000, 0xA0000000, // green on 60% black
+                    isLocationValid? 0xFF00FF00 : 0xFF00C000, 0xA0000000, // green on 60% black
                     smallFont,
                     false,
                     false);
@@ -258,7 +258,7 @@ public class GPSScreen
                     g, getWidth() - smallFont.stringWidth(speedString),
                     smallFont.getHeight() * 2,
                     smallFont.stringWidth(speedString), smallFont.getHeight(),
-                    isLocationValid? 0xFF00FF00 : 0xFF008000, 0xA0000000, // green on 60% black
+                    isLocationValid? 0xFF00FF00 : 0xFF00C000, 0xA0000000, // green on 60% black
                     smallFont,
                     false,
                     false);
@@ -324,7 +324,7 @@ public class GPSScreen
                     g, (getWidth() - smallFont.stringWidth(messageString)) / 2,
                     (getHeight() - smallFont.getHeight()) / 2,
                     smallFont.stringWidth(messageString), smallFont.getHeight(),
-                    0xFFFF0000, 0xFF000000, // red on 100% opaque black
+                    0xFFFF0000, 0xC0000000, // red on 90% opaque black
                     smallFont,
                     false,
                     false);
@@ -383,8 +383,10 @@ public class GPSScreen
 
             displayDistance(g);
             displayTripTime(g);
-            displayTotalTime(g);
         }
+
+        // let's display total time anyway, to keep indication of progress for the user
+        displayTotalTime(g);
 
         displayMessage(g);
     }

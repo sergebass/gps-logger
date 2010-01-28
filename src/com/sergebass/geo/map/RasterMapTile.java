@@ -28,11 +28,11 @@ public class RasterMapTile
     Image image = null;
 
     public RasterMapTile(String mapDescriptorFilePath,
-                           String fileName,
-                           double minLatitude,
-                           double maxLatitude,
-                           double minLongitude,
-                           double maxLongitude) {
+                         String fileName,
+                         double minLatitude,
+                         double maxLatitude,
+                         double minLongitude,
+                         double maxLongitude) {
         this.mapDescriptorFilePath = mapDescriptorFilePath;
         this.fileName = fileName;
         this.minLatitude = minLatitude;

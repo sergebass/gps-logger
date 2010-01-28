@@ -67,11 +67,6 @@
                     <Property name="start" typeID="C#EntryPointStartEventSource" value="R189"/>
                     <Component componentID="189" typeID="C#EntryPointStartEventSource"/>
                 </Component>
-                <Component componentID="183" typeID="C#EntryPoint">
-                    <Property name="methodName" typeID="Pjava.lang.String" value="VsetLogFolder"/>
-                    <Property name="start" typeID="C#EntryPointStartEventSource" value="R184"/>
-                    <Component componentID="184" typeID="C#EntryPointStartEventSource"/>
-                </Component>
                 <Component componentID="197" typeID="C#EntryPoint">
                     <Property name="methodName" typeID="Pjava.lang.String" value="VsaveWaypoint"/>
                     <Property name="start" typeID="C#EntryPointStartEventSource" value="R198"/>
@@ -81,6 +76,11 @@
                     <Property name="methodName" typeID="Pjava.lang.String" value="VsendEmail"/>
                     <Property name="start" typeID="C#EntryPointStartEventSource" value="R212"/>
                     <Component componentID="212" typeID="C#EntryPointStartEventSource"/>
+                </Component>
+                <Component componentID="368" typeID="C#EntryPoint">
+                    <Property name="methodName" typeID="Pjava.lang.String" value="VbrowseMapDescriptorFile"/>
+                    <Property name="start" typeID="C#EntryPointStartEventSource" value="R369"/>
+                    <Component componentID="369" typeID="C#EntryPointStartEventSource"/>
                 </Component>
             </Component>
             <Component componentID="6" typeID="C#ControllersCategory">
@@ -240,7 +240,7 @@
                     <Property name="priority" typeID="Pint" value="V0"/>
                 </Component>
                 <Component componentID="178" typeID="Cjavax.microedition.lcdui.Command">
-                    <Property name="instanceName" typeID="Pjava.lang.String" value="VbrowseCommand"/>
+                    <Property name="instanceName" typeID="Pjava.lang.String" value="VbrowseLogFolderCommand"/>
                     <Property name="codeGenerated" typeID="Pboolean" value="Vtrue"/>
                     <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;browseCommand&quot;)"/>
                     <Property name="type" typeID="Pint" value="V4"/>
@@ -646,7 +646,7 @@
                     <Component componentID="352" typeID="Cjavax.microedition.lcdui.TextField">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="VmapDescriptorFileTextField"/>
                         <Property name="codeGenerated" typeID="Pboolean" value="Vtrue"/>
-                        <Property name="label" typeID="Pjava.lang.String" value="VMap descriptor file"/>
+                        <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;MapDescriptorFile&quot;)"/>
                         <Property name="commands" typeID="1C#ItemCommandEventSource" value="A1:4_R367"/>
                         <Property name="defaultCommand" typeID="C#ItemCommandEventSource" value="R367"/>
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
@@ -654,8 +654,13 @@
                         <Property name="maxSize" typeID="Pint" value="V4096"/>
                         <Property name="constraints" typeID="Pint" value="V0"/>
                         <Component componentID="367" typeID="C#ItemCommandEventSource">
+                            <Property name="eventHandler" typeID="C#EventHandler" value="R370"/>
                             <Property name="item" typeID="Cjavax.microedition.lcdui.Item" value="R352"/>
                             <Property name="command" typeID="Cjavax.microedition.lcdui.Command" value="R362"/>
+                            <Component componentID="370" typeID="C#MethodPointEventHandler">
+                                <Property name="eventSource" typeID="C#EventSource" value="R367"/>
+                                <Property name="methodPoint" typeID="C#MethodPoint" value="R368"/>
+                            </Component>
                         </Component>
                     </Component>
                     <Component componentID="353" typeID="Cjavax.microedition.lcdui.Spacer">
@@ -674,7 +679,7 @@
                     <Component componentID="361" typeID="Cjavax.microedition.lcdui.StringItem">
                         <Property name="instanceName" typeID="Pjava.lang.String" value="VbrowseMapDescriptorFileStringItem"/>
                         <Property name="codeGenerated" typeID="Pboolean" value="Vtrue"/>
-                        <Property name="label" typeID="Pjava.lang.String" value="V///browse map descriptor file..."/>
+                        <Property name="label" typeID="Pjava.lang.String" value="UGPSLoggerLocalization.getMessage(&quot;BrowseMapDescriptorFile&quot;)"/>
                         <Property name="commands" typeID="1C#ItemCommandEventSource" value="A1:4_R363"/>
                         <Property name="defaultCommand" typeID="C#ItemCommandEventSource" value="R363"/>
                         <Property name="itemCommandListener" typeID="C#ItemCommandListener" value="R17"/>
@@ -682,8 +687,13 @@
                         <Property name="font" typeID="Cjavax.microedition.lcdui.Font" value="R260"/>
                         <Property name="appearanceMode" typeID="Pint" value="V2"/>
                         <Component componentID="363" typeID="C#ItemCommandEventSource">
+                            <Property name="eventHandler" typeID="C#EventHandler" value="R371"/>
                             <Property name="item" typeID="Cjavax.microedition.lcdui.Item" value="R361"/>
                             <Property name="command" typeID="Cjavax.microedition.lcdui.Command" value="R362"/>
+                            <Component componentID="371" typeID="C#MethodPointEventHandler">
+                                <Property name="eventSource" typeID="C#EventSource" value="R363"/>
+                                <Property name="methodPoint" typeID="C#MethodPoint" value="R368"/>
+                            </Component>
                         </Component>
                     </Component>
                     <Component componentID="157" typeID="Cjavax.microedition.lcdui.ChoiceGroup">
@@ -918,10 +928,10 @@
         <Node componentID="275" descriptorID="componentNode275" x="54" y="496"/>
         <Node componentID="141" descriptorID="componentNode141" x="333" y="301"/>
         <Node componentID="147" descriptorID="componentNode147" x="955" y="712"/>
-        <Node componentID="183" descriptorID="componentNode183" x="34" y="712"/>
         <Node componentID="319" descriptorID="componentNode319" x="834" y="61"/>
         <Node componentID="108" descriptorID="componentNode108" x="34" y="32"/>
         <Node componentID="82" descriptorID="componentNode82" x="504" y="14"/>
+        <Node componentID="368" descriptorID="componentNode368" x="40" y="632"/>
         <Node componentID="316" descriptorID="componentNode316" x="785" y="208"/>
         <Node componentID="338" descriptorID="componentNode338" x="1096" y="87"/>
         <Node componentID="256" descriptorID="componentNode256" x="1159" y="648"/>
