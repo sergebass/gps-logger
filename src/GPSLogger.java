@@ -552,7 +552,30 @@ public class GPSLogger
      */
     public Form getSettingsScreen() {
         if (settingsScreen == null) {
-            settingsScreen = new Form(GPSLoggerLocalization.getMessage("Settings"), new Item[] { getGpsDeviceNameStringItem(), getGpsDeviceURLTextField(), getSearchGPSStringItem(), getSpacer1(), getLogFolderTextField(), getBrowseLogFolderStringItem(), getSpacer(), getLogFileNamePrefixTextField(), getLogUpdateFrequencyTextField(), getLogFormatChoiceGroup(), getLogSettingsChoiceGroup(), getSpacer3(), getMapDescriptorFileTextField(), getBrowseMapDescriptorFileStringItem(), getCoordinatesModeChoiceGroup(), getAltitudeUnitsChoiceGroup(), getSpeedUnitsChoiceGroup(), getLanguageChoiceGroup(), getDefaultSmsPhoneNumber() });
+            settingsScreen = new Form(GPSLoggerLocalization.getMessage("Settings"),
+                    new Item[] {
+                        getGpsDeviceNameStringItem(),
+                        getGpsDeviceURLTextField(),
+                        getSearchGPSStringItem(),
+                        getSpacer1(),
+                        getLogFolderTextField(),
+                        getBrowseLogFolderStringItem(),
+                        getSpacer(),
+                        getLogFileNamePrefixTextField(),
+///tmp: uncomment when implemented
+                        ///getLogUpdateFrequencyTextField(),
+                        ///getLogFormatChoiceGroup(),
+                        ///getLogSettingsChoiceGroup(),
+///^ uncomment when implemented
+                        getSpacer3(),
+                        getMapDescriptorFileTextField(),
+                        getBrowseMapDescriptorFileStringItem(),
+                        getCoordinatesModeChoiceGroup(),
+                        getAltitudeUnitsChoiceGroup(),
+                        getSpeedUnitsChoiceGroup(),
+                        getLanguageChoiceGroup(),
+                        getDefaultSmsPhoneNumber()
+                    });
             settingsScreen.addCommand(getSaveSettingsCommand());
             settingsScreen.addCommand(getCancelCommand());
             settingsScreen.setCommandListener(this);

@@ -2,7 +2,7 @@
  * FileBrowser.java
  *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * Portions Copyrighted 2008 by Serge Perinsky.
+ * Portions Copyrighted 2008-2010 by Serge Perinsky.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -98,6 +98,8 @@ public class FileBrowser
     private String filter = null;
 
     private String title;
+
+ /// add MKDIR, DELETE, RENAME functionality to the file browser
 
     /**
      * Creates a new instance of FileBrowser for given <code>Display</code> object.
