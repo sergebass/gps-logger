@@ -18,9 +18,6 @@ public class GPSScreen
 
     GPSLogger midlet = null;
 
-///should I use this?:
-    Graphics gOffscreen = null;
-    
     Font smallFont = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL);
 
     GeoLocation location = null;
@@ -54,11 +51,6 @@ public class GPSScreen
         super(false); // do not suppress key events
         this.midlet = midlet;
         this.setFullScreenMode(false); // initial setting, make configurable by user?
-
-        // getGraphics() must only be called once per Screen
-        // (since a new copy is created each time)
-///should I use this?:
-        gOffscreen = getGraphics();
 
         addCommand(midlet.getMarkWaypointCommand());
         addCommand(midlet.getStopCommand());
@@ -349,6 +341,7 @@ public class GPSScreen
 
         // center the compass in the screen
         if (course != Float.NaN) {
+            drawTargetCursor(course, g, getWidth() / 2, getHeight() / 2, 20);
             drawCourseArrow(course, g, getWidth() / 2, getHeight() / 2, 20);
         }
 
@@ -482,7 +475,7 @@ public class GPSScreen
         }
     }
 
-    void drawCourseArrow(double angle, Graphics g, int centerX, int centerY, int radius) {
+    void drawTargetCursor(double angle, Graphics g, int centerX, int centerY, int radius) {
 
         g.setColor(0xFF00FF00); // green circle
         g.drawArc(centerX - radius,
@@ -490,45 +483,49 @@ public class GPSScreen
                   radius + radius,
                   radius + radius,
                   0, 360); // this is a full circle (0-360 degrees)
+    }
+
+    void drawCourseArrow(double angle, Graphics g, int centerX, int centerY, int radius) {
 
         // shift the angle as well, our 0 degrees direction points upwards
         double angleInRadians = (270.0 - angle) * Math.PI / 180.0;
-        int arrowLength = radius * 2; // twice as long as the circle radius
+        int arrowLength = radius * 2 / 3;
 
-        double arrowHeadAngle1 = angleInRadians + Math.PI / 6.0; // +30 degrees
-        double arrowHeadAngle2 = angleInRadians - Math.PI / 6.0; // -30 degrees
-        int arrowHeadLength = radius / 2; // twice as short as the circle radius
+        double arrowHeadAngle1 = angleInRadians + Math.PI / 8.0; // +22.5 degrees
+        double arrowHeadAngle2 = angleInRadians - Math.PI / 8.0; // -22.5 degrees
+        int arrowSideLength = radius * 10 / 11;
         
         if (mapRenderer != null) { // drawing over map
             // our Y axis is upside down
             int y = centerY - (int)(((double)arrowLength) * Math.sin(angleInRadians));
             int x = centerX + (int)(((double)arrowLength) * Math.cos(angleInRadians));
 
-            int y1 = centerY - (int)(((double)arrowHeadLength) * Math.sin(arrowHeadAngle1));
-            int x1 = centerX + (int)(((double)arrowHeadLength) * Math.cos(arrowHeadAngle1));
+            int y1 = centerY - (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle1));
+            int x1 = centerX + (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle1));
 
-            int y2 = centerY - (int)(((double)arrowHeadLength) * Math.sin(arrowHeadAngle2));
-            int x2 = centerX + (int)(((double)arrowHeadLength) * Math.cos(arrowHeadAngle2));
+            int y2 = centerY - (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle2));
+            int x2 = centerX + (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle2));
 
-            g.setColor(0xFFFF0000); // red arrow
-            g.drawLine(centerX, centerY, x, y);
-            g.drawLine(centerX, centerY, x1, y1);
-            g.drawLine(centerX, centerY, x2, y2);
+            g.setColor(0xFFFF0000); // red arrow part
+            g.fillTriangle(centerX, centerY, x, y, x1, y1);
+            g.setColor(0xC0C00000); // dark red arrow part
+            g.fillTriangle(centerX, centerY, x, y, x2, y2);
+
         } else { // non-overlay mode
             // our Y axis is upside down
             int y = centerY + (int)(((double)arrowLength / 2) * Math.sin(angleInRadians));
             int x = centerX - (int)(((double)arrowLength / 2) * Math.cos(angleInRadians));
 
-            int y1 = centerY + (int)(((double)arrowHeadLength) * Math.sin(arrowHeadAngle1));
-            int x1 = centerX - (int)(((double)arrowHeadLength) * Math.cos(arrowHeadAngle1));
+            int y1 = centerY + (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle1));
+            int x1 = centerX - (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle1));
 
-            int y2 = centerY + (int)(((double)arrowHeadLength) * Math.sin(arrowHeadAngle2));
-            int x2 = centerX - (int)(((double)arrowHeadLength) * Math.cos(arrowHeadAngle2));
+            int y2 = centerY + (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle2));
+            int x2 = centerX - (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle2));
 
-            g.setColor(0xFFFFFF00); // yellow arrow
-            g.drawLine(centerX, centerY, x, y);
-            g.drawLine(x, y, x1, y1);
-            g.drawLine(x, y, x2, y2);
+            g.setColor(0xFFFF0000); // red arrow part
+            g.fillTriangle(centerX, centerY, x, y, x1, y1);
+            g.setColor(0xC0C00000); // dark red arrow part
+            g.fillTriangle(centerX, centerY, x, y, x2, y2);
 
 /// localize course symbols
             Font font = smallFont;
