@@ -18,9 +18,11 @@ public class GPSScreen
 
     GPSLogger midlet = null;
 
+    final static int DEFAULT_SCROLLING_OFFSET_PIXELS = 5;
+
     Font smallFont = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL);
 
-    GeoLocation location = null;
+    GeoLocation fixLocation = null;
     boolean isLocationValid = false;
 
     String latitudeString = "";
@@ -47,6 +49,13 @@ public class GPSScreen
     boolean isFullScreenMode = false;
     boolean isDataDisplayMode = true;
 
+    private float hdop = 1.0f; // horizontal dilution of precision (fix accuracy)
+
+    GeoLocation targetLocation = null;
+
+    int hOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
+    int vOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
+
     public GPSScreen(GPSLogger midlet) {
         super(false); // do not suppress key events
         this.midlet = midlet;
@@ -61,10 +70,11 @@ public class GPSScreen
         mapRenderer = MapRenderer.newInstance(midlet.getMapConfiguration());
     }
 
-///!!! display location fix method! (location.getLocationMethod())
+///!!! display fixLocation fix method! (fixLocation.getLocationMethod())
+///!!! display fixLocation fix precision! (as a number or just as a precision circle?)
 
     public void setLocation(GeoLocation location) {
-        this.location = location;
+        this.fixLocation = location;
 
         if (location == null) { // invalid data, clear everything
 
@@ -81,7 +91,9 @@ public class GPSScreen
         }
 
         if (mapRenderer != null) {
-            mapRenderer.setLocation(location);
+            mapRenderer.setFixLocation(fixLocation);
+            // commented out because there's no need to set it for each logged point
+            //mapRenderer.setTargetLocation(targetLocation);
         }
 
         double latitude = location.getLatitude();
@@ -113,6 +125,8 @@ public class GPSScreen
         } else {
             setSatelliteInfo(satelliteCount + " satellite(s)");
         }
+
+        this.hdop = location.getHDOP();
     }
 
     public void setLocationValid(boolean isValid) {
@@ -328,10 +342,14 @@ public class GPSScreen
 
         boolean isMapRendered = false;
 
+        // center the target marker in the visible screen
+        int targetX = getWidth() / 2;
+        int targetY = getHeight() / 2;
+
         if (mapRenderer != null) {
             isMapRendered = mapRenderer.render(g,
                     clipX, clipY, clipWidth, clipHeight,
-                    getWidth() / 2, getHeight() / 2); // our marker is in the center
+                    targetX, targetY); // our marker is in the center
         }
 
         if (!isMapRendered) { // no map rendering performed
@@ -339,17 +357,34 @@ public class GPSScreen
             g.fillRect(clipX, clipY, clipWidth, clipHeight); // just fill/clear it...
         }
 
-        // the fix marker and direction arrow
-        if (course != Float.NaN) {
-///:compute the offset on the screen
-            drawCourseArrow(g, getWidth() / 2, getHeight() / 2, course, 20);
+        // by default, the fix position is displayed in the center
+        int fixX = targetX;
+        int fixY = targetY;
+
+        // we need to shift the screen location for fix only when the target mode is activated
+        if (mapRenderer != null && targetLocation != null) {
+            fixX = targetX + mapRenderer.getHLocationShift(targetLocation, fixLocation);
+            // invert the sign because the screen positioning is "upside-down" :)
+            fixY = targetY - mapRenderer.getVLocationShift(targetLocation, fixLocation);
         }
 
-///only draw target marker when the tracking mode is off and when the map is present
-        if (mapRenderer != null) {
+        // the fix marker and direction arrow
+        if (course != Float.NaN) {
+
+/// the radius should correspond to the fix calculation precision (hdop):
+/// actually, convert to meters (take into account map scale)
+            
+            drawFixMarker(g, fixX, fixY,
+                          course,
+                          20,
+                          (int)(hdop * 2.0f)); // double the HDOP to get radius
+        }
+
+        // only draw target marker when the auto tracking mode is off AND when the map is present
+        if (mapRenderer != null && targetLocation != null) {
             drawTargetMarker(g,
-                             getWidth() / 2, getHeight() / 2,
-                             getWidth() / 2, getHeight() / 2,
+                             targetX, targetY, // target screen coordinates
+                             fixX, fixY, // fix screen coordinates
                              course, 20);
         }
 
@@ -484,42 +519,48 @@ public class GPSScreen
     }
 
     void drawTargetMarker(Graphics g,
-                          int fixX, int fixY,
                           int targetX, int targetY,
-                          double headingAngle, int radius) {
+                          int fixX, int fixY,
+                          double headingAngle, int targetRadius) {
 
-/// angle may be Float.NaN (when direction N/A)
+/// headingAngle may be Float.NaN (when direction is not available)
 
-/// draw a dotted line between the target marker and the current fix position:
-///        g.setStrokeStyle(Graphics.DOTTED);
+        // draw a dotted line between the target marker and the current fix position:
+        g.setColor(0xFF000000); // black dotted line
+        g.setStrokeStyle(Graphics.DOTTED);
+        g.drawLine(fixX, fixY, targetX, targetY);
 
-        g.setColor(0xFFFFFF00); // yellow cross
+        g.setColor(0xFF000000); // black cross
         g.setStrokeStyle(Graphics.SOLID);
-        g.drawLine(targetX - 10, targetY, targetX + 10, targetY);
-        g.drawLine(targetX, targetY - 10, targetX, targetY + 10);
-
-        g.setColor(0xFF00FF00); // green circle
-        g.setStrokeStyle(Graphics.SOLID);
-        g.drawArc(targetX - radius,
-                  targetY - radius,
-                  radius + radius,
-                  radius + radius,
-                  0, 360); // this is a full circle (0-360 degrees)
+        g.drawLine(targetX - targetRadius, targetY, targetX + targetRadius, targetY);
+        g.drawLine(targetX, targetY - targetRadius, targetX, targetY + targetRadius);
     }
 
-    void drawCourseArrow(Graphics g,
-                         int fixX, int fixY,
-                         double headingAngle, int radius) {
+    void drawFixMarker(Graphics g,
+                       int fixX, int fixY,
+                       double headingAngle,
+                       int arrowRadius,
+                       int precisionRadius) {
+
+        // draw a circle of precision
+        g.setColor(0xFF00FF00); // green circle
+        g.setStrokeStyle(Graphics.SOLID);
+        g.drawArc(fixX - precisionRadius,
+                  fixY - precisionRadius,
+                  precisionRadius + precisionRadius,
+                  precisionRadius + precisionRadius,
+                  0, 360); // this is a full circle (0-360 degrees)
 
         // shift the angle as well, our 0 degrees direction points upwards
         double angleInRadians = (270.0 - headingAngle) * Math.PI / 180.0;
-        int arrowLength = radius * 2 / 3;
+        int arrowLength = arrowRadius * 2 / 3;
 
         double arrowHeadAngle1 = angleInRadians + Math.PI / 8.0; // +22.5 degrees
         double arrowHeadAngle2 = angleInRadians - Math.PI / 8.0; // -22.5 degrees
-        int arrowSideLength = radius * 10 / 11;
+        int arrowSideLength = arrowRadius * 10 / 11;
         
         if (mapRenderer != null) { // drawing over map
+
             // our Y axis is upside down
             int y = fixY - (int)(((double)arrowLength) * Math.sin(angleInRadians));
             int x = fixX + (int)(((double)arrowLength) * Math.cos(angleInRadians));
@@ -535,7 +576,8 @@ public class GPSScreen
             g.setColor(0xC0C00000); // dark red arrow part
             g.fillTriangle(fixX, fixY, x, y, x2, y2);
 
-        } else { // non-overlay mode
+        } else { // non-overlay mode, no map displayed
+
             // our Y axis is upside down
             int y = fixY + (int)(((double)arrowLength / 2) * Math.sin(angleInRadians));
             int x = fixX - (int)(((double)arrowLength / 2) * Math.cos(angleInRadians));
@@ -551,16 +593,16 @@ public class GPSScreen
             g.setColor(0xC0C00000); // dark red arrow part
             g.fillTriangle(fixX, fixY, x, y, x2, y2);
 
-/// localize course symbols
+/// localize course symbols:
             Font font = smallFont;
             g.setFont(font);
             g.setColor(0xFF00FFFF); // cyan course symbols
             int fontHeight = font.getHeight();
             
-            g.drawString("N", fixX - font.stringWidth("N") / 2, fixY - radius - fontHeight, 0);
-            g.drawString("S", fixX - font.stringWidth("S") / 2, fixY + radius, 0);
-            g.drawString("W", fixX - radius - font.stringWidth("W"), fixY - fontHeight / 2, 0);
-            g.drawString("E", fixX + radius + font.stringWidth("E"), fixY - fontHeight / 2, 0);
+            g.drawString("N", fixX - font.stringWidth("N") / 2, fixY - arrowRadius - fontHeight, 0);
+            g.drawString("S", fixX - font.stringWidth("S") / 2, fixY + arrowRadius, 0);
+            g.drawString("W", fixX - arrowRadius - font.stringWidth("W"), fixY - fontHeight / 2, 0);
+            g.drawString("E", fixX + arrowRadius + font.stringWidth("E"), fixY - fontHeight / 2, 0);
         }
     }
 
@@ -579,40 +621,108 @@ public class GPSScreen
 ///add the list of supported keys to a help item!
         
         if (getKeyCode(FIRE) == keyCode) {
-            midlet.markWaypoint();
-        } else if (getKeyCode(UP) == keyCode) {
+///FIX THIS: not the old-style waypoint marking, add a target/waypoint alarm instead
+///            midlet.markWaypoint();
+        } else if (getKeyCode(UP) == keyCode) { // move target marker up, scroll map down
 ///
 System.out.println("UP");
 ///
-        } else if (getKeyCode(DOWN) == keyCode) {
+
+///? increase progressively, to speed-up scrolling?
+vOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
+///
+            if (targetLocation == null) {
+                targetLocation = fixLocation.createCopy();
+            }
+            // adjust the target marker coordinates, depending on the shift by user
+            targetLocation = mapRenderer.getShiftedLocation(targetLocation, 0, vOffsetIncrement);
+            mapRenderer.setTargetLocation(targetLocation);
+            repaint();
+            
+        } else if (getKeyCode(DOWN) == keyCode) { // move target marker down, scroll map up
 ///
 System.out.println("DOWN");
 ///
-        } else if (getKeyCode(LEFT) == keyCode) {
+
+///? increase progressively, to speed-up scrolling?
+vOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
+///
+            if (targetLocation == null) {
+                targetLocation = fixLocation.createCopy();
+            }
+            // adjust the target marker coordinates, depending on the shift by user
+            targetLocation = mapRenderer.getShiftedLocation(targetLocation, 0, -vOffsetIncrement);
+            mapRenderer.setTargetLocation(targetLocation);
+            repaint();
+
+        } else if (getKeyCode(LEFT) == keyCode) { // move target marker left, scroll map right
 ///
 System.out.println("LEFT");
 ///
 
-        } else if (getKeyCode(RIGHT) == keyCode) {
+///? increase progressively, to speed-up scrolling?
+hOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
+///
+            if (targetLocation == null) {
+                targetLocation = fixLocation.createCopy();
+            }
+            // adjust the target marker coordinates, depending on the shift by user
+            targetLocation = mapRenderer.getShiftedLocation(targetLocation, -hOffsetIncrement, 0);
+            mapRenderer.setTargetLocation(targetLocation);
+            repaint();
+
+        } else if (getKeyCode(RIGHT) == keyCode) { // move target marker right, scroll map left
 ///
 System.out.println("RIGHT");
 ///
 
-        } else if (KEY_STAR == keyCode) {
-            /// zoom-in
-        } else if (KEY_POUND == keyCode) {
-            /// zoom-out
-        } else if (KEY_NUM0 == keyCode) {
-            /// where am I? (set cursor to GPS fix position, resume auto position tracking)
+///? increase progressively, to speed-up scrolling?
+hOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
 ///
-System.out.println("0 - resume tracking / where am I?");
-///
+            if (targetLocation == null) {
+                targetLocation = fixLocation.createCopy();
+            }
+            // adjust the target marker coordinates, depending on the shift by user
+            targetLocation = mapRenderer.getShiftedLocation(targetLocation, hOffsetIncrement, 0);
+            mapRenderer.setTargetLocation(targetLocation);
+            repaint();
+
+        } else if (KEY_STAR == keyCode) { // zoom-in
+///TODO: zoom-in
+        } else if (KEY_POUND == keyCode) { // zoom-out
+///TODO: zoom-out
+        } else if (KEY_NUM0 == keyCode) { // where am I? (set cursor to GPS fix position, resume auto position tracking)
+            
+            // reset default scrolling offset
+            hOffsetIncrement = vOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
+
+            // no shift? -> auto tracking of current fix
+            targetLocation = null;
+            mapRenderer.setTargetLocation(null);
+            repaint();
+
         } else if (KEY_NUM1 == keyCode) {
             toggleFullScreenMode();
         } else if (KEY_NUM2 == keyCode) {
             toggleDataDisplayMode();
         } else if (KEY_NUM3 == keyCode) {
             /// toggle grid/scale indicator
+        }
+    }
+
+    public void keyRepeated(int keyCode) {
+
+/// modify scrolling offset here (if the key has been pressed for a long time)
+
+        // pass repeats for target marker movement keys
+        if (getKeyCode(UP) == keyCode) {
+            keyPressed(keyCode);
+        } else if (getKeyCode(DOWN) == keyCode) {
+            keyPressed(keyCode);
+        } else if (getKeyCode(LEFT) == keyCode) {
+            keyPressed(keyCode);
+        } else if (getKeyCode(RIGHT) == keyCode) {
+            keyPressed(keyCode);
         }
     }
 }

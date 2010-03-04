@@ -22,17 +22,31 @@ public abstract class MapRenderer {
         }
     }
 
-    private GeoLocation location = null;
+    private GeoLocation fixLocation = null;
+    private GeoLocation targetLocation = null;
 
-    public void setLocation(GeoLocation location) {
-        this.location = location;
+    public void setFixLocation(GeoLocation location) {
+        this.fixLocation = location;
     }
 
-    public GeoLocation getLocation() {
-        return location;
+    public GeoLocation getFixLocation() {
+        return fixLocation;
+    }
+
+    public void setTargetLocation(GeoLocation location) {
+        this.targetLocation = location;
+    }
+
+    public GeoLocation getTargetLocation() {
+        return targetLocation;
     }
 
     public abstract boolean render(Graphics g,
             int clipX, int clipY, int clipWidth, int clipHeight,
             int markerX, int markerY);
+
+    public abstract GeoLocation getShiftedLocation(GeoLocation location, int hOffsetPixels, int vOffsetPixels);
+
+    public abstract int getHLocationShift(GeoLocation originalLocation, GeoLocation shiftedLocation);
+    public abstract int getVLocationShift(GeoLocation originalLocation, GeoLocation shiftedLocation);
 }

@@ -35,28 +35,27 @@ public class RasterMapRenderer
 /// 1) they may be loaded later, in a separate thread
 /// 2) save memory by releasing unused Images
         
-///g.setStrokeStyle(Graphics.DOTTED);
-///g.setStrokeStyle(Graphics.SOLID);
-
         Image mapImage = tile.getImage();
-        GeoLocation location = getLocation();
+        GeoLocation mapCenterLocation = getTargetLocation();
 
-        if (mapImage != null && location != null) {
+        if (mapCenterLocation == null) { // automatic current position tracking? (no map shift)
+            mapCenterLocation = getFixLocation();
+        }
+
+        if (mapImage != null && mapCenterLocation != null) {
 
             int imageWidth = mapImage.getWidth();
             int imageHeight = mapImage.getHeight();
 
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
+            double latitude = mapCenterLocation.getLatitude();
+            double longitude = mapCenterLocation.getLongitude();
 
             double minLatitude = tile.getMinLatitude();
-            double maxLatitude = tile.getMaxLatitude();
             double minLongitude = tile.getMinLongitude();
-            double maxLongitude = tile.getMaxLongitude();
 
             // this is our tile image resolutions (in pixels/degree):
-            double xPixelsPerDegree = imageWidth / Math.abs(maxLongitude - minLongitude);
-            double yPixelsPerDegree = imageHeight / Math.abs(maxLatitude - minLatitude);
+            double xPixelsPerDegree = tile.getXPixelsPerDegree(latitude);
+            double yPixelsPerDegree = tile.getYPixelsPerDegree(longitude);
 
             // figure our pixel coordinates on the tile image:
             int xLocationOnTile = (int)(xPixelsPerDegree * (longitude - minLongitude));
@@ -100,5 +99,32 @@ public class RasterMapRenderer
         } else { // no map?
             return false; // there was no map to render
         }
+    }
+
+    public GeoLocation getShiftedLocation(GeoLocation location, int hOffset, int vOffset) {
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+
+        MapTile tile = configuration.getTile();
+
+        latitude += vOffset / tile.getYPixelsPerDegree(longitude);
+        longitude += hOffset / tile.getXPixelsPerDegree(latitude);
+            
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
+        
+        return location; // this is updated location
+    }
+
+    public int getHLocationShift(GeoLocation originalLocation, GeoLocation shiftedLocation) {
+        MapTile tile = configuration.getTile();
+        double xPixelsPerDegree = tile.getXPixelsPerDegree(originalLocation.getLatitude());
+        return (int)((shiftedLocation.getLongitude() - originalLocation.getLongitude()) * xPixelsPerDegree);
+    }
+
+    public int getVLocationShift(GeoLocation originalLocation, GeoLocation shiftedLocation) {
+        MapTile tile = configuration.getTile();
+        double yPixelsPerDegree = tile.getYPixelsPerDegree(originalLocation.getLongitude());
+        return (int)((shiftedLocation.getLatitude() - originalLocation.getLatitude()) * yPixelsPerDegree);
     }
 }

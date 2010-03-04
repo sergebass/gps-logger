@@ -12,9 +12,14 @@ import javax.microedition.lcdui.Image;
  * @author Serge Perinsky
  */
 public abstract class MapTile {
+
     public abstract Image getImage();
+
     public abstract double getMinLatitude();
     public abstract double getMaxLatitude();
     public abstract double getMinLongitude();
     public abstract double getMaxLongitude();
+
+    public abstract double getXPixelsPerDegree(double latitude);
+    public abstract double getYPixelsPerDegree(double longitude);
 }

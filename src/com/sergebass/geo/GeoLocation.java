@@ -189,14 +189,17 @@ public class GeoLocation {
         return toGPXTrackpointString(); // let this be default
     }
 
+///move this to GPX writer
     public String toGPXTrackpointString() {
         return toGPXPointString("trkpt");
     }
 
+///move this to GPX writer
     public String toGPXWaypointString() {
         return toGPXPointString("wpt");
     }
 
+///move this to GPX writer
     public String toGPXPointString(String pointTypeTag) {
 
         StringBuffer stringBuffer = new StringBuffer();
@@ -297,6 +300,7 @@ public class GeoLocation {
         return stringBuffer.toString();
     }
 
+///move this to KML writer
     public String toKMLPlacemarkString() {
 
         StringBuffer stringBuffer = new StringBuffer();
@@ -331,5 +335,26 @@ public class GeoLocation {
 /// add all of the other necessary KML tags here...
 
         return stringBuffer.toString();
+    }
+
+    public GeoLocation createCopy() {
+        GeoLocation newLocation = new GeoLocation(latitude, longitude);
+        newLocation.altitude = altitude;
+        newLocation.course = course;
+        newLocation.speed = speed;
+        newLocation.timeStamp = timeStamp;
+        newLocation.timeString = timeString;
+        newLocation.dateString = dateString;
+        newLocation.name = name;
+        newLocation.description = description;
+        newLocation.satelliteCount = satelliteCount;
+        newLocation.fixType = fixType;
+        newLocation.isDataValid = isDataValid;
+        newLocation.nmeaSentences = nmeaSentences;
+        newLocation.saveNMEASentences = saveNMEASentences;
+        newLocation.pdop = pdop;
+        newLocation.hdop = hdop;
+        newLocation.vdop = vdop;
+        return newLocation;
     }
 }

@@ -92,4 +92,34 @@ public class RasterMapTile
     public double getMaxLongitude() {
         return maxLongitude;
     }
+
+    public double getXPixelsPerDegree(double latitude) {
+
+// (ignore the latitude parameter currently ^^^)
+        
+        Image mapImage = getImage();
+
+        if (mapImage != null) {
+            int imageWidth = mapImage.getWidth();
+            // this is our tile image resolutions (in pixels/degree):
+            return imageWidth / Math.abs(maxLongitude - minLongitude);
+        }
+
+        return 0.0;
+    }
+
+    public double getYPixelsPerDegree(double longitude) {
+
+// (ignore the longitude parameter currently ^^^)
+
+        Image mapImage = getImage();
+
+        if (mapImage != null) {
+            int imageHeight = mapImage.getHeight();
+            // this is our tile image resolutions (in pixels/degree):
+            return imageHeight / Math.abs(maxLatitude - minLatitude);
+        }
+
+        return 0.0;
+    }
 }
