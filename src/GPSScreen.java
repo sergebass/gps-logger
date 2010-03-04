@@ -323,8 +323,8 @@ public class GPSScreen
     }
 
     void drawBackground(Graphics g,
-                          int clipX, int clipY, int clipWidth, int clipHeight,
-                          boolean mustFlushGraphics) {
+                        int clipX, int clipY, int clipWidth, int clipHeight,
+                        boolean mustFlushGraphics) {
 
         boolean isMapRendered = false;
 
@@ -339,10 +339,18 @@ public class GPSScreen
             g.fillRect(clipX, clipY, clipWidth, clipHeight); // just fill/clear it...
         }
 
-        // center the compass in the screen
+        // the fix marker and direction arrow
         if (course != Float.NaN) {
-            drawTargetCursor(course, g, getWidth() / 2, getHeight() / 2, 20);
-            drawCourseArrow(course, g, getWidth() / 2, getHeight() / 2, 20);
+///:compute the offset on the screen
+            drawCourseArrow(g, getWidth() / 2, getHeight() / 2, course, 20);
+        }
+
+///only draw target marker when the tracking mode is off and when the map is present
+        if (mapRenderer != null) {
+            drawTargetMarker(g,
+                             getWidth() / 2, getHeight() / 2,
+                             getWidth() / 2, getHeight() / 2,
+                             course, 20);
         }
 
         if (mustFlushGraphics) {
@@ -475,20 +483,36 @@ public class GPSScreen
         }
     }
 
-    void drawTargetCursor(double angle, Graphics g, int centerX, int centerY, int radius) {
+    void drawTargetMarker(Graphics g,
+                          int fixX, int fixY,
+                          int targetX, int targetY,
+                          double headingAngle, int radius) {
+
+/// angle may be Float.NaN (when direction N/A)
+
+/// draw a dotted line between the target marker and the current fix position:
+///        g.setStrokeStyle(Graphics.DOTTED);
+
+        g.setColor(0xFFFFFF00); // yellow cross
+        g.setStrokeStyle(Graphics.SOLID);
+        g.drawLine(targetX - 10, targetY, targetX + 10, targetY);
+        g.drawLine(targetX, targetY - 10, targetX, targetY + 10);
 
         g.setColor(0xFF00FF00); // green circle
-        g.drawArc(centerX - radius,
-                  centerY - radius,
+        g.setStrokeStyle(Graphics.SOLID);
+        g.drawArc(targetX - radius,
+                  targetY - radius,
                   radius + radius,
                   radius + radius,
                   0, 360); // this is a full circle (0-360 degrees)
     }
 
-    void drawCourseArrow(double angle, Graphics g, int centerX, int centerY, int radius) {
+    void drawCourseArrow(Graphics g,
+                         int fixX, int fixY,
+                         double headingAngle, int radius) {
 
         // shift the angle as well, our 0 degrees direction points upwards
-        double angleInRadians = (270.0 - angle) * Math.PI / 180.0;
+        double angleInRadians = (270.0 - headingAngle) * Math.PI / 180.0;
         int arrowLength = radius * 2 / 3;
 
         double arrowHeadAngle1 = angleInRadians + Math.PI / 8.0; // +22.5 degrees
@@ -497,35 +521,35 @@ public class GPSScreen
         
         if (mapRenderer != null) { // drawing over map
             // our Y axis is upside down
-            int y = centerY - (int)(((double)arrowLength) * Math.sin(angleInRadians));
-            int x = centerX + (int)(((double)arrowLength) * Math.cos(angleInRadians));
+            int y = fixY - (int)(((double)arrowLength) * Math.sin(angleInRadians));
+            int x = fixX + (int)(((double)arrowLength) * Math.cos(angleInRadians));
 
-            int y1 = centerY - (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle1));
-            int x1 = centerX + (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle1));
+            int y1 = fixY - (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle1));
+            int x1 = fixX + (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle1));
 
-            int y2 = centerY - (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle2));
-            int x2 = centerX + (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle2));
+            int y2 = fixY - (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle2));
+            int x2 = fixX + (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle2));
 
             g.setColor(0xFFFF0000); // red arrow part
-            g.fillTriangle(centerX, centerY, x, y, x1, y1);
+            g.fillTriangle(fixX, fixY, x, y, x1, y1);
             g.setColor(0xC0C00000); // dark red arrow part
-            g.fillTriangle(centerX, centerY, x, y, x2, y2);
+            g.fillTriangle(fixX, fixY, x, y, x2, y2);
 
         } else { // non-overlay mode
             // our Y axis is upside down
-            int y = centerY + (int)(((double)arrowLength / 2) * Math.sin(angleInRadians));
-            int x = centerX - (int)(((double)arrowLength / 2) * Math.cos(angleInRadians));
+            int y = fixY + (int)(((double)arrowLength / 2) * Math.sin(angleInRadians));
+            int x = fixX - (int)(((double)arrowLength / 2) * Math.cos(angleInRadians));
 
-            int y1 = centerY + (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle1));
-            int x1 = centerX - (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle1));
+            int y1 = fixY + (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle1));
+            int x1 = fixX - (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle1));
 
-            int y2 = centerY + (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle2));
-            int x2 = centerX - (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle2));
+            int y2 = fixY + (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle2));
+            int x2 = fixX - (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle2));
 
             g.setColor(0xFFFF0000); // red arrow part
-            g.fillTriangle(centerX, centerY, x, y, x1, y1);
+            g.fillTriangle(fixX, fixY, x, y, x1, y1);
             g.setColor(0xC0C00000); // dark red arrow part
-            g.fillTriangle(centerX, centerY, x, y, x2, y2);
+            g.fillTriangle(fixX, fixY, x, y, x2, y2);
 
 /// localize course symbols
             Font font = smallFont;
@@ -533,10 +557,10 @@ public class GPSScreen
             g.setColor(0xFF00FFFF); // cyan course symbols
             int fontHeight = font.getHeight();
             
-            g.drawString("N", centerX - font.stringWidth("N") / 2, centerY - radius - fontHeight, 0);
-            g.drawString("S", centerX - font.stringWidth("S") / 2, centerY + radius, 0);
-            g.drawString("W", centerX - radius - font.stringWidth("W"), centerY - fontHeight / 2, 0);
-            g.drawString("E", centerX + radius + font.stringWidth("E"), centerY - fontHeight / 2, 0);
+            g.drawString("N", fixX - font.stringWidth("N") / 2, fixY - radius - fontHeight, 0);
+            g.drawString("S", fixX - font.stringWidth("S") / 2, fixY + radius, 0);
+            g.drawString("W", fixX - radius - font.stringWidth("W"), fixY - fontHeight / 2, 0);
+            g.drawString("E", fixX + radius + font.stringWidth("E"), fixY - fontHeight / 2, 0);
         }
     }
 
@@ -557,19 +581,32 @@ public class GPSScreen
         if (getKeyCode(FIRE) == keyCode) {
             midlet.markWaypoint();
         } else if (getKeyCode(UP) == keyCode) {
-            ///
+///
+System.out.println("UP");
+///
         } else if (getKeyCode(DOWN) == keyCode) {
-            ///
+///
+System.out.println("DOWN");
+///
         } else if (getKeyCode(LEFT) == keyCode) {
-            ///
+///
+System.out.println("LEFT");
+///
+
         } else if (getKeyCode(RIGHT) == keyCode) {
-            ///
+///
+System.out.println("RIGHT");
+///
+
         } else if (KEY_STAR == keyCode) {
             /// zoom-in
         } else if (KEY_POUND == keyCode) {
             /// zoom-out
         } else if (KEY_NUM0 == keyCode) {
-            /// where am I? (set cursor to GPS fix position)
+            /// where am I? (set cursor to GPS fix position, resume auto position tracking)
+///
+System.out.println("0 - resume tracking / where am I?");
+///
         } else if (KEY_NUM1 == keyCode) {
             toggleFullScreenMode();
         } else if (KEY_NUM2 == keyCode) {

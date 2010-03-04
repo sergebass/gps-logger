@@ -35,6 +35,9 @@ public class RasterMapRenderer
 /// 1) they may be loaded later, in a separate thread
 /// 2) save memory by releasing unused Images
         
+///g.setStrokeStyle(Graphics.DOTTED);
+///g.setStrokeStyle(Graphics.SOLID);
+
         Image mapImage = tile.getImage();
         GeoLocation location = getLocation();
 
