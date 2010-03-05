@@ -368,17 +368,14 @@ public class GPSScreen
             fixY = targetY - mapRenderer.getVLocationShift(targetLocation, fixLocation);
         }
 
-        // the fix marker and direction arrow
-        if (course != Float.NaN) {
-
 /// the radius should correspond to the fix calculation precision (hdop):
 /// actually, convert to meters (take into account map scale)
-            
-            drawFixMarker(g, fixX, fixY,
-                          course,
-                          20,
-                          (int)(hdop * 2.0f)); // double the HDOP to get radius
-        }
+
+        // the fix marker and direction arrow
+        drawFixMarker(g, fixX, fixY,
+                      course,
+                      20,
+                      (int)(hdop * 2.0f)); // double the HDOP to get radius
 
         // only draw target marker when the auto tracking mode is off AND when the map is present
         if (mapRenderer != null && targetLocation != null) {
@@ -538,7 +535,7 @@ public class GPSScreen
 
     void drawFixMarker(Graphics g,
                        int fixX, int fixY,
-                       double headingAngle,
+                       float headingAngle,
                        int arrowRadius,
                        int precisionRadius) {
 
@@ -551,58 +548,63 @@ public class GPSScreen
                   precisionRadius + precisionRadius,
                   0, 360); // this is a full circle (0-360 degrees)
 
-        // shift the angle as well, our 0 degrees direction points upwards
-        double angleInRadians = (270.0 - headingAngle) * Math.PI / 180.0;
-        int arrowLength = arrowRadius * 2 / 3;
+        if (Float.isNaN(headingAngle)) { // no heading angle present at all?
+            g.setColor(0xFFFF0000); // red filled circle - direction unknown
+            g.fillArc(fixX - 3, fixY - 3, 6, 6, 0, 360); // this is a full circle (0-360 degrees)
+        } else { // the angle is OK
+            // shift the angle as well, our 0 degrees direction points upwards
+            double angleInRadians = (270.0 - headingAngle) * Math.PI / 180.0;
+            int arrowLength = arrowRadius * 2 / 3;
 
-        double arrowHeadAngle1 = angleInRadians + Math.PI / 8.0; // +22.5 degrees
-        double arrowHeadAngle2 = angleInRadians - Math.PI / 8.0; // -22.5 degrees
-        int arrowSideLength = arrowRadius * 10 / 11;
-        
-        if (mapRenderer != null) { // drawing over map
+            double arrowHeadAngle1 = angleInRadians + Math.PI / 8.0; // +22.5 degrees
+            double arrowHeadAngle2 = angleInRadians - Math.PI / 8.0; // -22.5 degrees
+            int arrowSideLength = arrowRadius * 10 / 11;
 
-            // our Y axis is upside down
-            int y = fixY - (int)(((double)arrowLength) * Math.sin(angleInRadians));
-            int x = fixX + (int)(((double)arrowLength) * Math.cos(angleInRadians));
+            if (mapRenderer != null) { // drawing over map
 
-            int y1 = fixY - (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle1));
-            int x1 = fixX + (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle1));
+                // our Y axis is upside down
+                int y = fixY - (int)(((double)arrowLength) * Math.sin(angleInRadians));
+                int x = fixX + (int)(((double)arrowLength) * Math.cos(angleInRadians));
 
-            int y2 = fixY - (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle2));
-            int x2 = fixX + (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle2));
+                int y1 = fixY - (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle1));
+                int x1 = fixX + (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle1));
 
-            g.setColor(0xFFFF0000); // red arrow part
-            g.fillTriangle(fixX, fixY, x, y, x1, y1);
-            g.setColor(0xC0C00000); // dark red arrow part
-            g.fillTriangle(fixX, fixY, x, y, x2, y2);
+                int y2 = fixY - (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle2));
+                int x2 = fixX + (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle2));
 
-        } else { // non-overlay mode, no map displayed
+                g.setColor(0xFFFF0000); // red arrow part
+                g.fillTriangle(fixX, fixY, x, y, x1, y1);
+                g.setColor(0xC0C00000); // dark red arrow part
+                g.fillTriangle(fixX, fixY, x, y, x2, y2);
 
-            // our Y axis is upside down
-            int y = fixY + (int)(((double)arrowLength / 2) * Math.sin(angleInRadians));
-            int x = fixX - (int)(((double)arrowLength / 2) * Math.cos(angleInRadians));
+            } else { // non-overlay mode, no map displayed
 
-            int y1 = fixY + (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle1));
-            int x1 = fixX - (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle1));
+                // our Y axis is upside down
+                int y = fixY + (int)(((double)arrowLength / 2) * Math.sin(angleInRadians));
+                int x = fixX - (int)(((double)arrowLength / 2) * Math.cos(angleInRadians));
 
-            int y2 = fixY + (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle2));
-            int x2 = fixX - (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle2));
+                int y1 = fixY + (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle1));
+                int x1 = fixX - (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle1));
 
-            g.setColor(0xFFFF0000); // red arrow part
-            g.fillTriangle(fixX, fixY, x, y, x1, y1);
-            g.setColor(0xC0C00000); // dark red arrow part
-            g.fillTriangle(fixX, fixY, x, y, x2, y2);
+                int y2 = fixY + (int)(((double)arrowSideLength) * Math.sin(arrowHeadAngle2));
+                int x2 = fixX - (int)(((double)arrowSideLength) * Math.cos(arrowHeadAngle2));
 
-/// localize course symbols:
-            Font font = smallFont;
-            g.setFont(font);
-            g.setColor(0xFF00FFFF); // cyan course symbols
-            int fontHeight = font.getHeight();
-            
-            g.drawString("N", fixX - font.stringWidth("N") / 2, fixY - arrowRadius - fontHeight, 0);
-            g.drawString("S", fixX - font.stringWidth("S") / 2, fixY + arrowRadius, 0);
-            g.drawString("W", fixX - arrowRadius - font.stringWidth("W"), fixY - fontHeight / 2, 0);
-            g.drawString("E", fixX + arrowRadius + font.stringWidth("E"), fixY - fontHeight / 2, 0);
+                g.setColor(0xFFFF0000); // red arrow part
+                g.fillTriangle(fixX, fixY, x, y, x1, y1);
+                g.setColor(0xC0C00000); // dark red arrow part
+                g.fillTriangle(fixX, fixY, x, y, x2, y2);
+
+    /// localize course symbols:
+                Font font = smallFont;
+                g.setFont(font);
+                g.setColor(0xFF00FFFF); // cyan course symbols
+                int fontHeight = font.getHeight();
+
+                g.drawString("N", fixX - font.stringWidth("N") / 2, fixY - arrowRadius - fontHeight, 0);
+                g.drawString("S", fixX - font.stringWidth("S") / 2, fixY + arrowRadius, 0);
+                g.drawString("W", fixX - arrowRadius - font.stringWidth("W"), fixY - fontHeight / 2, 0);
+                g.drawString("E", fixX + arrowRadius + font.stringWidth("E"), fixY - fontHeight / 2, 0);
+            }
         }
     }
 
@@ -691,7 +693,7 @@ hOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
 ///TODO: zoom-in
         } else if (KEY_POUND == keyCode) { // zoom-out
 ///TODO: zoom-out
-        } else if (KEY_NUM0 == keyCode) { // where am I? (set cursor to GPS fix position, resume auto position tracking)
+        } else if (KEY_NUM0 == keyCode || GAME_A == getGameAction(keyCode)) { // where am I? (set cursor to GPS fix position, resume auto position tracking)
             
             // reset default scrolling offset
             hOffsetIncrement = vOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
@@ -701,11 +703,11 @@ hOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
             mapRenderer.setTargetLocation(null);
             repaint();
 
-        } else if (KEY_NUM1 == keyCode) {
+        } else if (KEY_NUM1 == keyCode || GAME_B == getGameAction(keyCode)) {
             toggleFullScreenMode();
-        } else if (KEY_NUM2 == keyCode) {
+        } else if (KEY_NUM2 == keyCode || GAME_C == getGameAction(keyCode)) {
             toggleDataDisplayMode();
-        } else if (KEY_NUM3 == keyCode) {
+        } else if (KEY_NUM3 == keyCode || GAME_D == getGameAction(keyCode)) {
             /// toggle grid/scale indicator
         }
     }
