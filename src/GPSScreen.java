@@ -3,6 +3,7 @@
  */
 
 import com.sergebass.geo.GeoLocation;
+import com.sergebass.geo.GeoMath;
 import com.sergebass.geo.map.*;
 import com.sergebass.util.Instant;
 import java.util.TimeZone;
@@ -368,14 +369,13 @@ public class GPSScreen
             fixY = targetY - mapRenderer.getVLocationShift(targetLocation, fixLocation);
         }
 
-/// the radius should correspond to the fix calculation precision (hdop):
-/// actually, convert to meters (take into account map scale)
+/// compute radius in real units (meters) from HDOP (take into account map scale)
 
         // the fix marker and direction arrow
         drawFixMarker(g, fixX, fixY,
                       course,
                       20,
-                      (int)(hdop * 2.0f)); // double the HDOP to get radius
+                      (int)(hdop * 5.0f)); // multiply HDOP to get radius
 
         // only draw target marker when the auto tracking mode is off AND when the map is present
         if (mapRenderer != null && targetLocation != null) {
@@ -383,6 +383,35 @@ public class GPSScreen
                              targetX, targetY, // target screen coordinates
                              fixX, fixY, // fix screen coordinates
                              course, 20);
+            
+            // draw a dotted line between the target marker and the current fix position:
+            g.setColor(0xFF000000); // black dotted line
+            g.setStrokeStyle(Graphics.DOTTED);
+            g.drawLine(fixX, fixY, targetX, targetY);
+
+///display distance and bearing from fix to target point
+            double distanceToTarget = GeoMath.computeDistance
+                        (fixLocation.getLatitude(), fixLocation.getLongitude(),
+                         targetLocation.getLatitude(), targetLocation.getLongitude());
+
+            double azimuthToTarget = GeoMath.computeAzimuth
+                        (fixLocation.getLatitude(), fixLocation.getLongitude(),
+                         targetLocation.getLatitude(), targetLocation.getLongitude());
+
+            double roundedDistanceToTarget = Math.floor(distanceToTarget) / 1000.0;
+
+            String distanceAndAzimuthString
+                    = "" + roundedDistanceToTarget
+                    + " km @ " + azimuthToTarget + "\u00B0";
+
+            displayString(distanceAndAzimuthString,
+                        g, (getWidth() - smallFont.stringWidth(distanceAndAzimuthString)) / 2,
+                        getHeight() - smallFont.getHeight() * 4,
+                        smallFont.stringWidth(distanceAndAzimuthString), smallFont.getHeight(),
+                        0xFF9090FF, 0xC0000000, // light blue on 90% opaque black
+                        smallFont,
+                        false,
+                        false);
         }
 
         if (mustFlushGraphics) {
@@ -522,11 +551,6 @@ public class GPSScreen
 
 /// headingAngle may be Float.NaN (when direction is not available)
 
-        // draw a dotted line between the target marker and the current fix position:
-        g.setColor(0xFF000000); // black dotted line
-        g.setStrokeStyle(Graphics.DOTTED);
-        g.drawLine(fixX, fixY, targetX, targetY);
-
         g.setColor(0xFF000000); // black cross
         g.setStrokeStyle(Graphics.SOLID);
         g.drawLine(targetX - targetRadius, targetY, targetX + targetRadius, targetY);
@@ -594,7 +618,8 @@ public class GPSScreen
                 g.setColor(0xC0C00000); // dark red arrow part
                 g.fillTriangle(fixX, fixY, x, y, x2, y2);
 
-    /// localize course symbols:
+/// localize course symbols:
+                
                 Font font = smallFont;
                 g.setFont(font);
                 g.setColor(0xFF00FFFF); // cyan course symbols
@@ -626,9 +651,6 @@ public class GPSScreen
 ///FIX THIS: not the old-style waypoint marking, add a target/waypoint alarm instead
 ///            midlet.markWaypoint();
         } else if (getKeyCode(UP) == keyCode) { // move target marker up, scroll map down
-///
-System.out.println("UP");
-///
 
 ///? increase progressively, to speed-up scrolling?
 vOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
@@ -642,9 +664,6 @@ vOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
             repaint();
             
         } else if (getKeyCode(DOWN) == keyCode) { // move target marker down, scroll map up
-///
-System.out.println("DOWN");
-///
 
 ///? increase progressively, to speed-up scrolling?
 vOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
@@ -658,9 +677,6 @@ vOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
             repaint();
 
         } else if (getKeyCode(LEFT) == keyCode) { // move target marker left, scroll map right
-///
-System.out.println("LEFT");
-///
 
 ///? increase progressively, to speed-up scrolling?
 hOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
@@ -674,9 +690,6 @@ hOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;
             repaint();
 
         } else if (getKeyCode(RIGHT) == keyCode) { // move target marker right, scroll map left
-///
-System.out.println("RIGHT");
-///
 
 ///? increase progressively, to speed-up scrolling?
 hOffsetIncrement = DEFAULT_SCROLLING_OFFSET_PIXELS;

@@ -1,8 +1,10 @@
 /*
- * GeoMath.java (C) Serge Perinsky, 2008
+ * GeoMath.java (C) Serge Perinsky, 2008-2010
  */
 
 package com.sergebass.geo;
+
+import com.sergebass.math.Calculator;
 
 /**
  * GeoMath.
@@ -11,21 +13,62 @@ package com.sergebass.geo;
  */
 public class GeoMath {
     
+    /**
+     * Returns distance between two points on the surface of the Earth.
+     * 
+     * @param latitude1
+     * @param longitude1
+     * @param latitude2
+     * @param longitude2
+     * 
+     * @return distance between two points on the surface of the Earth, in meters
+     */
     public static double computeDistance(double latitude1, double longitude1,
-                           double latitude2, double longitude2) {
+                                         double latitude2, double longitude2) {
+        return computeDistanceWithHaversineFormula(latitude1, longitude1, latitude2, longitude2);
+    }
 
-        double latitudeDelta = Math.abs(latitude1 - latitude2);
+    /**
+     * Returns distance between two points on the surface of the Earth.
+     *
+     * @param latitude1
+     * @param longitude1
+     * @param latitude2
+     * @param longitude2
+     *
+     * @return distance between two points on the surface of the Earth, in meters
+     */
+    public static double computeDistanceWithHaversineFormula
+                                        (double latitude1, double longitude1,
+                                         double latitude2, double longitude2) {
+
+        // first convert lat/lon values into radians:
+        latitude1 = Math.toRadians(latitude1);
+        longitude1 = Math.toRadians(longitude1);
+        latitude2 = Math.toRadians(latitude2);
+        longitude2 = Math.toRadians(longitude2);
+
+        double latitudeDelta = latitude2 - latitude1;
+        double longitudeDelta = longitude2 - longitude1;
+
+        double earthRadius = 6371000.0; // mean radius of the Earth, m
+
+        double halfLatitudeDeltaSine = Math.sin(latitudeDelta / 2);
+        double halfLongitudeDeltaSine = Math.sin(longitudeDelta / 2);
         
-        // each minute arc of any meridian is equals exactly one nautical mile, 1852 meters
-        double vDistanceDelta = latitudeDelta * 1852.0; // meters
-        double longitudeDelta = Math.abs(latitude1 - latitude2);
-        double averageLatitude = Math.min(latitude1, latitude2) + latitudeDelta / 2;
-        double hMinuteLength = Math.cos(averageLatitude) * 1855.324; // meters per minute arc of equator
-        double hDistanceDelta = longitudeDelta * hMinuteLength; // meters
+        double a = halfLatitudeDeltaSine * halfLatitudeDeltaSine
+                + Math.cos(latitude1) * Math.cos(latitude2)
+                    * halfLongitudeDeltaSine * halfLongitudeDeltaSine;
         
-        // calculate the hypotenuse of our right-angle triangle
-        return Math.sqrt((vDistanceDelta * vDistanceDelta)
-                       + (hDistanceDelta * hDistanceDelta));
+        double c = 2 * Calculator.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        
+        return earthRadius * c;
+    }
+
+    public static double computeAzimuth(double latitude1, double longitude1,
+                                        double latitude2, double longitude2) {
+///TO DO:
+return 0.0;
     }
 
     public static String convertSecondsToString(long seconds) {
