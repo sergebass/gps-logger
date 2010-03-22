@@ -394,21 +394,22 @@ public class GPSScreen
                         (fixLocation.getLatitude(), fixLocation.getLongitude(),
                          targetLocation.getLatitude(), targetLocation.getLongitude());
 
-            double azimuthToTarget = GeoMath.computeAzimuth
+            double initialBearingToTarget = GeoMath.computeInitialBearing
                         (fixLocation.getLatitude(), fixLocation.getLongitude(),
                          targetLocation.getLatitude(), targetLocation.getLongitude());
 
             double roundedDistanceToTarget = Math.floor(distanceToTarget) / 1000.0;
+            int integerInitialBearingToTarget = (int)(initialBearingToTarget);
 
             String distanceAndAzimuthString
                     = "" + roundedDistanceToTarget
-                    + " km @ " + azimuthToTarget + "\u00B0";
+                    + " km @ " + integerInitialBearingToTarget + "\u00B0";
 
             displayString(distanceAndAzimuthString,
                         g, (getWidth() - smallFont.stringWidth(distanceAndAzimuthString)) / 2,
                         getHeight() - smallFont.getHeight() * 4,
                         smallFont.stringWidth(distanceAndAzimuthString), smallFont.getHeight(),
-                        0xFF9090FF, 0xC0000000, // light blue on 90% opaque black
+                        0xFFC0C0FF, 0xC0000000, // light blue on 90% opaque black
                         smallFont,
                         false,
                         false);

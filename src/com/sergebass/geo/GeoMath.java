@@ -29,7 +29,7 @@ public class GeoMath {
     }
 
     /**
-     * Returns distance between two points on the surface of the Earth.
+     * Computes distance between two points on the surface of the Earth.
      *
      * @param latitude1
      * @param longitude1
@@ -65,10 +65,34 @@ public class GeoMath {
         return earthRadius * c;
     }
 
-    public static double computeAzimuth(double latitude1, double longitude1,
+    /**
+     * Computes initial bearing (azimuth) angle from point 1 to point2.
+     * The bearing angle will change until the destination point is reached but this one is a starting angle.
+     * 
+     * @param latitude1
+     * @param longitude1
+     * @param latitude2
+     * @param longitude2
+     *
+     * @return initial bearing (azimuth) angle from point 1 to point2, in degrees
+     */
+    public static double computeInitialBearing(double latitude1, double longitude1,
                                         double latitude2, double longitude2) {
-///TO DO:
-return 0.0;
+
+        // first convert lat/lon values into radians:
+        latitude1 = Math.toRadians(latitude1);
+        longitude1 = Math.toRadians(longitude1);
+        latitude2 = Math.toRadians(latitude2);
+        longitude2 = Math.toRadians(longitude2);
+
+        double longitudeDelta = longitude2 - longitude1;
+
+        double y = Math.sin(longitudeDelta) * Math.cos(latitude2);
+        double x = Math.cos(latitude1) * Math.sin(latitude2)
+                - Math.sin(latitude1) * Math.cos(latitude2) * Math.cos(longitudeDelta);
+        double initialBearing = Math.toDegrees(Calculator.atan2(y, x));
+        
+        return initialBearing >= 0.0? initialBearing : 360.0 + initialBearing;
     }
 
     public static String convertSecondsToString(long seconds) {
